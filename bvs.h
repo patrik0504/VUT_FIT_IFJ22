@@ -1,5 +1,5 @@
-#ifndef SCANNER_FILE
-#define SCANNER_FILE
+#ifndef BVS_FILE
+#define BVS_FILE
 
 
 #endif
