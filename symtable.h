@@ -1,8 +1,7 @@
 #ifndef SYMTABLE_FILE
 #define SYMTABLE_FILE
 
-
-/** Struktura uložených dat */
+/** Struktura uložených dat v listu */
 typedef struct data{
     int data; ///< Placeholder data
 } *p_data;
@@ -16,36 +15,44 @@ typedef struct node{
 } *p_node;
 
 /** 
- * Funkce inicializující strom 
- * @param root Ukazatel na kořen stromu
- */
-void tree_init (p_node *root);
-
-/** 
- * Funkce na vložení nového listu do stromu
- * @param root Ukazatel na existující kořen stromu
+ * Funkce inicializující list.
+ * @param data Data nového listu
  * @param key  ID nového listu
- * @param data Data, které se vloží do nového listu
  */
-void insert_node (p_node *root, char* key, p_data data);
+p_node node_init (p_data data, char* key);
 
 /** 
- * Funkce na smazání listu 
- * @param root Ukazatel na existující kořen stromu
+ * Funkce na vložení nového listu do stromu.
+ * @param root Kořen stromu, do kterého vkládáme
+ * @param node Vkládaný list
+ */
+void insert_node (p_node root, p_node node);
+
+/** 
+ * Funkce na smazání listu.
+ * @param root Existující kořen stromu
  * @param key  ID listu, který mažeme
  */
 void delete_node (p_node *root, char* key);
+
 /** 
- * Funkce na vyhledání listu dle ID
- * @param root Ukazatel na existující kořen stromu
+ * Funkce na vyhledání listu dle ID.
+ * @param root Existující kořen stromu
  * @param key ID hledaného listu
  */
 p_node tree_search (p_node *root, char* key);
 
 /** 
- * Funkce pro zrušení existujícího stromu
- * @param root Ukazatel na kořen stromu
+ * Funkce pro zrušení existujícího stromu.
+ * @param root Existující kořen stromu
  */
 void tree_destroy (p_node *root);
+
+/**
+ * Vytiskne na stdout prvky stromu od nejmenšího (nejvíce vlevo) po největší (nejvíce vpravo).
+ * Funkce určená primárně pro debugging.
+ * @param root Existující kořen stromu
+*/
+void debug_tree(p_node root);
 
 #endif
