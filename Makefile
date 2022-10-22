@@ -1,15 +1,18 @@
 CC = gcc
 CFLAGS = -Wall
-LDFLAGS =
-OBJFILES = main.o
+LDFLAGS = -I.
 TARGET = ifj_comp
 
-all: $(TARGET)
+OBJFILES = main.o symtable.o
+DEPS = symtable.h
+
+%.o: %.c $(DEPS)
+	$(CC) -c -o $@ $< $(LDFLAGS)
 
 $(TARGET): $(OBJFILES)
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJFILES) $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+.PHONY: clean
 
 clean:
 	rm -f $(OBJFILES) $(TARGET) *~
-
-main.o : scanner.h
