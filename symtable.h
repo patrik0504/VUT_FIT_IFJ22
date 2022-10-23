@@ -17,11 +17,11 @@ typedef struct node{
 /** 
  * Funkce inicializující list.
  * @param data Data nového listu
- * @param key  ID nového listu
+ * @param key  ID nového listu (ID - musí být UNIKÁTNÍ, jinak se ztrácí data)
  */
 p_node node_init (p_data data, char* key);
 
-/** 
+/**
  * Funkce na vložení nového listu do stromu.
  * @param root Kořen stromu, do kterého vkládáme
  * @param node Vkládaný list
@@ -29,24 +29,17 @@ p_node node_init (p_data data, char* key);
 void insert_node (p_node root, p_node node);
 
 /** 
- * Funkce na smazání listu.
- * @param root Existující kořen stromu
- * @param key  ID listu, který mažeme
- */
-void delete_node (p_node *root, char* key);
-
-/** 
  * Funkce na vyhledání listu dle ID.
  * @param root Existující kořen stromu
  * @param key ID hledaného listu
  */
-p_node tree_search (p_node *root, char* key);
+p_node tree_search (p_node root, char* key);
 
 /** 
  * Funkce pro zrušení existujícího stromu.
  * @param root Existující kořen stromu
  */
-void tree_destroy (p_node *root);
+void tree_destroy (p_node root);
 
 /**
  * Vytiskne na stdout prvky stromu od nejmenšího (nejvíce vlevo) po největší (nejvíce vpravo).
