@@ -2,4 +2,5 @@
 
 int main() {
     scanner();
+    return 0;
 }

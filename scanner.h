@@ -3,8 +3,6 @@
 
 #include <stdio.h>
 
-void scanner() {
-    printf("Project done. ;)\n");
-}
+void scanner();
 
 #endif

@@ -41,6 +41,7 @@
 *.su
 *.idb
 *.pdb
+*.txt
 
 # Kernel Module Compile Results
 *.mod*
@@ -52,3 +53,4 @@ Mkfile.old
 dkms.conf
 
 ifj_comp
+.vscode
