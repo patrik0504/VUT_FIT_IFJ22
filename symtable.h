@@ -2,12 +2,14 @@
 #define SYMTABLE_FILE
 
 /** Struktura uložených dat v listu */
-typedef struct data{
+typedef struct data
+{
     int data; ///< Placeholder data
 } *p_data;
 
 /** Struktura listu stromu */
-typedef struct node{
+typedef struct node
+{
     char *key; ///< ID_listu
     struct data *data; ///< Data v listu
     struct node *left; ///< Následující levý list

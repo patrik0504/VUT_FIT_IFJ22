@@ -4,7 +4,8 @@
 #include "scanner.h"
 #include "symtable.h"
 
-void bst_test() {
+void bst_test() 
+{
 
     //TEST-DATA
     p_data data = (p_data)malloc(sizeof(struct data));
@@ -52,6 +53,7 @@ void bst_test() {
     tree_destroy(root);
 }
 
-int main() {
+int main() 
+{
     bst_test();
 }
