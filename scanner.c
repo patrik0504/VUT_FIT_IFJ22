@@ -123,6 +123,12 @@ AutomatState transition(AutomatState currentState, char c)
 Lexeme generateLexeme(AutomatState state, char* pole, int stringlength)
 {
     Lexeme final_lexeme;
+    /*final_lexeme.extra_data.string = "ahoj";
+    printf("%s\n", final_lexeme.extra_data.string);
+    final_lexeme.extra_data.decimal = 15.4;
+    printf("%f\n", final_lexeme.extra_data.decimal);
+    final_lexeme.extra_data.value = 12;
+    printf("%d\n", final_lexeme.extra_data.value);*/
     switch(state)
     {
         case LexEOF:
@@ -139,6 +145,7 @@ Lexeme generateLexeme(AutomatState state, char* pole, int stringlength)
             break;
         case Number:
             final_lexeme.type = NUMBER;
+            final_lexeme.extra_data.value = atoi(pole);
             break;
         case Decimal:
             final_lexeme.type = DECIMAL_NUMBER;
@@ -154,7 +161,6 @@ Lexeme generateLexeme(AutomatState state, char* pole, int stringlength)
         case LoadVar:
             final_lexeme.type = VARIABLE_ID;
             final_lexeme.extra_data.string = malloc((stringlength-1)*sizeof(char));
-            //printf("%c", pole[1]);
             strcpy(final_lexeme.extra_data.string, pole + sizeof(char));
             break;
         case LBracket:
@@ -231,7 +237,8 @@ Lexeme scan_lexeme()
     while(true)
     {
         c = getchar();
-        stringlength++;
+        if (c != ' ' && c != EOF)
+            stringlength++;
         if (stringlength == current_array_size)
         {
             current_array_size += ARRAYSIZE;
@@ -244,23 +251,33 @@ Lexeme scan_lexeme()
                 return (Lexeme){.type = LEXEOF};
             }
             *(current_index++) = '\0';
+            stringlength++;
             return generateLexeme(current_state, pole, stringlength);
+            stringlength = 0;
         }
-        //printf("current state je %d\n", current_state);
         next_state = transition(current_state, (char)c);
-        //printf("next state je %d\n", next_state);
         if (next_state == Error)
         {
+            if (c != ' ')       //TODO: fix stringlength
+            {
+                stringlength--;
+            }
             ungetc((char)c, stdin);
             *(current_index++) = '\0';
+            stringlength++;
             current_index = pole;
-            //printf("pole je %s\n", pole);
-            return generateLexeme(current_state, pole, stringlength);
+            //printf("pole je %s, delka je %d\n", pole, stringlength);
+            Lexeme l = generateLexeme(current_state, pole, stringlength);
+            free(pole);
+            return l;
         }
         *(current_index++) = c;
         current_state = next_state;
         if ((next_state == Start) && c == ' ')
+        {
             current_index = pole;
+            stringlength = 0;
+        }
     }
     free(pole);
 }
@@ -299,13 +316,22 @@ char * str_lexeme(Lexeme in)
         default: return "CHYBA";
     }
 }
+
+
+
 int scanner()
 {
     Lexeme l = {.type = NULLLEX};
     while(l.type != LEXEOF)
     {
         l = scan_lexeme();
-        printf("lexem je %s\n", str_lexeme(l));
+        if (l.type == NUMBER)
+        {
+            printf("lexem je %d\n", l.extra_data.value);
+        } else
+        {
+            printf("lexem je %s\n", str_lexeme(l));
+        }
     }
     return 0;
 }
