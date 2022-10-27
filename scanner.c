@@ -120,10 +120,9 @@ AutomatState transition(AutomatState currentState, char c)
 }
 
 
-Lexeme generateLexeme(AutomatState state, char* pole)
+Lexeme generateLexeme(AutomatState state, char* pole, int stringlength)
 {
     Lexeme final_lexeme;
-    int length;
     switch(state)
     {
         case LexEOF:
@@ -149,15 +148,14 @@ Lexeme generateLexeme(AutomatState state, char* pole)
             break;
         case Identifier:
             final_lexeme.type = FUNCTION_ID;
-            length = get_string_length(pole);
-            final_lexeme.extra_data.string = malloc(length*sizeof(char));
+            final_lexeme.extra_data.string = malloc(stringlength*sizeof(char));
             strcpy(final_lexeme.extra_data.string, pole);
             break;
         case LoadVar:
             final_lexeme.type = VARIABLE_ID;
-            length = get_string_length(pole);
-            final_lexeme.extra_data.string = malloc(length*sizeof(char));
-            strcpy(final_lexeme.extra_data.string, pole);
+            final_lexeme.extra_data.string = malloc((stringlength-1)*sizeof(char));
+            //printf("%c", pole[1]);
+            strcpy(final_lexeme.extra_data.string, pole + sizeof(char));
             break;
         case LBracket:
             final_lexeme.type = LBRACKET;
@@ -224,17 +222,21 @@ Lexeme scan_lexeme()
 {
     AutomatState current_state = Start;
     AutomatState next_state;
-    char pole[100];
+    int current_array_size = ARRAYSIZE;
+    char *pole = malloc(sizeof(char)*ARRAYSIZE);
+    int stringlength = 0;
     char* current_index;
     current_index = pole;
     int c;
     while(true)
     {
         c = getchar();
-        /*if (c == ' ')
-            printf("nacteny znak je mezera\n");
-        else
-        printf("nacteny znak je %c\n", c);*/
+        stringlength++;
+        if (stringlength == current_array_size)
+        {
+            current_array_size += ARRAYSIZE;
+            pole = realloc(pole, current_array_size);
+        }
         if ( c == EOF)
         {
             if (current_state == Start)
@@ -242,7 +244,7 @@ Lexeme scan_lexeme()
                 return (Lexeme){.type = LEXEOF};
             }
             *(current_index++) = '\0';
-            return generateLexeme(current_state, pole);
+            return generateLexeme(current_state, pole, stringlength);
         }
         //printf("current state je %d\n", current_state);
         next_state = transition(current_state, (char)c);
@@ -253,12 +255,14 @@ Lexeme scan_lexeme()
             *(current_index++) = '\0';
             current_index = pole;
             //printf("pole je %s\n", pole);
-            return generateLexeme(current_state, pole);
+            return generateLexeme(current_state, pole, stringlength);
         }
         *(current_index++) = c;
         current_state = next_state;
-
+        if ((next_state == Start) && c == ' ')
+            current_index = pole;
     }
+    free(pole);
 }
 
 char * str_lexeme(Lexeme in)
@@ -272,8 +276,8 @@ char * str_lexeme(Lexeme in)
         case NUMBER: return in.extra_data.string;
         case DECIMAL_NUMBER: return in.extra_data.string;
         case EXPONENT_NUMBER:
-        case FUNCTION_ID:
-        case VARIABLE_ID:
+        case FUNCTION_ID: return in.extra_data.string;
+        case VARIABLE_ID: return in.extra_data.string;
         case LBRACKET: return "(";
         case RBRACKET: return ")";
         case LBRACKET_S_KUDRLINKOU: return "{";
@@ -297,7 +301,7 @@ char * str_lexeme(Lexeme in)
 }
 int scanner()
 {
-    Lexeme l = {.type = PLUS};
+    Lexeme l = {.type = NULLLEX};
     while(l.type != LEXEOF)
     {
         l = scan_lexeme();

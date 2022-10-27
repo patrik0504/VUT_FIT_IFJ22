@@ -9,6 +9,8 @@
 #include <malloc.h>
 #include "functions.h"
 
+#define ARRAYSIZE   5
+
 typedef enum{
     Start,
     LexEOF,
@@ -47,6 +49,7 @@ typedef enum{
 
 typedef struct {
     enum {
+        NULLLEX,
         LEXEOF,
         SEMICOLON,
         COLON,
@@ -86,7 +89,7 @@ typedef struct {
 int scanner();
 char * str_lexeme(Lexeme in);
 Lexeme scan_lexeme();
-Lexeme generateLexeme(AutomatState state, char* pole);
+Lexeme generateLexeme(AutomatState state, char* pole, int stringlength);
 AutomatState transition(AutomatState currentState, char c);
 
 
