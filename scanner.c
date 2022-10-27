@@ -8,68 +8,94 @@ AutomatState transition(AutomatState currentState, char c)
             fprintf(stderr, "Should have generated token by now.");
             return Error;
         case Start:
-            if(c == EOF) return LexEOF;
-            else if (c == ';') return Semicolon;
-            else if (c == ':') return Colon;
-            else if (c == '"') return String;
-            else if (c >= '0' && c <= '9') return Number;
-            else if (isalpha(c) || c == '_') return Identifier;
-            else if (c == '$') return Var;
-            else if (c == '(') return LBracket;
-            else if (c == ')') return RBracket;
-            else if (c == '{') return LBracketSKudrlinkou;
-            else if (c == '}') return RBracketSKudrlinkou;
-            else if (c == '=') return Equal;
-            else if (c == '+') return Plus;
-            else if (c == '-') return Minus;
-            else if (c == '*') return Multiply;
-            else if (c == '/') return Divide;
-            else if (c == '.') return Konkatenace;
-            else if (c == '<') return Less;
-            else if (c == '>') return Greater;
-            else if (c == '!') return Not;
-            else return Start;
+            switch (c)
+            {
+                case EOF:
+                    return LexEOF;
+                case ';':
+                    return Semicolon;
+                case ':':
+                    return Colon;
+                case '"':
+                    return String;
+                case '0'...'9':
+                    return Number;
+                case 'a'...'z':
+                case 'A'...'Z':
+                case '_':
+                    return Identifier;
+                case '$':
+                    return Var;
+                case '(':
+                    return LBracket;
+                case ')':
+                    return RBracket;
+                case '{':
+                    return LBracketSKudrlinkou;
+                case '}':
+                    return RBracketSKudrlinkou;
+                case '=':
+                    return Equal;
+                case '+':
+                    return Plus;
+                case '-':
+                    return Minus;
+                case '*':
+                    return Multiply;
+                case '/':
+                    return Divide;
+                case '.':
+                    return Konkatenace;
+                case '<':
+                    return Less;
+                case '>':
+                    return Greater;
+                case '!':
+                    return Not;
+                default:
+                    return Start;
+            }
         case Number:
-            if (c >= '0' && c <= '9') return Number;
-            else if (c == '.') return Decimal;
-            else return Error;
+            if (is_number(c)) return Number;
+            if (c == '.') return Decimal;
+            return Error;
         case Decimal:
-            if ( c >= '0' && c <= '9') return Decimal;
-            else if (c == 'e' || c == 'E') return Exponential;
-            else return Error;
+            if (is_number(c)) return Decimal;
+            if (c == 'e' || c == 'E') return Exponential;
+            return Error;
         case Exponential:
-            if (c == '+' || c == '-' || (c >= '0' && c <= '9')) return Exponent;
-            else return Error;
+            if (c == '+' || c == '-' || (is_number(c))) return Exponent;
+            return Error;
         case Exponent:
-            if ( c >= '0' && c <= '9') return Exponent;
-            else return Error;
+            if (is_number(c)) return Exponent;
+            return Error;
         case Identifier:
             if (isalnum(c)) return Identifier;
-            else return Error;
+            return Error;
         case Var:
             if (isalpha(c) || c == '_') return LoadVar;
-            else return Error;
+            return Error;
         case LoadVar:
             if (isalnum(c) || c == '_') return LoadVar;
-            else return Error;
+            return Error;
         case Equal:
             if (c == '=') return Equal2;
-            else return Error;
+            return Error;
         case Equal2:
             if (c == '=') return Equal3;
-            else return Error;
+            return Error;
         case Not:
             if ( c == '=') return Not2;
-            else return Error;
+            return Error;
         case Not2:
             if (c == '=') return NotEqual;
-            else return Error;
+            return Error;
         case Greater:
             if (c == '=') return GreaterEqual;
-            else return Error;
+            return Error;
         case Less:
             if (c == '=') return LessEqual;
-            else return Error;
+            return Error;
         case LexEOF:
         case Semicolon:
         case Colon:
@@ -93,15 +119,6 @@ AutomatState transition(AutomatState currentState, char c)
     return Error;
 }
 
-int get_string_length(char* buffer)
-{
-    int i = 0;
-    while(buffer[i] != '\0')
-    {
-        i++;
-    }
-    return i;
-}
 
 Lexeme generateLexeme(AutomatState state, char* pole)
 {

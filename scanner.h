@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <malloc.h>
+#include "functions.h"
 
 typedef enum{
     Start,
@@ -86,7 +87,6 @@ int scanner();
 char * str_lexeme(Lexeme in);
 Lexeme scan_lexeme();
 Lexeme generateLexeme(AutomatState state, char* pole);
-int get_string_length(char* buffer);
 AutomatState transition(AutomatState currentState, char c);
 
 
