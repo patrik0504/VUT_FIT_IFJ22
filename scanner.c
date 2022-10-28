@@ -149,9 +149,11 @@ Lexeme generateLexeme(AutomatState state, char* pole, int stringlength)
             break;
         case Decimal:
             final_lexeme.type = DECIMAL_NUMBER;
+            final_lexeme.extra_data.decimal = atof(pole);
             break;
         case Exponent:
             final_lexeme.type = EXPONENT_NUMBER;
+            final_lexeme.extra_data.exponent = atof(pole);
             break;
         case Identifier:
             final_lexeme.type = FUNCTION_ID;
@@ -328,6 +330,12 @@ int scanner()
         if (l.type == NUMBER)
         {
             printf("lexem je %d\n", l.extra_data.value);
+        } else if (l.type == EXPONENT_NUMBER)
+        {
+            printf("lexem je %f\n", l.extra_data.exponent);
+        } else if (l.type == DECIMAL_NUMBER)
+        {
+            printf("lexem je %f\n", l.extra_data.decimal);
         } else
         {
             printf("lexem je %s\n", str_lexeme(l));

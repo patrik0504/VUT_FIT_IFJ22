@@ -81,6 +81,7 @@ typedef struct {
     union {
         char* string;
         int value;
+        float exponent;
         float decimal;
         //int symtab_index;
     } extra_data;
