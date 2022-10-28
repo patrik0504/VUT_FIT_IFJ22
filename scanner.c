@@ -96,6 +96,9 @@ AutomatState transition(AutomatState currentState, char c)
         case Less:
             if (c == '=') return LessEqual;
             return Error;
+        case String:
+            if (c != '"') return String;
+            else return StringEnd;
         case LexEOF:
         case Semicolon:
         case Colon:
@@ -119,42 +122,52 @@ AutomatState transition(AutomatState currentState, char c)
     return Error;
 }
 
-void transferEscapeSequences(char* pole, int stringlength)
+int transferEscapeSequences(char* buffer, int stringlength)
 {
-    pole = "ahoj\nahoj";
-    stringlength = 10;
     for (int i = 0; i < stringlength; i++)
     {
-        if (pole[i] == 92)
+        if (buffer[i] == 92)
         {
-            switch (pole[i+1])
+            if (i+3 < stringlength)
             {
-                case 'n':
-                    pole[i] = '\n';
-                    for(int j = i; j <= stringlength; j++)
+                char escapesequence[4];
+                if (isdigit(buffer[i+1]) && isdigit(buffer[i+2]) && isdigit(buffer[i+3]))
+                {
+                    strncpy(escapesequence, &buffer[i+1], sizeof(char)*3);
+                    escapesequence[4] = '\0';
+                    int ascii_value = atoi(escapesequence);
+                    if ((ascii_value >= 0) && (ascii_value <= 255))
                     {
-                        pole[j] = pole[j+1];
-                    }
-                    stringlength--;
-                    break;
-                default:
-                    break;
+                        switch (ascii_value)        //TODO: add rest of escape sequence values
+                        {
+                            case 0:
+                                buffer[i] = 0;
+                            case 1:
+                                buffer[i] = 1;
+                            case 92:
+                                buffer[i] = 92;
+                                break;
+                            default:
+                                break;
+                        }
+                        
+                        for(int j = i+1; j+3 <= stringlength; j++)
+                        {
+                            buffer[j] = buffer[j+3];
+                        }
+                        stringlength-=3;
+                }
+                }
             }
         }
-        printf("%s", pole);
     }
+    return stringlength;
 }
 
 
-Lexeme generateLexeme(AutomatState state, char* pole, int stringlength)
+Lexeme generateLexeme(AutomatState state, char* buffer, int stringlength)
 {
     Lexeme final_lexeme;
-    /*final_lexeme.extra_data.string = "ahoj";
-    printf("%s\n", final_lexeme.extra_data.string);
-    final_lexeme.extra_data.decimal = 15.4;
-    printf("%f\n", final_lexeme.extra_data.decimal);
-    final_lexeme.extra_data.value = 12;
-    printf("%d\n", final_lexeme.extra_data.value);*/
     switch(state)
     {
         case LexEOF:
@@ -168,28 +181,33 @@ Lexeme generateLexeme(AutomatState state, char* pole, int stringlength)
             break;
         case StringEnd:
             final_lexeme.type = STRING_LITERAL;
+            stringlength = transferEscapeSequences(buffer, stringlength);
+            stringlength-=2;    //kvuli uvozovkam na zacatku a na konci retezce
+            final_lexeme.extra_data.string =  malloc((stringlength)*sizeof(char));
+            strncpy(final_lexeme.extra_data.string, buffer+1, (stringlength-1)*sizeof(char));
+            final_lexeme.extra_data.string[stringlength-1] = '\0';
             break;
         case Number:
             final_lexeme.type = NUMBER;
-            final_lexeme.extra_data.value = atoi(pole);
+            final_lexeme.extra_data.value = atoi(buffer);
             break;
         case Decimal:
             final_lexeme.type = DECIMAL_NUMBER;
-            final_lexeme.extra_data.decimal = atof(pole);
+            final_lexeme.extra_data.decimal = atof(buffer);
             break;
         case Exponent:
             final_lexeme.type = EXPONENT_NUMBER;
-            final_lexeme.extra_data.exponent = atof(pole);
+            final_lexeme.extra_data.exponent = atof(buffer);
             break;
         case Identifier:
             final_lexeme.type = FUNCTION_ID;
             final_lexeme.extra_data.string = malloc(stringlength*sizeof(char));
-            strcpy(final_lexeme.extra_data.string, pole);
+            strcpy(final_lexeme.extra_data.string, buffer);
             break;
         case LoadVar:
             final_lexeme.type = VARIABLE_ID;
             final_lexeme.extra_data.string = malloc((stringlength-1)*sizeof(char));
-            strcpy(final_lexeme.extra_data.string, pole + sizeof(char));
+            strcpy(final_lexeme.extra_data.string, buffer + sizeof(char));
             break;
         case LBracket:
             final_lexeme.type = LBRACKET;
@@ -257,10 +275,10 @@ Lexeme scan_lexeme()
     AutomatState current_state = Start;
     AutomatState next_state;
     int current_array_size = ARRAYSIZE;
-    char *pole = malloc(sizeof(char)*ARRAYSIZE);
+    char *buffer = malloc(sizeof(char)*ARRAYSIZE);
     int stringlength = 0;
     char* current_index;
-    current_index = pole;
+    current_index = buffer;
     int c;
     while(true)
     {
@@ -270,7 +288,7 @@ Lexeme scan_lexeme()
         if (stringlength == current_array_size)
         {
             current_array_size += ARRAYSIZE;
-            pole = realloc(pole, current_array_size);
+            buffer = realloc(buffer, current_array_size);
         }
         if ( c == EOF)
         {
@@ -280,7 +298,7 @@ Lexeme scan_lexeme()
             }
             *(current_index++) = '\0';
             stringlength++;
-            return generateLexeme(current_state, pole, stringlength);
+            return generateLexeme(current_state, buffer, stringlength);
             stringlength = 0;
         }
         next_state = transition(current_state, (char)c);
@@ -293,21 +311,21 @@ Lexeme scan_lexeme()
             ungetc((char)c, stdin);
             *(current_index++) = '\0';
             stringlength++;
-            current_index = pole;
-            //printf("pole je %s, delka je %d\n", pole, stringlength);
-            Lexeme l = generateLexeme(current_state, pole, stringlength);
-            free(pole);
+            current_index = buffer;
+            //printf("buffer je %s, delka je %d\n", buffer, stringlength);
+            Lexeme l = generateLexeme(current_state, buffer, stringlength);
+            free(buffer);
             return l;
         }
         *(current_index++) = c;
         current_state = next_state;
         if ((next_state == Start) && c == ' ')
         {
-            current_index = pole;
+            current_index = buffer;
             stringlength = 0;
         }
     }
-    free(pole);
+    free(buffer);
 }
 
 char * str_lexeme(Lexeme in)
