@@ -119,6 +119,32 @@ AutomatState transition(AutomatState currentState, char c)
     return Error;
 }
 
+void transferEscapeSequences(char* pole, int stringlength)
+{
+    pole = "ahoj\nahoj";
+    stringlength = 10;
+    for (int i = 0; i < stringlength; i++)
+    {
+        if (pole[i] == 92)
+        {
+            switch (pole[i+1])
+            {
+                case 'n':
+                    pole[i] = '\n';
+                    for(int j = i; j <= stringlength; j++)
+                    {
+                        pole[j] = pole[j+1];
+                    }
+                    stringlength--;
+                    break;
+                default:
+                    break;
+            }
+        }
+        printf("%s", pole);
+    }
+}
+
 
 Lexeme generateLexeme(AutomatState state, char* pole, int stringlength)
 {
