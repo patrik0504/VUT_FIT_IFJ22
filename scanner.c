@@ -137,27 +137,44 @@ int transferEscapeSequences(char* buffer, int stringlength)
 {
     for (int i = 0; i < stringlength; i++)
     {
+        //92 == '\'
         if (buffer[i] == 92)
         {
-
             if ((i+1 < stringlength) && buffer[i+1] == 'n') //TODO: rest of escape sequences
             {
                 buffer[i] = '\n';
-                shiftLeft(&buffer[i], 1, stringlength - i);
-                stringlength--;
+                shiftLeft(&buffer[i], ESCAPE, stringlength - i);
+                stringlength -= ESCAPE;
                 continue;
-            } else if (i+3 < stringlength)
+            } else if((i+1 < stringlength) && buffer[i+1] == 'x')
+            {
+                if(i+3 > stringlength)
+                {
+                    continue;
+                }
+                //convert hex to decimal (and check for valid hex number)
+                int ascii_value = StrHexToDec(&buffer[i+2]);
+                //check for correct ascii value
+                if(ascii_value == ERRORRETURN)
+                {
+                    continue;
+                }
+                buffer[i] = ascii_value;
+                shiftLeft(&buffer[i], ESCAPEHEXA, stringlength - i);
+                stringlength -= ESCAPEHEXA;
+            }else if (i+3 < stringlength)
             {
                 //convert octal to decimal (and check for valid octal number)
                 int ascii_value = StrOctToDec(&buffer[i+1]);
                 //check for correct ascii value                 
-                if(ascii_value == -1){
+                if(ascii_value == ERRORRETURN){
                     continue;
                 }
                 buffer[i] = ascii_value;
-                shiftLeft(&buffer[i], 3, stringlength - i);
-                stringlength -= 3;
+                shiftLeft(&buffer[i], ESCAPEOCTA, stringlength - i);
+                stringlength -= ESCAPEOCTA;
             }
+            
         }
     }
     return stringlength;
@@ -288,10 +305,7 @@ Lexeme scan_lexeme()
         {
             current_array_size += ARRAYSIZE;
             buffer = realloc(buffer, current_array_size);
-            current_index = buffer + current_array_size - ARRAYSIZE;
-            /*printf("adresa: %p\n", buffer+stringlength*sizeof(char));
-            printf("adresa buffer: %p, adresa current_index: %p\n", buffer, current_index);*/
-            //printf("realokuji na velikost %d\n", current_array_size);
+            current_index = buffer + current_array_size - ARRAYSIZE - 1;
         }
         if ( c == EOF)
         {

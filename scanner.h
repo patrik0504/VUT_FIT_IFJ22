@@ -9,7 +9,11 @@
 #include <malloc.h>
 #include "functions.h"
 
-#define ARRAYSIZE   50
+#define ARRAYSIZE 5
+#define ESCAPEHEXA 3
+#define ESCAPEOCTA 3
+#define ESCAPE 1
+#define ERRORRETURN -1
 
 typedef enum{
     Start,

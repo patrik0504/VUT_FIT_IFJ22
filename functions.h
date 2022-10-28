@@ -15,4 +15,6 @@ bool is_number(char c);
 
 int StrOctToDec(char* oct);
 
+int StrHexToDec(char* hex);
+
 #endif
