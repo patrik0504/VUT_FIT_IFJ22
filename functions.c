@@ -18,3 +18,22 @@ bool is_number(char c)
     }
     return false;
 }
+
+int StrOctToDec(char* buffer)
+{
+    if (!((buffer[0] >= '0' && buffer[0] <= '3') && (buffer[1] >= '0' && buffer[1] <= '7') && (buffer[2] >= '0' && buffer[2] <= '7')))
+    {
+        return -1;
+    }
+    int oct = atoi(buffer);
+
+    int rem, dec=0, mul=1;
+    while(oct != 0)
+    {
+        rem = oct%10;
+        dec = dec + (rem*mul);
+        mul = mul*8;
+        oct = oct/10;
+    }
+    return dec;
+}

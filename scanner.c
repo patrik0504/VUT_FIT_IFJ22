@@ -122,42 +122,41 @@ AutomatState transition(AutomatState currentState, char c)
     return Error;
 }
 
+void shiftLeft(char* buffer, int shift, int stringlength) // "dsdsd\ndsdsd"
+{
+    for(int j = 1; j+shift <= stringlength; j++)
+    {
+        buffer[j] = buffer[j+shift];
+    }
+    return;
+}
+
+
+
 int transferEscapeSequences(char* buffer, int stringlength)
 {
     for (int i = 0; i < stringlength; i++)
     {
         if (buffer[i] == 92)
         {
-            if (i+3 < stringlength)
+
+            if ((i+1 < stringlength) && buffer[i+1] == 'n') //TODO: rest of escape sequences
             {
-                char escapesequence[4];
-                if (isdigit(buffer[i+1]) && isdigit(buffer[i+2]) && isdigit(buffer[i+3]))
-                {
-                    strncpy(escapesequence, &buffer[i+1], sizeof(char)*3);
-                    escapesequence[4] = '\0';
-                    int ascii_value = atoi(escapesequence);
-                    if ((ascii_value >= 0) && (ascii_value <= 255))
-                    {
-                        switch (ascii_value)        //TODO: add rest of escape sequence values
-                        {
-                            case 0:
-                                buffer[i] = 0;
-                            case 1:
-                                buffer[i] = 1;
-                            case 92:
-                                buffer[i] = 92;
-                                break;
-                            default:
-                                break;
-                        }
-                        
-                        for(int j = i+1; j+3 <= stringlength; j++)
-                        {
-                            buffer[j] = buffer[j+3];
-                        }
-                        stringlength-=3;
+                buffer[i] = '\n';
+                shiftLeft(&buffer[i], 1, stringlength - i);
+                stringlength--;
+                continue;
+            } else if (i+3 < stringlength)
+            {
+                //convert octal to decimal (and check for valid octal number)
+                int ascii_value = StrOctToDec(&buffer[i+1]);
+                //check for correct ascii value                 
+                if(ascii_value == -1){
+                    continue;
                 }
-                }
+                buffer[i] = ascii_value;
+                shiftLeft(&buffer[i], 3, stringlength - i);
+                stringlength -= 3;
             }
         }
     }
@@ -289,6 +288,10 @@ Lexeme scan_lexeme()
         {
             current_array_size += ARRAYSIZE;
             buffer = realloc(buffer, current_array_size);
+            current_index = buffer + current_array_size - ARRAYSIZE;
+            /*printf("adresa: %p\n", buffer+stringlength*sizeof(char));
+            printf("adresa buffer: %p, adresa current_index: %p\n", buffer, current_index);*/
+            //printf("realokuji na velikost %d\n", current_array_size);
         }
         if ( c == EOF)
         {
@@ -298,6 +301,7 @@ Lexeme scan_lexeme()
             }
             *(current_index++) = '\0';
             stringlength++;
+            //printf("pole je %s\n", buffer);
             return generateLexeme(current_state, buffer, stringlength);
             stringlength = 0;
         }
@@ -309,15 +313,16 @@ Lexeme scan_lexeme()
                 stringlength--;
             }
             ungetc((char)c, stdin);
+            
             *(current_index++) = '\0';
             stringlength++;
             current_index = buffer;
-            //printf("buffer je %s, delka je %d\n", buffer, stringlength);
             Lexeme l = generateLexeme(current_state, buffer, stringlength);
             free(buffer);
             return l;
         }
         *(current_index++) = c;
+        //printf("nacteny znak: %c, buffer: %s\n", c, buffer);
         current_state = next_state;
         if ((next_state == Start) && c == ' ')
         {

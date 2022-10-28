@@ -7,9 +7,12 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <malloc.h>
+#include <math.h>
 
 int get_string_length(char* buffer);
 
 bool is_number(char c);
+
+int StrOctToDec(char* oct);
 
 #endif
