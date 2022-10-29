@@ -43,7 +43,7 @@ AutomatState transition(AutomatState currentState, char c)
                 case '*':
                     return Multiply;
                 case '/':
-                    return Divide;
+                    return DivideOrComment;
                 case '.':
                     return Konkatenace;
                 case '<':
@@ -99,6 +99,14 @@ AutomatState transition(AutomatState currentState, char c)
         case String:
             if (c != '"') return String;
             else return StringEnd;
+        case LineComment:
+            if (c == '\n')
+                return Error;
+            else return LineComment;
+        case DivideOrComment:
+            if (c == '/')
+                return LineComment;
+            else return Divide; 
         case LexEOF:
         case Semicolon:
         case Colon:
@@ -286,6 +294,8 @@ Lexeme generateLexeme(AutomatState state, char* buffer, int stringlength)
             final_lexeme.type = NOTEQUAL;
             break;
         case Start:
+        case DivideOrComment:
+        case LineComment:
         case String:
         case Exponential:
         case Var:
@@ -335,7 +345,6 @@ Lexeme scan_lexeme()
             }
             *(current_index++) = '\0';
             stringlength++;
-            //printf("pole je %s\n", buffer);
             return generateLexeme(current_state, buffer, stringlength);
             stringlength = 0;
         }
@@ -352,6 +361,12 @@ Lexeme scan_lexeme()
             *(current_index++) = '\0';
             stringlength++;
             current_index = buffer;
+            if (current_state == LineComment)
+            {
+                Lexeme l;
+                l.type = NULLLEX;
+                return l;
+            }
             Lexeme l = generateLexeme(current_state, buffer, stringlength);
             free(buffer);
             return l;
@@ -372,6 +387,7 @@ char * str_lexeme(Lexeme in)
 {
     switch(in.type)
     {
+        case NULLLEX: return "RADKOVY KOMENTAR";
         case LEXEOF: return "EOF";
         case SEMICOLON: return ";";
         case COLON: return ":";

@@ -40,6 +40,7 @@ typedef enum{
     Minus,
     Multiply,
     Divide,
+    DivideOrComment,
     Konkatenace,
     Less,
     LessEqual,
@@ -48,6 +49,7 @@ typedef enum{
     Not,
     Not2,
     NotEqual,
+    LineComment,
     Error
 }AutomatState;
 
