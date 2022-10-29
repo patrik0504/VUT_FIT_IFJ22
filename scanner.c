@@ -70,7 +70,7 @@ AutomatState transition(AutomatState currentState, char c)
             if (is_number(c)) return Exponent;
             return Error;
         case Identifier:
-            if (isalnum(c)) return Identifier;
+            if (isalnum(c) || c == '_') return Identifier;
             return Error;
         case Var:
             if (isalpha(c) || c == '_') return LoadVar;
@@ -365,6 +365,7 @@ Lexeme scan_lexeme()
             stringlength = 0;
         }
         next_state = transition(current_state, (char)c);
+        //printf("jsem ve stavu %d, next state je %d, nacteny znak je %c, ukladam na pozici %d\n", current_state, next_state, c, stringlength-1);
         //printf("current state: %d, next state: %d, c: %c\n", current_state, next_state, c);
         if (next_state == Error)
         {
@@ -391,7 +392,7 @@ Lexeme scan_lexeme()
         *(current_index++) = c;
         //printf("nacteny znak: %c, buffer: %s\n", c, buffer);
         current_state = next_state;
-        if ((next_state == Start) && c == ' ')
+        if ((next_state == Start) /*&& c == ' '*/)
         {
             current_index = buffer;
             stringlength = 0;
@@ -446,16 +447,16 @@ int scanner()
         l = scan_lexeme();
         if (l.type == NUMBER)
         {
-            printf("lexem je %d\n", l.extra_data.value);
+            printf(" %d", l.extra_data.value);
         } else if (l.type == EXPONENT_NUMBER)
         {
-            printf("lexem je %f\n", l.extra_data.exponent);
+            printf(" %f", l.extra_data.exponent);
         } else if (l.type == DECIMAL_NUMBER)
         {
-            printf("lexem je %f\n", l.extra_data.decimal);
+            printf(" %f", l.extra_data.decimal);
         } else
         {
-            printf("lexem je %s\n", str_lexeme(l));
+            printf(" %s", str_lexeme(l));
         }
     }
     return 0;
