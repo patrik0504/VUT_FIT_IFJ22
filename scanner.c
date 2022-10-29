@@ -103,14 +103,27 @@ AutomatState transition(AutomatState currentState, char c)
             if (c == '\n')
                 return Error;
             else return LineComment;
+        case BlockComment:
+            if (c == '*')
+                return BlockCommentPotentialEnd;
+            else return BlockComment;
+        case BlockCommentPotentialEnd:
+            if (c == '/')
+                return BlockCommentEnd;
+            else if (c == '*')
+                return BlockCommentPotentialEnd;
+            else return BlockComment;
         case DivideOrComment:
             if (c == '/')
                 return LineComment;
+            else if(c == '*')
+                return BlockComment;
             else return Divide; 
         case LexEOF:
         case Semicolon:
         case Colon:
         case StringEnd:
+        case BlockCommentEnd:
         case LBracket:
         case RBracket:
         case RBracketSKudrlinkou:
@@ -296,6 +309,9 @@ Lexeme generateLexeme(AutomatState state, char* buffer, int stringlength)
         case Start:
         case DivideOrComment:
         case LineComment:
+        case BlockComment:
+        case BlockCommentPotentialEnd:
+        case BlockCommentEnd:
         case String:
         case Exponential:
         case Var:
@@ -317,7 +333,7 @@ Lexeme scan_lexeme()
     int stringlength = 0;
     char* current_index;
     current_index = buffer;
-    int c;
+    char c;
     while(true)
     {
         c = getchar();
@@ -361,8 +377,9 @@ Lexeme scan_lexeme()
             *(current_index++) = '\0';
             stringlength++;
             current_index = buffer;
-            if (current_state == LineComment)
+            if (current_state == LineComment || current_state == BlockCommentEnd)
             {
+                free(buffer);
                 Lexeme l;
                 l.type = NULLLEX;
                 return l;
@@ -387,7 +404,7 @@ char * str_lexeme(Lexeme in)
 {
     switch(in.type)
     {
-        case NULLLEX: return "RADKOVY KOMENTAR";
+        case NULLLEX: return "KOMENTAR";
         case LEXEOF: return "EOF";
         case SEMICOLON: return ";";
         case COLON: return ":";

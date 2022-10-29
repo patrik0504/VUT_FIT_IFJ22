@@ -50,6 +50,9 @@ typedef enum{
     Not2,
     NotEqual,
     LineComment,
+    BlockComment,
+    BlockCommentPotentialEnd,
+    BlockCommentEnd,
     Error
 }AutomatState;
 
