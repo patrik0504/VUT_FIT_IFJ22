@@ -146,6 +146,18 @@ int transferEscapeSequences(char* buffer, int stringlength)
                 shiftLeft(&buffer[i], ESCAPE, stringlength - i);
                 stringlength -= ESCAPE;
                 continue;
+            } else if((i+1 < stringlength) && buffer[i+1] == 't')
+            {
+                buffer[i] = '\t';
+                shiftLeft(&buffer[i], ESCAPE, stringlength - i);
+                stringlength -= ESCAPE;
+                continue;
+            } else if((i+1 < stringlength) && buffer[i+1] == 92)
+            {
+                buffer[i] = 92;
+                shiftLeft(&buffer[i], ESCAPE, stringlength - i);
+                stringlength -= ESCAPE;
+                continue;
             } else if((i+1 < stringlength) && buffer[i+1] == 'x')
             {
                 if(i+3 > stringlength)
@@ -299,7 +311,15 @@ Lexeme scan_lexeme()
     while(true)
     {
         c = getchar();
-        if (c != ' ' && c != EOF)
+        if(c == '"')
+        {
+            if(buffer[stringlength-1] == 92)
+            {
+                buffer[stringlength-1] = c;
+                continue;
+            }
+        }
+        if ((c != ' ' || current_state == String) && c != EOF)
             stringlength++;
         if (stringlength == current_array_size)
         {
@@ -320,6 +340,7 @@ Lexeme scan_lexeme()
             stringlength = 0;
         }
         next_state = transition(current_state, (char)c);
+        //printf("current state: %d, next state: %d, c: %c\n", current_state, next_state, c);
         if (next_state == Error)
         {
             if (c != ' ')       //TODO: fix stringlength
