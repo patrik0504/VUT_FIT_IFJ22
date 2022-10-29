@@ -109,7 +109,7 @@ AutomatState transition(AutomatState currentState, char c)
             else return BlockComment;
         case BlockCommentPotentialEnd:
             if (c == '/')
-                return BlockCommentEnd;
+                return Error;
             else if (c == '*')
                 return BlockCommentPotentialEnd;
             else return BlockComment;
@@ -123,7 +123,6 @@ AutomatState transition(AutomatState currentState, char c)
         case Semicolon:
         case Colon:
         case StringEnd:
-        case BlockCommentEnd:
         case LBracket:
         case RBracket:
         case RBracketSKudrlinkou:
@@ -365,20 +364,19 @@ Lexeme scan_lexeme()
             stringlength = 0;
         }
         next_state = transition(current_state, (char)c);
-        //printf("jsem ve stavu %d, next state je %d, nacteny znak je %c, ukladam na pozici %d\n", current_state, next_state, c, stringlength-1);
-        //printf("current state: %d, next state: %d, c: %c\n", current_state, next_state, c);
         if (next_state == Error)
         {
             if (c != ' ')       //TODO: fix stringlength
             {
                 stringlength--;
             }
+            if (current_state != BlockCommentPotentialEnd)
             ungetc((char)c, stdin);
             
             *(current_index++) = '\0';
             stringlength++;
             current_index = buffer;
-            if (current_state == LineComment || current_state == BlockCommentEnd)
+            if (current_state == LineComment || current_state == BlockCommentPotentialEnd)
             {
                 free(buffer);
                 Lexeme l;
@@ -390,7 +388,6 @@ Lexeme scan_lexeme()
             return l;
         }
         *(current_index++) = c;
-        //printf("nacteny znak: %c, buffer: %s\n", c, buffer);
         current_state = next_state;
         if ((next_state == Start) /*&& c == ' '*/)
         {
@@ -447,16 +444,16 @@ int scanner()
         l = scan_lexeme();
         if (l.type == NUMBER)
         {
-            printf(" %d", l.extra_data.value);
+            printf("lexem je %d\n", l.extra_data.value);
         } else if (l.type == EXPONENT_NUMBER)
         {
-            printf(" %f", l.extra_data.exponent);
+            printf("lexem je  %f\n", l.extra_data.exponent);
         } else if (l.type == DECIMAL_NUMBER)
         {
-            printf(" %f", l.extra_data.decimal);
+            printf("lexem je %f\n", l.extra_data.decimal);
         } else
         {
-            printf(" %s", str_lexeme(l));
+            printf("lexem je %s\n", str_lexeme(l));
         }
     }
     return 0;
