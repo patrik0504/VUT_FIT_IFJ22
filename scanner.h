@@ -41,6 +41,7 @@ typedef enum{
     Multiply,
     Divide,
     DivideOrComment,
+    Comma,
     Konkatenace,
     Less,
     LessEqual,
@@ -53,7 +54,10 @@ typedef enum{
     BlockComment,
     BlockCommentPotentialEnd,
     BlockCommentEnd,
-    Error
+    Prolog,
+    FileEndSign,
+    Error,
+    ScanError
 }AutomatState;
 
 typedef struct {
@@ -78,6 +82,7 @@ typedef struct {
         MINUS,
         MULTIPLY,
         DIVIDE,
+        COMMA,
         KONKATENACE,
         LESS,
         LESSEQUAL,
@@ -85,7 +90,10 @@ typedef struct {
         GREATEREQUAL,
         NOTEQUAL,
         IF,
-        WHILE
+        WHILE,
+        PROLOG,
+        FILE_END_SIGN,
+        SCANERROR
     } type;
     union {
         char* string;

@@ -23,6 +23,7 @@ AutomatState transition(AutomatState currentState, char c)
                 case 'a'...'z':
                 case 'A'...'Z':
                 case '_':
+                case '?':
                     return Identifier;
                 case '$':
                     return Var;
@@ -44,6 +45,8 @@ AutomatState transition(AutomatState currentState, char c)
                     return Multiply;
                 case '/':
                     return DivideOrComment;
+                case ',':
+                    return Comma;
                 case '.':
                     return Konkatenace;
                 case '<':
@@ -52,8 +55,12 @@ AutomatState transition(AutomatState currentState, char c)
                     return Greater;
                 case '!':
                     return Not;
-                default:
+                case ' ':
+                case '\n':
+                case '\t':
                     return Start;
+                default:
+                    return ScanError;
             }
         case Number:
             if (is_number(c)) return Number;
@@ -71,6 +78,7 @@ AutomatState transition(AutomatState currentState, char c)
             return Error;
         case Identifier:
             if (isalnum(c) || c == '_') return Identifier;
+            else if (c == '>') return FileEndSign;
             return Error;
         case Var:
             if (isalpha(c) || c == '_') return LoadVar;
@@ -95,6 +103,7 @@ AutomatState transition(AutomatState currentState, char c)
             return Error;
         case Less:
             if (c == '=') return LessEqual;
+            if (c == '?') return String;
             return Error;
         case String:
             if (c != '"') return String;
@@ -119,6 +128,9 @@ AutomatState transition(AutomatState currentState, char c)
             else if(c == '*')
                 return BlockComment;
             else return Divide; 
+        case Comma:
+        case Prolog:
+        case FileEndSign:
         case LexEOF:
         case Semicolon:
         case Colon:
@@ -160,6 +172,7 @@ int transferEscapeSequences(char* buffer, int stringlength)
         //92 == '\'
         if (buffer[i] == 92)
         {
+            //printf("c %c\n", buffer[i+1]);
             if ((i+1 < stringlength) && buffer[i+1] == 'n') //TODO: rest of escape sequences
             {
                 buffer[i] = '\n';
@@ -287,6 +300,9 @@ Lexeme generateLexeme(AutomatState state, char* buffer, int stringlength)
         case Divide:
             final_lexeme.type = DIVIDE;
             break;
+        case Comma:
+            final_lexeme.type = COMMA;
+            break;
         case Konkatenace:
             final_lexeme.type = KONKATENACE;
             break;
@@ -305,6 +321,12 @@ Lexeme generateLexeme(AutomatState state, char* buffer, int stringlength)
         case NotEqual:
             final_lexeme.type = NOTEQUAL;
             break;
+        case Prolog:
+            final_lexeme.type = PROLOG;
+            break;
+        case FileEndSign:
+            final_lexeme.type = FILE_END_SIGN;
+            break;
         case Start:
         case DivideOrComment:
         case LineComment:
@@ -318,6 +340,7 @@ Lexeme generateLexeme(AutomatState state, char* buffer, int stringlength)
         case Not:
         case Not2:
         case Error:
+        case ScanError:
             exit(1);
     }
     return final_lexeme;
@@ -363,10 +386,15 @@ Lexeme scan_lexeme()
             return generateLexeme(current_state, buffer, stringlength);
             stringlength = 0;
         }
-        next_state = transition(current_state, (char)c);
+        if (current_state == String && !strcmp(buffer, "<?php"))
+            next_state = Prolog;
+        else
+        {
+            next_state = transition(current_state, (char)c);
+        }
         if (next_state == Error)
         {
-            if (c != ' ')       //TODO: fix stringlength
+            if (c != ' ')
             {
                 stringlength--;
             }
@@ -386,9 +414,14 @@ Lexeme scan_lexeme()
             Lexeme l = generateLexeme(current_state, buffer, stringlength);
             free(buffer);
             return l;
+        } else if (next_state == ScanError)
+        {
+            free(buffer);
+            Lexeme l;
+            l.type = SCANERROR;
+            return l;
         }
         *(current_index++) = c;
-        //printf("stringlength je %d, pole je %s\n",stringlength,  buffer);
         current_state = next_state;
         if ((next_state == Start) /*&& c == ' '*/)
         {
@@ -452,7 +485,21 @@ int scanner()
         } else if (l.type == DECIMAL_NUMBER)
         {
             printf("lexem je %f\n", l.extra_data.decimal);
-        } else
+        } else if (l.type == SCANERROR)
+        {
+            printf("Unexpected character\n");
+            return 1;
+        }else if (l.type == COMMA)
+        {
+            printf("lexem je carka\n");
+        } else if (l.type == PROLOG)
+        {
+            printf("lexem je <?php\n");
+        }else if (l.type == FILE_END_SIGN)
+        {
+            printf("lexem je ?>\n");
+        }
+        else
         {
             printf("lexem je %s\n", str_lexeme(l));
         }
