@@ -344,7 +344,7 @@ Lexeme scan_lexeme()
                 continue;
             }
         }
-        if ((c != ' ' || current_state == String) && c != EOF)
+        if ((c != ' ' || current_state == String || current_state == LineComment || current_state == BlockComment) && c != EOF)
             stringlength++;
         if (stringlength == current_array_size)
         {
@@ -388,6 +388,7 @@ Lexeme scan_lexeme()
             return l;
         }
         *(current_index++) = c;
+        //printf("stringlength je %d, pole je %s\n",stringlength,  buffer);
         current_state = next_state;
         if ((next_state == Start) /*&& c == ' '*/)
         {
