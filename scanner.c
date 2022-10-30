@@ -387,7 +387,10 @@ Lexeme scan_lexeme()
             stringlength = 0;
         }
         if (current_state == String && !strcmp(buffer, "<?php"))
+        {
             next_state = Prolog;
+            ungetc(c, stdin);
+        }
         else
         {
             next_state = transition(current_state, (char)c);
