@@ -53,7 +53,8 @@ void bst_test()
     tree_destroy(root);
 }
 
-int main() 
-{
+int main() {
+    scanner();
     bst_test();
+    return 0;
 }
