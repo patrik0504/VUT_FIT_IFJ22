@@ -1,5 +1,28 @@
 #include "scanner.h"
 
+
+p_node init_binary_treeKW()
+{
+    p_node root = node_init(NULL, "if");
+    p_node node2 = node_init(NULL, "while");
+    insert_node(root, node2);
+    p_node node3 = node_init(NULL, "else");
+    insert_node(root, node3);
+    p_node node4 = node_init(NULL, "return");
+    insert_node(root, node4);
+    p_node node5 = node_init(NULL, "int");
+    insert_node(root, node5);
+    p_node node6 = node_init(NULL, "float");
+    insert_node(root, node6);
+    p_node node7 = node_init(NULL, "string");
+    insert_node(root, node7);
+    p_node node8 = node_init(NULL, "void");
+    insert_node(root, node8);
+    p_node node9 = node_init(NULL, "null");
+    insert_node(root, node9);
+    return root;
+}
+
 AutomatState transition(AutomatState currentState, char c)
 {
     switch(currentState)
@@ -261,6 +284,7 @@ Lexeme generateLexeme(AutomatState state, char* buffer, int stringlength)
             final_lexeme.extra_data.exponent = atof(buffer);
             break;
         case Identifier:
+
             final_lexeme.type = FUNCTION_ID;
             final_lexeme.extra_data.string = malloc(stringlength*sizeof(char));
             strcpy(final_lexeme.extra_data.string, buffer);
@@ -386,10 +410,17 @@ Lexeme scan_lexeme()
             return generateLexeme(current_state, buffer, stringlength);
             stringlength = 0;
         }
-        if (current_state == String && !strcmp(buffer, "<?php"))
+        if (current_state == String && (!(strcmp(buffer, "<?php\n")) || !(strcmp(buffer, "<?php\t")) || !(strcmp(buffer, "<?php "))))
         {
             next_state = Prolog;
             ungetc(c, stdin);
+        }else if (current_state == String && stringlength == 7)
+        {
+            if(!strncmp(buffer, "<?phpx", 5))
+            {
+                free(buffer);
+                return (Lexeme){.type = SCANERROR};
+            }
         }
         else
         {
@@ -465,20 +496,79 @@ char * str_lexeme(Lexeme in)
         case GREATER: return ">";
         case GREATEREQUAL: return ">=";
         case NOTEQUAL: return "!=";
-        case IF: return "IF";
-        case WHILE: return "WHILE";
         default: return "CHYBA";
     }
 }
 
-
-
-int scanner()
+void check_forKW(p_node root, Lexeme *l)
 {
+    p_node found = tree_search(root, l->extra_data.string);
+
+    if (found != NULL)
+    {
+        if (strcmp(found->key, "while") == 0)
+        {
+            l->type = KW_WHILE;
+        } else if (strcmp(found->key, "if") == 0)
+        {
+            l->type = KW_IF;
+        }
+        else if (strcmp(found->key, "else") == 0)
+        {
+            l->type = KW_ELSE;
+        }
+        else if (strcmp(found->key, "null") == 0)
+        {
+            l->type = KW_NULL;
+        }
+        else if (strcmp(found->key, "return") == 0)
+        {
+            l->type = KW_RETURN;
+        }
+        else if (strcmp(found->key, "void") == 0)
+        {
+            l->type = KW_VOID;
+        }
+        else if (strcmp(found->key, "int") == 0)
+        {
+            l->type = KW_INT;
+        }
+        else if (strcmp(found->key, "float") == 0)
+        {
+            l->type = KW_FLOAT;
+        }
+        else if (strcmp(found->key, "string") == 0)
+        {
+            l->type = KW_STRING;
+        }
+    }
+}
+
+
+Lexeme get_token(p_node binaryTree)
+{
+    //p_node binaryTree = init_binary_treeKW();
     Lexeme l = {.type = NULLLEX};
+
+    while(l.type == NULLLEX){
+        l = scan_lexeme();
+    }
+    if (l.type == FUNCTION_ID)
+    {
+        check_forKW(binaryTree, &l);
+    }
+    return l;
+
+    /* Debug vypsani vsech lexemu 
     while(l.type != LEXEOF)
     {
         l = scan_lexeme();
+
+        if (l.type == FUNCTION_ID)
+        {
+            check_forKW(binaryTree, &l);
+        }
+
         if (l.type == NUMBER)
         {
             printf("lexem je %d\n", l.extra_data.value);
@@ -501,11 +591,51 @@ int scanner()
         }else if (l.type == FILE_END_SIGN)
         {
             printf("lexem je ?>\n");
+        }else if (l.type == KW_WHILE)
+        {
+            printf("keyword je WHILE\n");
+        }else if (l.type == KW_IF)
+        {
+            printf("keyword je IF\n");
+        }
+        else if (l.type == KW_ELSE)
+        {
+            printf("keyword je ELSE\n");
+        }
+        else if (l.type == KW_NULL)
+        {
+            printf("keyword je NULL\n");
+        }
+        else if (l.type == KW_RETURN)
+        {
+            printf("keyword je RETURN\n");
+        }
+        else if (l.type == KW_VOID)
+        {
+            printf("keyword je VOID\n");
+        }
+        else if (l.type == KW_INT)
+        {
+            printf("keyword je INT\n");
+        }
+        else if (l.type == KW_FLOAT)
+        {
+            printf("keyword je FLOAT\n");
+        }
+        else if (l.type == KW_STRING)
+        {
+            printf("keyword je STRING\n");
         }
         else
         {
             printf("lexem je %s\n", str_lexeme(l));
+            //printf("typ lexemu je %d\n", l.type);
         }
+        
     }
-    return 0;
-}
+    tree_destroy(binaryTree);
+    return l;
+    
+    */
+
+}   

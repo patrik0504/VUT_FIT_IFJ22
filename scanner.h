@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include "functions.h"
+#include "symtable.h"
 
 #define ARRAYSIZE 5
 #define ESCAPEHEXA 3
@@ -89,8 +90,17 @@ typedef struct {
         GREATER,
         GREATEREQUAL,
         NOTEQUAL,
-        IF,
-        WHILE,
+        
+        KW_IF,
+        KW_WHILE,
+        KW_ELSE,
+        KW_NULL,
+        KW_RETURN,
+        KW_VOID,
+        KW_INT,
+        KW_FLOAT,
+        KW_STRING,
+        
         PROLOG,
         FILE_END_SIGN,
         SCANERROR
@@ -104,12 +114,14 @@ typedef struct {
     } extra_data;
 }Lexeme;
 
-int scanner();
+Lexeme get_token();
+p_node init_binary_treeKW();
 void shiftLeft(char* buffer, int shift, int stringlenght);
 char * str_lexeme(Lexeme in);
 Lexeme scan_lexeme();
 Lexeme generateLexeme(AutomatState state, char* pole, int stringlength);
 AutomatState transition(AutomatState currentState, char c);
+void check_forKW(p_node root, Lexeme* l);
 
 
 #endif
