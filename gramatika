@@ -1,0 +1,57 @@
+Neterminály:
+    <prog> <prolog> <body> <st-list> <stat> <expr> 
+    <decl-param> <param> <type> <control> <ret-expr>
+
+
+-- HLAVIČKA PROGRAMU --
+
+ 1: <prog>  ->  <prolog> <body>
+ 2: <prolog> ->  PROLOG declare ( strict_types = 1 ) ;
+
+-- TĚLO PROGRAMU --
+
+ 3: <body>  ->  <stat> ; <body>
+ 4: <body>  ->  FILE_END_SIGN <body>
+ 5: <body>  ->  LEXEOF
+ 5: <body>  ->  KW_FUNCTION FUNCTION_ID ( <decl-param> ) : <type> { <st-list> } <body>
+ 6: <body>  ->  <control> <body>
+
+-- ŘÍDÍCÍ STRUKTURY --
+
+ 7: <control>   ->  KW_IF ( <expr> ) { <st-list> } KW_ELSE { <st-list> }
+ 8: <control>   ->  KW_WHILE ( <expr> ) { <st-list> }
+
+-- PŘÍKAZY --
+
+ 9: <st-list>   ->  <stat> ; <st-list>
+10: <st-list>   ->  eps
+11: <stat>      ->  VARIABLE_ID = <expr>
+12: <stat>      ->  <expr>
+13: <stat>      ->  VARIABLE_ID = FUNCTION_ID ( <param> )
+14: <stat>      ->  FUNCTION_ID ( <param> )
+15: <stat>      ->  KW_RETURN <ret-expr>
+
+-- TYPY --
+
+16: <type>  ->  KW_INT
+17: <type>  ->  KW_FLOAT
+18: <type>  ->  KW_STRING
+19: <type>  ->  KW_VOID
+
+-- DEKLARACE FUNKCÍ --
+
+20: <decl-param>   ->  eps
+21: <decl-param>   ->  <type> VARIABLE_ID <decl-param>
+22: <decl-param>   ->  , <decl-param>
+
+-- VOLÁNÍ FUNKCÍ --
+
+23: <param> ->  eps
+24: <param> ->  VARIABLE_ID <param>
+25: <param> ->  , <param>
+26: <param> ->  <expr>
+
+-- NÁVRATOVÉ HODNOTY --
+
+27: <ret-expr>  ->  eps
+28: <ret-expr>  ->  <expr>
