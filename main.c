@@ -4,6 +4,7 @@
 #include "scanner.h"
 #include "symtable.h"
 
+
 void bst_test() 
 {
 
@@ -54,7 +55,81 @@ void bst_test()
 }
 
 int main() {
-    scanner();
-    bst_test();
+    p_node binaryTree = init_binary_treeKW();
+    Lexeme l = {.type = NULLLEX};
+
+    while(l.type != LEXEOF)
+    {
+        l = get_token(binaryTree);
+
+
+        //DEBUGOVACI PRINTY, MUZE SE SMAZAT, JEN PRO PREDSTAVU JAK TO VRACI TOKENY
+        if (l.type == NUMBER)
+        {
+            printf("lexem je %d\n", l.extra_data.value);
+        } else if (l.type == EXPONENT_NUMBER)
+        {
+            printf("lexem je  %f\n", l.extra_data.exponent);
+        } else if (l.type == DECIMAL_NUMBER)
+        {
+            printf("lexem je %f\n", l.extra_data.decimal);
+        } else if (l.type == SCANERROR)
+        {
+            printf("Unexpected character\n");
+            return 1;
+        }else if (l.type == COMMA)
+        {
+            printf("lexem je carka\n");
+        } else if (l.type == PROLOG)
+        {
+            printf("lexem je <?php\n");
+        }else if (l.type == FILE_END_SIGN)
+        {
+            printf("lexem je ?>\n");
+        }else if (l.type == KW_WHILE)
+        {
+            printf("keyword je WHILE\n");
+        }else if (l.type == KW_IF)
+        {
+            printf("keyword je IF\n");
+        }
+        else if (l.type == KW_ELSE)
+        {
+            printf("keyword je ELSE\n");
+        }
+        else if (l.type == KW_NULL)
+        {
+            printf("keyword je NULL\n");
+        }
+        else if (l.type == KW_RETURN)
+        {
+            printf("keyword je RETURN\n");
+        }
+        else if (l.type == KW_VOID)
+        {
+            printf("keyword je VOID\n");
+        }
+        else if (l.type == KW_INT)
+        {
+            printf("keyword je INT\n");
+        }
+        else if (l.type == KW_FLOAT)
+        {
+            printf("keyword je FLOAT\n");
+        }
+        else if (l.type == KW_STRING)
+        {
+            printf("keyword je STRING\n");
+        }
+        else
+        {
+            printf("lexem je %s\n", str_lexeme(l));
+            //printf("typ lexemu je %d\n", l.type);
+        }
+        //KONEC DEBUGOVACICH PRINTU
+        
+    }
+
+    tree_destroy(binaryTree);
     return 0;
 }
