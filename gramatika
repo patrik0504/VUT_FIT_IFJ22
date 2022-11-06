@@ -13,7 +13,7 @@ Neterminály:
  3: <body>  ->  <stat> ; <body>
  4: <body>  ->  FILE_END_SIGN <body>
  5: <body>  ->  LEXEOF
- 5: <body>  ->  KW_FUNCTION FUNCTION_ID ( <decl-param> ) : <type> { <st-list> } <body>
+ 5: <body>  ->  KW_FUNCTION FUNCTION_ID ( <decl-param> ) : <type> { <st-list> } <body> -- bug špatný číslo
  6: <body>  ->  <control> <body>
 
 -- ŘÍDÍCÍ STRUKTURY --
@@ -42,13 +42,13 @@ Neterminály:
 
 20: <decl-param>   ->  eps
 21: <decl-param>   ->  <type> VARIABLE_ID <decl-param>
-22: <decl-param>   ->  , <decl-param>
+22: <decl-param>   ->  , <decl-param>  -- bug (,)
 
 -- VOLÁNÍ FUNKCÍ --
 
 23: <param> ->  eps
 24: <param> ->  VARIABLE_ID <param>
-25: <param> ->  , <param>
+25: <param> ->  , <param>  -- bug (,)
 26: <param> ->  <expr>
 
 -- NÁVRATOVÉ HODNOTY --
