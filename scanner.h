@@ -100,6 +100,7 @@ typedef struct {
         KW_INT,
         KW_FLOAT,
         KW_STRING,
+        KW_FUNCTION,
         
         PROLOG,
         FILE_END_SIGN,

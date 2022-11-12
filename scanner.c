@@ -20,6 +20,8 @@ p_node init_binary_treeKW()
     insert_node(root, node8);
     p_node node9 = node_init(NULL, "null");
     insert_node(root, node9);
+    p_node node10 = node_init(NULL, "function");
+    insert_node(root, node10);
     return root;
 }
 
@@ -179,7 +181,7 @@ AutomatState transition(AutomatState currentState, char c)
 
 void shiftLeft(char* buffer, int shift, int stringlength) // "dsdsd\ndsdsd"
 {
-    for(int j = 1; j+shift <= stringlength; j++)
+    for(int j = 0; j+shift <= stringlength; j++)
     {
         buffer[j] = buffer[j+shift];
     }
@@ -199,19 +201,19 @@ int transferEscapeSequences(char* buffer, int stringlength)
             if ((i+1 < stringlength) && buffer[i+1] == 'n') //TODO: rest of escape sequences
             {
                 buffer[i] = '\n';
-                shiftLeft(&buffer[i], ESCAPE, stringlength - i);
+                shiftLeft(&buffer[i+1], ESCAPE, stringlength - i -1);
                 stringlength -= ESCAPE;
                 continue;
             } else if((i+1 < stringlength) && buffer[i+1] == 't')
             {
                 buffer[i] = '\t';
-                shiftLeft(&buffer[i], ESCAPE, stringlength - i);
+                shiftLeft(&buffer[i+1], ESCAPE, stringlength - i -1);
                 stringlength -= ESCAPE;
                 continue;
             } else if((i+1 < stringlength) && buffer[i+1] == 92)
             {
                 buffer[i] = 92;
-                shiftLeft(&buffer[i], ESCAPE, stringlength - i);
+                shiftLeft(&buffer[i+1], ESCAPE, stringlength - i -1);
                 stringlength -= ESCAPE;
                 continue;
             } else if((i+1 < stringlength) && buffer[i+1] == 'x')
@@ -228,7 +230,7 @@ int transferEscapeSequences(char* buffer, int stringlength)
                     continue;
                 }
                 buffer[i] = ascii_value;
-                shiftLeft(&buffer[i], ESCAPEHEXA, stringlength - i);
+                shiftLeft(&buffer[i+1], ESCAPEHEXA, stringlength - i-1);
                 stringlength -= ESCAPEHEXA;
             }else if (i+3 < stringlength)
             {
@@ -239,7 +241,7 @@ int transferEscapeSequences(char* buffer, int stringlength)
                     continue;
                 }
                 buffer[i] = ascii_value;
-                shiftLeft(&buffer[i], ESCAPEOCTA, stringlength - i);
+                shiftLeft(&buffer[i+1], ESCAPEOCTA, stringlength - i-1);
                 stringlength -= ESCAPEOCTA;
             }
             
@@ -500,8 +502,12 @@ char * str_lexeme(Lexeme in)
     }
 }
 
-void check_forKW(p_node root, Lexeme *l)
+void check_forKW(p_node root, Lexeme *l) 
 {
+    if(strcmp(l->extra_data.string, "?float") == 0 || strcmp(l->extra_data.string, "?int") == 0 || strcmp(l->extra_data.string, "?string") == 0)
+    {
+        shiftLeft(l->extra_data.string , 1, strlen(l->extra_data.string));
+    }
     p_node found = tree_search(root, l->extra_data.string);
 
     if (found != NULL)
@@ -540,6 +546,10 @@ void check_forKW(p_node root, Lexeme *l)
         else if (strcmp(found->key, "string") == 0)
         {
             l->type = KW_STRING;
+        }
+        else if (strcmp(found->key, "function") == 0)
+        {
+            l->type = KW_FUNCTION;
         }
     }
 }

@@ -15,4 +15,9 @@ typedef enum{
     PARSER_ERROR
 }ERRORS;
 
+int parse();
+int check_prolog(Lexeme l, p_node binaryTree);
+int program(Lexeme l, p_node binaryTree, p_node globalFunctions);
+int function_check(Lexeme l, p_node binaryTree, p_node globalFunctions);
+
 #endif
