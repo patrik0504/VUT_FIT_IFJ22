@@ -5,13 +5,17 @@ int parse(){
     p_node binaryTree = init_binary_treeKW();
     Lexeme l = {.type = NULLLEX};
     p_node globalFunctions = init_binary_treeKW();
-    program(l, binaryTree, globalFunctions);
+    prog(l, binaryTree, globalFunctions);
     tree_destroy(binaryTree);
     return result;
 }
 
 int check_prolog(Lexeme l, p_node binaryTree)
 {
+    if(get_token().type != PROLOG)
+    {
+        return 0;
+    }
     int result = 0;
     l = get_token(binaryTree);
     if(l.type == FUNCTION_ID)
@@ -90,7 +94,7 @@ int function_check(Lexeme l, p_node binaryTree, p_node globalFunctions)
                             //call something
                             if(result != PARSER_ERROR)
                             {
-                                printf("jsem tu.\n");
+                                printf("mam funkci.\n");
                                 result = 1;
                             }
                         }
@@ -102,19 +106,46 @@ int function_check(Lexeme l, p_node binaryTree, p_node globalFunctions)
     return result;
 }
 
-int program(Lexeme l, p_node binaryTree, p_node globalFunctions){
-    
+int if_check(Lexeme l, p_node binaryTree)
+{
+    int result = -1;
+    l = get_token(binaryTree);
+    if (l.type == LBRACKET)
+    {
+        if (get_token(binaryTree).type == VARIABLE_ID)
+        {
+            l = get_token(binaryTree);
+            if (l.type == EQUAL3 || l.type == GREATER || l.type == GREATEREQUAL || l.type == LESS || l.type == LESSEQUAL )
+            {
+                if(get_token(binaryTree).type == NUMBER)
+                {
+                    if (get_token(binaryTree).type == RBRACKET)
+                    {
+                        if(get_token(binaryTree).type == LBRACKET_S_KUDRLINKOU)
+                        {
+                            result = 1;
+                            printf("mam if!\n");
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return result;
+}
+
+int prog(Lexeme l, p_node binaryTree, p_node globalFunctions)
+{
+    return (check_prolog(l, binaryTree) && body(l, binaryTree, globalFunctions));
+}
+
+int body(Lexeme l, p_node binaryTree, p_node globalFunctions){
     int result = 0;
     l = get_token(binaryTree);
-    printf("program\n");
     switch (l.type) {
         case PROLOG:
-            if(check_prolog(l, binaryTree) != 1)
-            {
-                //TODO ERROR
-                return PARSER_ERROR;
-            }
-            result = program(l, binaryTree, globalFunctions);
+            
+            result = body(l, binaryTree, globalFunctions);
             break;
         case KW_FUNCTION:
             result = function_check(l, binaryTree, globalFunctions);
@@ -123,7 +154,15 @@ int program(Lexeme l, p_node binaryTree, p_node globalFunctions){
                 //TODO ERROR
                 return PARSER_ERROR;
             }
-            result = program(l, binaryTree, globalFunctions);
+            result = body(l, binaryTree, globalFunctions);
+            break;
+        case KW_IF:
+            result = if_check(l, binaryTree);
+            if (result == -1)
+            {
+                return PARSER_ERROR;
+            }
+            result = body(l, binaryTree, globalFunctions);
             break;
         default:
             result = 0;

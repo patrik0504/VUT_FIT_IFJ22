@@ -19,5 +19,9 @@ int parse();
 int check_prolog(Lexeme l, p_node binaryTree);
 int program(Lexeme l, p_node binaryTree, p_node globalFunctions);
 int function_check(Lexeme l, p_node binaryTree, p_node globalFunctions);
+int if_check(Lexeme l, p_node binaryTree);
+int prog(Lexeme l, p_node binaryTree, p_node globalFunctions);
+int body(Lexeme l, p_node binaryTree, p_node globalFunctions);
+
 
 #endif
