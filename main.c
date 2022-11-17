@@ -3,6 +3,7 @@
 
 #include "scanner.h"
 #include "symtable.h"
+#include "stack.h"
 
 
 void bst_test() 
@@ -55,13 +56,17 @@ void bst_test()
 }
 
 int main() {
+
     p_node binaryTree = init_binary_treeKW();
     Lexeme l = {.type = NULLLEX};
+
+    p_stack stack = stack_init(10);
 
     while(l.type != LEXEOF)
     {
         l = get_token(binaryTree);
 
+        push(stack, lex_type_to_psa(&l));
 
         //DEBUGOVACI PRINTY, MUZE SE SMAZAT, JEN PRO PREDSTAVU JAK TO VRACI TOKENY
         if (l.type == NUMBER)
@@ -124,11 +129,18 @@ int main() {
         else
         {
             printf("lexem je %s\n", str_lexeme(l));
-            //printf("typ lexemu je %d\n", l.type);
+            printf("typ lexemu je %d\n", l.type);
         }
         //KONEC DEBUGOVACICH PRINTU
         
     }
+
+    while (!is_empty(stack))
+    {
+        symbol_type symbol = pop(stack);
+        printf("%d ", symbol);
+    }
+    stack_destroy(stack);
 
     tree_destroy(binaryTree);
     return 0;
