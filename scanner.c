@@ -3,6 +3,8 @@
 
 p_node init_binary_treeKW()
 {
+    // Inicializacia binarneho stromu
+    // Postupné vloženie kľúčových slov do binarneho stromu
     p_node root = node_init(NULL, "if");
     p_node node2 = node_init(NULL, "while");
     insert_node(root, node2);
@@ -135,7 +137,9 @@ AutomatState transition(AutomatState currentState, char c)
             else return StringEnd;
         case LineComment:
             if (c == '\n')
+            {
                 return Error;
+            }
             else return LineComment;
         case BlockComment:
             if (c == '*')
@@ -179,7 +183,7 @@ AutomatState transition(AutomatState currentState, char c)
     return Error;
 }
 
-void shiftLeft(char* buffer, int shift, int stringlength) // "dsdsd\ndsdsd"
+void shiftLeft(char* buffer, int shift, int stringlength) 
 {
     for(int j = 0; j+shift <= stringlength; j++)
     {
@@ -192,26 +196,29 @@ void shiftLeft(char* buffer, int shift, int stringlength) // "dsdsd\ndsdsd"
 
 int transferEscapeSequences(char* buffer, int stringlength)
 {
+    //Prechadzame string a hladáme escape sekvencie
     for (int i = 0; i < stringlength; i++)
     {
         //92 == '\'
         if (buffer[i] == 92)
         {
-            //printf("c %c\n", buffer[i+1]);
-            if ((i+1 < stringlength) && buffer[i+1] == 'n') //TODO: rest of escape sequences
+            if ((i+1 < stringlength) && buffer[i+1] == 'n') 
             {
+                //Na miesto escape sekvencie vlozime znak noveho riadku
                 buffer[i] = '\n';
                 shiftLeft(&buffer[i+1], ESCAPE, stringlength - i -1);
                 stringlength -= ESCAPE;
                 continue;
             } else if((i+1 < stringlength) && buffer[i+1] == 't')
             {
+                //Na miesto escape sekvencie vlozime znak tabulátora
                 buffer[i] = '\t';
                 shiftLeft(&buffer[i+1], ESCAPE, stringlength - i -1);
                 stringlength -= ESCAPE;
                 continue;
             } else if((i+1 < stringlength) && buffer[i+1] == 92)
             {
+                //Na miesto escape sekvencie vlozime znak lomitka
                 buffer[i] = 92;
                 shiftLeft(&buffer[i+1], ESCAPE, stringlength - i -1);
                 stringlength -= ESCAPE;
@@ -222,25 +229,29 @@ int transferEscapeSequences(char* buffer, int stringlength)
                 {
                     continue;
                 }
-                //convert hex to decimal (and check for valid hex number)
+                //Konverzia hex čísla na desiatkové číslo
                 int ascii_value = StrHexToDec(&buffer[i+2]);
-                //check for correct ascii value
+                //Kontrola správaneho ASCII kódu
                 if(ascii_value == ERRORRETURN)
                 {
                     continue;
                 }
+                //Vloženie ASCII kódu na miesto escape sekvencie
                 buffer[i] = ascii_value;
+                //Posunutie ďalších znakov o 3 pozície doľava
                 shiftLeft(&buffer[i+1], ESCAPEHEXA, stringlength - i-1);
                 stringlength -= ESCAPEHEXA;
             }else if (i+3 < stringlength)
             {
-                //convert octal to decimal (and check for valid octal number)
+                //Konverzia z oktálneho čísla na desiatkové číslo
                 int ascii_value = StrOctToDec(&buffer[i+1]);
-                //check for correct ascii value                 
+                //Kontrola správaneho ASCII kódu               
                 if(ascii_value == ERRORRETURN){
                     continue;
                 }
+                //Vloženie ASCII kódu na miesto escape sekvencie
                 buffer[i] = ascii_value;
+                //Posunutie ďalších znakov o 3 pozície doľava
                 shiftLeft(&buffer[i+1], ESCAPEOCTA, stringlength - i-1);
                 stringlength -= ESCAPEOCTA;
             }
@@ -253,6 +264,7 @@ int transferEscapeSequences(char* buffer, int stringlength)
 
 Lexeme generateLexeme(AutomatState state, char* buffer, int stringlength)
 {
+    //Vytvorenie lexému
     Lexeme final_lexeme;
     switch(state)
     {
@@ -269,30 +281,35 @@ Lexeme generateLexeme(AutomatState state, char* buffer, int stringlength)
             final_lexeme.type = STRING_LITERAL;
             stringlength = transferEscapeSequences(buffer, stringlength);
             stringlength-=2;    //kvuli uvozovkam na zacatku a na konci retezce
+            //Alokace pameti pro retezec
             final_lexeme.extra_data.string =  malloc((stringlength)*sizeof(char));
             strncpy(final_lexeme.extra_data.string, buffer+1, (stringlength-1)*sizeof(char));
             final_lexeme.extra_data.string[stringlength-1] = '\0';
             break;
         case Number:
             final_lexeme.type = NUMBER;
+            //Prevedenie stringu na číslo a uloženie do lexému
             final_lexeme.extra_data.value = atoi(buffer);
             break;
         case Decimal:
             final_lexeme.type = DECIMAL_NUMBER;
+            //Prevedenie stringu na číslo a uloženie do lexému
             final_lexeme.extra_data.decimal = atof(buffer);
             break;
         case Exponent:
             final_lexeme.type = EXPONENT_NUMBER;
+            //Prevedenie stringu na číslo a uloženie do lexému
             final_lexeme.extra_data.exponent = atof(buffer);
             break;
         case Identifier:
-
             final_lexeme.type = FUNCTION_ID;
+            //Alokace pameti pro retezec
             final_lexeme.extra_data.string = malloc(stringlength*sizeof(char));
             strcpy(final_lexeme.extra_data.string, buffer);
             break;
         case LoadVar:
             final_lexeme.type = VARIABLE_ID;
+            //Alokace pameti pro retezec
             final_lexeme.extra_data.string = malloc((stringlength-1)*sizeof(char));
             strcpy(final_lexeme.extra_data.string, buffer + sizeof(char));
             break;
@@ -367,13 +384,15 @@ Lexeme generateLexeme(AutomatState state, char* buffer, int stringlength)
         case Not2:
         case Error:
         case ScanError:
-            exit(1);
+            //exit(1);
+            final_lexeme.type = SCANERROR;
     }
     return final_lexeme;
 }
 
 Lexeme scan_lexeme()
 {
+    //Inicializácia premenných
     AutomatState current_state = Start;
     AutomatState next_state;
     int current_array_size = ARRAYSIZE;
@@ -384,7 +403,9 @@ Lexeme scan_lexeme()
     char c;
     while(true)
     {
+        //Načítanie znaku zo vstupu
         c = getchar();
+        //Escapovanie uvozoviek
         if(c == '"')
         {
             if(buffer[stringlength-1] == 92)
@@ -393,18 +414,26 @@ Lexeme scan_lexeme()
                 continue;
             }
         }
+        //Pridanie znaku do bufferu
         if ((c != ' ' || current_state == String || current_state == LineComment || current_state == BlockComment) && c != EOF)
             stringlength++;
+        //Realokovanie pamate ak je buffer plny
         if (stringlength == current_array_size)
         {
             current_array_size += ARRAYSIZE;
             buffer = realloc(buffer, current_array_size);
             current_index = buffer + current_array_size - ARRAYSIZE - 1;
         }
+        //Koniec súboru
         if ( c == EOF)
         {
             if (current_state == Start)
             {
+                return (Lexeme){.type = LEXEOF};
+            }
+            if (current_state == LineComment)
+            {
+                free(buffer);
                 return (Lexeme){.type = LEXEOF};
             }
             *(current_index++) = '\0';
@@ -412,6 +441,7 @@ Lexeme scan_lexeme()
             return generateLexeme(current_state, buffer, stringlength);
             stringlength = 0;
         }
+        //Načítanie prologu
         if (current_state == String && (!(strcmp(buffer, "<?php\n")) || !(strcmp(buffer, "<?php\t")) || !(strcmp(buffer, "<?php "))))
         {
             next_state = Prolog;
@@ -426,6 +456,7 @@ Lexeme scan_lexeme()
         }
         else
         {
+            //Prechod do ďalšieho stavu
             next_state = transition(current_state, (char)c);
         }
         if (next_state == Error)
@@ -459,7 +490,7 @@ Lexeme scan_lexeme()
         }
         *(current_index++) = c;
         current_state = next_state;
-        if ((next_state == Start) /*&& c == ' '*/)
+        if ((next_state == Start))
         {
             current_index = buffer;
             stringlength = 0;
@@ -510,6 +541,7 @@ void check_forKW(p_node root, Lexeme *l)
     }
     p_node found = tree_search(root, l->extra_data.string);
 
+    //Prehodenie typu lexému
     if (found != NULL)
     {
         if (strcmp(found->key, "while") == 0)
@@ -557,95 +589,16 @@ void check_forKW(p_node root, Lexeme *l)
 
 Lexeme get_token(p_node binaryTree)
 {
-    //p_node binaryTree = init_binary_treeKW();
     Lexeme l = {.type = NULLLEX};
 
+    //Preskočenie komentárov
     while(l.type == NULLLEX){
         l = scan_lexeme();
     }
     if (l.type == FUNCTION_ID)
     {
+        //Ak je lexém kľúčové slovo, zmení sa jeho typ
         check_forKW(binaryTree, &l);
     }
     return l;
-
-    /* Debug vypsani vsech lexemu 
-    while(l.type != LEXEOF)
-    {
-        l = scan_lexeme();
-
-        if (l.type == FUNCTION_ID)
-        {
-            check_forKW(binaryTree, &l);
-        }
-
-        if (l.type == NUMBER)
-        {
-            printf("lexem je %d\n", l.extra_data.value);
-        } else if (l.type == EXPONENT_NUMBER)
-        {
-            printf("lexem je  %f\n", l.extra_data.exponent);
-        } else if (l.type == DECIMAL_NUMBER)
-        {
-            printf("lexem je %f\n", l.extra_data.decimal);
-        } else if (l.type == SCANERROR)
-        {
-            printf("Unexpected character\n");
-            return 1;
-        }else if (l.type == COMMA)
-        {
-            printf("lexem je carka\n");
-        } else if (l.type == PROLOG)
-        {
-            printf("lexem je <?php\n");
-        }else if (l.type == FILE_END_SIGN)
-        {
-            printf("lexem je ?>\n");
-        }else if (l.type == KW_WHILE)
-        {
-            printf("keyword je WHILE\n");
-        }else if (l.type == KW_IF)
-        {
-            printf("keyword je IF\n");
-        }
-        else if (l.type == KW_ELSE)
-        {
-            printf("keyword je ELSE\n");
-        }
-        else if (l.type == KW_NULL)
-        {
-            printf("keyword je NULL\n");
-        }
-        else if (l.type == KW_RETURN)
-        {
-            printf("keyword je RETURN\n");
-        }
-        else if (l.type == KW_VOID)
-        {
-            printf("keyword je VOID\n");
-        }
-        else if (l.type == KW_INT)
-        {
-            printf("keyword je INT\n");
-        }
-        else if (l.type == KW_FLOAT)
-        {
-            printf("keyword je FLOAT\n");
-        }
-        else if (l.type == KW_STRING)
-        {
-            printf("keyword je STRING\n");
-        }
-        else
-        {
-            printf("lexem je %s\n", str_lexeme(l));
-            //printf("typ lexemu je %d\n", l.type);
-        }
-        
-    }
-    tree_destroy(binaryTree);
-    return l;
-    
-    */
-
 }   
