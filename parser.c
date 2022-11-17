@@ -1,5 +1,7 @@
 #include "parser.h"
 
+
+
 int parse(){
     int result = 0;
     p_node binaryTree = init_binary_treeKW();
@@ -12,16 +14,20 @@ int parse(){
 
 int check_prolog(Lexeme l, p_node binaryTree)
 {
+    Dputs("Vosiel som do prologu\n");
     if(get_token().type != PROLOG)
     {
+        Dputs("Nenaslo sa prolog\n"); 
         return 0;
     }
     int result = 0;
     l = get_token(binaryTree);
+    Dprintf("TU SOM %d\n", l.type);
     if(l.type == FUNCTION_ID)
     {
         if(!strcmp(l.extra_data.string, "declare"))
         {
+            
             if(get_token(binaryTree).type == LBRACKET){
                 l = get_token(binaryTree);
                 if (l.type == FUNCTION_ID)
@@ -38,6 +44,7 @@ int check_prolog(Lexeme l, p_node binaryTree)
                                     {
                                         if(get_token(binaryTree).type == SEMICOLON)
                                         {
+                                            Dputs("Prolog je v poriadku\n");
                                             result = 1;
                                         }
                                     }
@@ -69,6 +76,61 @@ int check_type(Lexeme l)
     return result;
 }
 
+int type(Lexeme l)
+{
+    int result = 0;
+    if(check_type(l) != -1)
+    {
+        result = 1;
+    }
+    return result;
+}
+
+int decl_param(Lexeme l, p_node binaryTree, p_node globalFunctions)
+{
+    l = get_token(binaryTree);
+    Dprintf("Vosiel som do function_args %d\n", l.type);
+    int result = 0;
+    if(type(l))
+    {
+       l = get_token(binaryTree);
+        if(l.type == VARIABLE_ID)
+        {
+            result = decl_param2(l, binaryTree, globalFunctions);
+        }
+    }
+    else if(l.type == RBRACKET)
+    {
+        result = 1;
+    }
+    return result;
+}
+
+int decl_param2(Lexeme l, p_node binaryTree, p_node globalFunctions)
+{
+    l = get_token(binaryTree);
+    Dprintf("Vosiel som do function_args %d\n", l.type);
+    int result = 0;
+    if(l.type == COMMA)
+    {
+        l = get_token(binaryTree);
+        if(type(l))
+        {
+            l = get_token(binaryTree);
+            if(l.type == VARIABLE_ID)
+            {
+                result = decl_param2(l, binaryTree, globalFunctions);
+
+            }
+        }
+    }
+    else if(l.type == RBRACKET)
+    {
+        result = 1;
+    }
+    return result;
+}
+
 int function_check(Lexeme l, p_node binaryTree, p_node globalFunctions)
 {
     l = get_token(binaryTree);
@@ -80,27 +142,34 @@ int function_check(Lexeme l, p_node binaryTree, p_node globalFunctions)
         insert_node(globalFunctions, node);
         if(get_token(binaryTree).type == LBRACKET)
         {
-            //TODO: check parameters
-            if(get_token(binaryTree).type == RBRACKET)
+            int result_args = decl_param(l, binaryTree, globalFunctions);
+            if (result_args != 1)
             {
-                if(get_token(binaryTree).type == COLON)
+                return result_args;
+            }
+            
+            if(get_token(binaryTree).type == COLON)
+            {
+                int type = check_type(get_token(binaryTree));
+                if(type != -1)
                 {
-                    int type = check_type(get_token(binaryTree));
-                    if(type != -1)
+                    
+                    if(get_token(binaryTree).type == LBRACKET_S_KUDRLINKOU)
                     {
-                        
-                        if(get_token(binaryTree).type == LBRACKET_S_KUDRLINKOU)
+                        //Docasne na preskocenie vnutra funkcie
+                        while (l.type != RBRACKET_S_KUDRLINKOU)
                         {
-                            //call something
-                            if(result != PARSER_ERROR)
-                            {
-                                printf("mam funkci.\n");
-                                result = 1;
-                            }
+                            l = get_token(binaryTree);
+                        }
+                        if(result != PARSER_ERROR)
+                        {
+                            Dputs("Funkcia je v poriadku\n");
+                            result = 1;
                         }
                     }
                 }
             }
+
         }
     }
     return result;
