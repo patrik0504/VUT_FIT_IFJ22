@@ -67,11 +67,11 @@ int main() {
         l = get_token(binaryTree);
         if (l.type == LBRACKET)
         {
-            expr(CALL_CONTROL, binaryTree);
+            expr(CALL_CONTROL, binaryTree, NULL);
         }
         if (l.type == EQUAL)
         {
-            expr(ASSIGNMENT, binaryTree);
+            expr(ASSIGNMENT, binaryTree, NULL);
         }
 
         //DEBUGOVACI PRINTY, MUZE SE SMAZAT, JEN PRO PREDSTAVU JAK TO VRACI TOKENY

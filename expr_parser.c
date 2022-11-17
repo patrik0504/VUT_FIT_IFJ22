@@ -1,6 +1,6 @@
 #include "expr_parser.h"
 
-int expr(context context, p_node symtable)
+int expr(context context, p_node symtable, Lexeme *target)
 {
     p_stack stack = stack_init(256);
     Lexeme l = {.type = NULLLEX};
@@ -43,6 +43,10 @@ int should_end(context context, Lexeme *lexeme, p_stack stack)
     {
         if(lexeme->type == SEMICOLON)
         {
+            if(stack->lpar_count != 1)
+            {
+                fprintf(stderr, "Ve výrazu chybí znak ')'!\n");
+            }
             return 1;
         }
     }
