@@ -10,6 +10,7 @@ p_stack stack_init(unsigned size)
 
     stack->size = size;
     stack->top = -1;
+    stack->lpar_count = 1; // Hodnota relevantní při kontrole parametrů funkce a podmínek
     stack->array = (symbol_type *)malloc(stack->size * sizeof(symbol_type));
     return stack;
 }
@@ -51,8 +52,9 @@ symbol_type lex_type_to_psa(Lexeme *lexeme)
     case DECIMAL_NUMBER:
     case EXPONENT_NUMBER:
         return SYM_ID;
+    case SEMICOLON:
+        return SYM_STACK_TAG;
     default:
-        fprintf(stderr, "[PSA] Nevalidní znak v rámci výrazu! (%d) \n", lexeme->type);
         return -1;
     }
 }
