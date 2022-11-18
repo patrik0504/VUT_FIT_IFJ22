@@ -131,6 +131,30 @@ int decl_param2(Lexeme l, p_node binaryTree, p_node globalFunctions)
     return result;
 }
 
+int statement(Lexeme l, p_node binaryTree)
+{
+    int result = 0;
+    if (l.type == KW_IF)
+    {
+        result = if_check(l, binaryTree);
+    } else if (l.type == KW_WHILE)
+    {
+        //TODO
+    } else if (l.type == VARIABLE_ID)
+    {
+        l = get_token(binaryTree);
+        while(l.type != SEMICOLON){
+            l = get_token(binaryTree);
+        }
+        printf("statement prosel v poradku!\n");
+        return 1;
+    } else if (l.type == FUNCTION_ID)
+    {
+
+    }
+    return result;
+}
+
 int function_check(Lexeme l, p_node binaryTree, p_node globalFunctions)
 {
     l = get_token(binaryTree);
@@ -192,8 +216,14 @@ int if_check(Lexeme l, p_node binaryTree)
                     {
                         if(get_token(binaryTree).type == LBRACKET_S_KUDRLINKOU)
                         {
-                            result = 1;
                             printf("mam if!\n");
+                            l = get_token(binaryTree);
+                            while (l.type != RBRACKET_S_KUDRLINKOU)
+                            {
+                                result = statement(l, binaryTree);
+                                l = get_token(binaryTree);
+                            }
+                            printf("konec ifu!\n");
                         }
                     }
                 }
@@ -212,10 +242,6 @@ int body(Lexeme l, p_node binaryTree, p_node globalFunctions){
     int result = 0;
     l = get_token(binaryTree);
     switch (l.type) {
-        case PROLOG:
-            
-            result = body(l, binaryTree, globalFunctions);
-            break;
         case KW_FUNCTION:
             result = function_check(l, binaryTree, globalFunctions);
             if(result == -1)
@@ -225,16 +251,13 @@ int body(Lexeme l, p_node binaryTree, p_node globalFunctions){
             }
             result = body(l, binaryTree, globalFunctions);
             break;
-        case KW_IF:
-            result = if_check(l, binaryTree);
-            if (result == -1)
-            {
-                return PARSER_ERROR;
-            }
-            result = body(l, binaryTree, globalFunctions);
+        case LEXEOF:
+            result = 1;
             break;
+        case KW_IF:
+        case KW_WHILE:
         default:
-            result = 0;
+            result = statement(l, binaryTree);
             break;
     }
     return result;
