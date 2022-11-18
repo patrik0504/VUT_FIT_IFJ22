@@ -1,5 +1,35 @@
 #include "expr_parser.h"
 
+int precedence_lookup(symbol_type stack_symbol, symbol_type input)
+{
+    /** Precedenční tabulka jako dvojrozměrný array (viz. dokumentace).
+     *  @return  2: '>'
+     *  @return  1: '='
+     *  @return  0: '<'
+     *  @return -1: chybový stav
+    */
+    static const int precedence[15][15] = {
+        //  *   /   +   -   .   <   >   <=  >=  === !== (   )   i   $
+        {   2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  0,  2,  0,  2 }, //  *
+        {   2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  0,  2,  0,  2 }, //  /
+        {   0,  0,  2,  2,  2,  2,  2,  2,  2,  2,  2,  0,  2,  0,  2 }, //  +
+        {   0,  0,  2,  2,  2,  2,  2,  2,  2,  2,  2,  0,  2,  0,  2 }, //  -
+        {   0,  0,  2,  2,  2,  2,  2,  2,  2,  2,  2,  0,  2,  0,  2 }, //  .
+        {   0,  0,  0,  0,  0,  2,  2,  2,  2,  2,  2,  0,  2,  0,  2 }, //  <
+        {   0,  0,  0,  0,  0,  2,  2,  2,  2,  2,  2,  0,  2,  0,  2 }, //  >
+        {   0,  0,  0,  0,  0,  2,  2,  2,  2,  2,  2,  0,  2,  0,  2 }, //  <=
+        {   0,  0,  0,  0,  0,  2,  2,  2,  2,  2,  2,  0,  2,  0,  2 }, //  >=
+        {   0,  0,  0,  0,  0,  0,  0,  0,  0,  2,  2,  0,  2,  0,  2 }, //  ===
+        {   0,  0,  0,  0,  0,  0,  0,  0,  0,  2,  2,  0,  2,  0,  2 }, //  !==
+        {   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0, -1 }, //  (
+        {   2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2, -1,  2, -1,  2 }, //  )
+        {   2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2, -1,  2, -1,  2 }, //  i
+        {   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, -1,  0, -1 }  //  $
+    };
+
+    return precedence[stack_symbol][input];
+}
+
 int expr(context context, p_node symtable, Lexeme *target)
 {
     p_stack stack = stack_init(256);
@@ -64,4 +94,48 @@ int should_end(context context, Lexeme *lexeme, p_stack stack)
         return 1;
     }
     return 0;
+}
+
+symbol_type lex_type_to_psa(Lexeme *lexeme)
+{
+    switch (lexeme->type)
+    {
+    case MULTIPLY:
+        return SYM_MUL;
+    case DIVIDE:
+        return SYM_DIV;
+    case PLUS:
+        return SYM_PLUS;
+    case MINUS:
+        return SYM_MINUS;
+    case KONKATENACE:
+        return SYM_CONCAT;
+    case LESS:
+        return SYM_LESSER;
+    case GREATER:
+        return SYM_GREATER;
+    case LESSEQUAL:
+        return SYM_LESOREQ;
+    case GREATEREQUAL:
+        return SYM_GREOREQ;
+    case EQUAL3:
+        return SYM_EQ;
+    case NOTEQUAL:
+        return SYM_NOTEQ;
+    case LBRACKET:
+        return SYM_LPAR;
+    case RBRACKET:
+        return SYM_RPAR;
+    case FUNCTION_ID:
+    case VARIABLE_ID:
+    case STRING_LITERAL:
+    case NUMBER:
+    case DECIMAL_NUMBER:
+    case EXPONENT_NUMBER:
+        return SYM_ID;
+    case SEMICOLON:
+        return SYM_STACK_TAG;
+    default:
+        return -1;
+    }
 }

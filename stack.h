@@ -45,13 +45,6 @@ typedef struct stack
 p_stack stack_init(unsigned size);
 
 /**
- * Funkce převádějící lexém na typ precedenční syntaktické analýzy.
- * @param lexeme Vstupní lexém
- * @return Odpovídající typ PSA pro typ lexému, případně -1 a chybu je-li na vstupu nekompatibilní typ.
-*/
-symbol_type lex_type_to_psa(Lexeme *lexeme);
-
-/**
  * Pomocná funkce pro funkci Push - kontroluje přetečení stacku.
  * @param stack Kontrolovaný stack
  * @return 0 (false) při přetečení, jinak 1
@@ -92,6 +85,13 @@ void push(p_stack stack, symbol_type data);
  * @return Symbol z vrcholu stacku, -1 při chybě
  */
 symbol_type pop(p_stack stack);
+
+/**
+ * Funkce pro nahlédnutí na prvek na vrcholu stacku bez jeho odstranění.
+ * @param stack Stack jehož prvky sledujeme
+ * @return Symbol z vrcholu stacku, -1 při chybě
+ */
+symbol_type peek(p_stack stack);
 
 /**
  * Funkce pro smazání a dealokaci stacku.

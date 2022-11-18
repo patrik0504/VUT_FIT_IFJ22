@@ -15,50 +15,6 @@ p_stack stack_init(unsigned size)
     return stack;
 }
 
-symbol_type lex_type_to_psa(Lexeme *lexeme)
-{
-    switch (lexeme->type)
-    {
-    case MULTIPLY:
-        return SYM_MUL;
-    case DIVIDE:
-        return SYM_DIV;
-    case PLUS:
-        return SYM_PLUS;
-    case MINUS:
-        return SYM_MINUS;
-    case KONKATENACE:
-        return SYM_CONCAT;
-    case LESS:
-        return SYM_LESSER;
-    case GREATER:
-        return SYM_GREATER;
-    case LESSEQUAL:
-        return SYM_LESOREQ;
-    case GREATEREQUAL:
-        return SYM_GREOREQ;
-    case EQUAL3:
-        return SYM_EQ;
-    case NOTEQUAL:
-        return SYM_NOTEQ;
-    case LBRACKET:
-        return SYM_LPAR;
-    case RBRACKET:
-        return SYM_RPAR;
-    case FUNCTION_ID:
-    case VARIABLE_ID:
-    case STRING_LITERAL:
-    case NUMBER:
-    case DECIMAL_NUMBER:
-    case EXPONENT_NUMBER:
-        return SYM_ID;
-    case SEMICOLON:
-        return SYM_STACK_TAG;
-    default:
-        return -1;
-    }
-}
-
 int checkOverflow(p_stack stack)
 {
     if (stack->top == stack->size - 1)
@@ -119,6 +75,18 @@ symbol_type pop(p_stack stack)
         symbol_type symbol = stack->array[stack->top];
         stack->top = stack->top - 1;
         return symbol;
+    }
+    else
+    {
+        return -1;
+    }
+}
+
+symbol_type peek(p_stack stack)
+{
+    if (checkUnderflow(stack))
+    {
+        return stack->array[stack->top];
     }
     else
     {
