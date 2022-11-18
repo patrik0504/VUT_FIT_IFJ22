@@ -405,6 +405,11 @@ Lexeme scan_lexeme()
             {
                 return (Lexeme){.type = LEXEOF};
             }
+            if (current_state == LineComment)
+            {
+                free(buffer);
+                return (Lexeme){.type = LEXEOF};
+            }
             *(current_index++) = '\0';
             stringlength++;
             return generateLexeme(current_state, buffer, stringlength);
