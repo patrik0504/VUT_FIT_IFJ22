@@ -94,6 +94,8 @@ void debug_tree(p_node root)
     {
         debug_tree(root->left);
         printf("%s ", root->key);
+        //vymazat
+        printf("%d ", root->data->func_type);
         debug_tree(root->right);
     }
 }

@@ -1,11 +1,16 @@
 #ifndef SYMTABLE_FILE
 #define SYMTABLE_FILE
 
-/** Struktura uložených dat v listu */
-typedef struct data
-{
-    int data; ///< Placeholder data
-} *p_data;
+#include <stdbool.h>
+
+typedef enum{
+    INT,
+    FLOAT,
+    STRING,
+    VOID
+}st_type;
+
+
 
 /** Struktura listu stromu */
 typedef struct node
@@ -15,6 +20,19 @@ typedef struct node
     struct node *left; ///< Následující levý list
     struct node *right; ///< Následující pravý list
 } *p_node;
+
+/** Struktura uložených dat v listu */
+typedef struct data
+{
+    int data; ///< Placeholder data
+    bool declared; ///< Zda byla proměnná deklarována
+    bool defined; ///< Zda byla proměnná definována
+    st_type func_type; ///< Datový typ funkce
+    unsigned int local_size;
+    unsigned int local_n;
+    p_node params;
+    p_node elements;
+} *p_data;
 
 /** 
  * Funkce inicializující list.
