@@ -33,6 +33,7 @@ int param2(Lexeme *l, p_node binaryTree);
 int st_list(Lexeme *l, p_node binaryTree);
 int while_check(Lexeme *l, p_node binaryTree);
 int ret_expr(Lexeme *l, p_node binaryTree);
+int control(Lexeme *l, p_node binaryTree);
 
 
 #endif

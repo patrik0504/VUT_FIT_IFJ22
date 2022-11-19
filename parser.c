@@ -229,6 +229,21 @@ int st_list(Lexeme *l, p_node binaryTree)
                 return result;
             }
         }
+    }else if(l->type == KW_IF){
+        Dputs("Nasiel som if v st_list\n");
+        result = control(l, binaryTree);
+        if (result)
+        {
+            *l = get_token(binaryTree);
+            result = st_list(l, binaryTree);
+        }
+    }else if(l->type == KW_WHILE){
+        result = control(l, binaryTree);
+        if (result)
+        {
+            *l = get_token(binaryTree);
+            result = st_list(l, binaryTree);
+        }
     }
     result = 1;
     return result;
