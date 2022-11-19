@@ -25,8 +25,11 @@ typedef enum
     SYM_RPAR,
     SYM_ID,
     SYM_STACK_TAG,
-    SYM_HANDLE_TAG
+    SYM_HANDLE_TAG,
+    SYM_NONTERMINAL
 } symbol_type;
+
+static const char *symbol_type_err[] = {"*","/","+","-",".","<",">","<=",">=","===","!==","(",")","identifikátor","$","HANDLE<", "výraz"};
 
 /** Struktura stacku */
 typedef struct stack
@@ -98,5 +101,28 @@ symbol_type peek(p_stack stack);
  * @param stack Mazaný stack
  */
 void stack_destroy(p_stack stack);
+
+/**
+ * Pomocná funkce pro správné posunutí při redukci
+ * @param stack Stack nad kterým operaci provádíme
+ */
+symbol_type non_terminal_check(p_stack stack);
+
+/**
+ * Pomocná funkce pro správné vložení při redukci
+ * @param stack Stack nad kterým operaci provádíme
+ * @param data Vkládané data
+ */
+void push_after_terminal(p_stack stack, symbol_type data);
+
+
+
+/**
+ * DEBUG
+ * Funkce pro vypsání stacku
+ * Vlevo index 0
+ * @param stack Stack nad kterým operaci provádíme
+ */
+void stack_print(p_stack stack);
 
 #endif

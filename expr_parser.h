@@ -7,10 +7,30 @@
 
 #define PSA_STACK_SIZE 256
 
+
+
 typedef enum {
     ASSIGNMENT,
     CALL_CONTROL
 } context;
+
+typedef enum {
+    RR_None,       // 0: Pravidlo neexistuje
+    RR_MUL,        // 1: <term>  -> <term> * <term>
+    RR_DIV,        // 2: <term>  -> <term> / <term>
+    RR_PLUS,       // 3: <term>  -> <term> + <term>
+    RR_MINUS,      // 4: <term>  -> <term> - <term>
+    RR_CONCAT,     // 5: <term>  -> <term> . <term>
+    RR_LESSER,     // 6: <term>  -> <term> < <term>
+    RR_GREATER,    // 7: <term>  -> <term> > <term>
+    RR_LESOREQ,    // 8: <term>  -> <term> <= <term>
+    RR_GREOREQ,    // 9: <term>  -> <term> >= <term>
+    RR_EQ,         // 10: <term>  -> <term> === <term>
+    RR_NOTEQ,      // 11: <term>  -> <term> !== <term>
+    RR_LPAR,       // 12: <term>  -> (<term>)
+    RR_RPAR,       // 13: <term>  -> (<term>)
+    RR_ID,         // 14: <term>  -> i
+} reduction_rule;
 
 /**
  * Funkce pro předání řízení syntaktické analýzy.
@@ -48,4 +68,19 @@ symbol_type lex_type_to_psa(Lexeme *lexeme);
 */
 int precedence_lookup(symbol_type stack_symbol, symbol_type input);
 
+/** Funkce hledající vhodné pravidlo pro redukci
+    @param op1 1. operand pravidla 
+    @param op2 2. operand pravidla
+    @param op3  3. operand pravidla
+    @return Číslo pravidla pro redukci
+*/
+reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3);
+
+/** Funkce hledající další operaci dle tabulky
+    @param symtable  Tabulka symbolů
+    @param stack     Předávaný stack
+    @param l         Předávaný lexém    
+    @return (true = 1 / false) dle úspěšnosti
+*/
+int check_operation (p_node symtable, p_stack stack, Lexeme *l);
 #endif

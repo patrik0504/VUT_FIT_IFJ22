@@ -82,6 +82,33 @@ symbol_type pop(p_stack stack)
     }
 }
 
+symbol_type non_terminal_check(p_stack stack)
+{
+    symbol_type symbol = stack->array[stack->top];
+    if (symbol == SYM_NONTERMINAL)
+    {
+        symbol = stack->array[stack->top-1];
+    }
+    return symbol;
+}
+
+void push_after_terminal(p_stack stack, symbol_type data)
+{
+    int index = stack->top; // index = 1 
+    symbol_type symbol = stack->array[index]; // symbol = výraz
+    if (symbol == SYM_NONTERMINAL)            // symbol - je nonterminál
+    {
+        symbol = stack->array[--index];       // symbol = $ , index == 0
+    }
+
+    for (int i = stack->top; i > index; i--)  //i = 1 > 0  i -- 
+    {
+        stack->array[i+i] = stack->array[i]; 
+    }
+    stack->top += 1;
+    stack->array[index+1] = data;
+}
+
 symbol_type peek(p_stack stack)
 {
     if (checkUnderflow(stack))
@@ -104,4 +131,14 @@ void stack_destroy(p_stack stack)
         }
         free(stack);
     }
+}
+
+void stack_print(p_stack stack){
+    int i = 0;
+    while (i <= stack->top)
+    {
+        printf("%s ", symbol_type_err[stack->array[i]]);
+        i++;
+    }
+    printf("\n");
 }
