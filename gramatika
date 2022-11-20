@@ -1,6 +1,7 @@
 Neterminály:
     <prog> <prolog> <body> <st-list> <stat> <expr> 
-    <decl-param> <param> <type> <control> <ret-expr>
+    <decl-param> <decl-param2> <param> <param2> 
+    <type> <control> <ret-expr> <term>
 
 
 -- HLAVIČKA PROGRAMU --
@@ -11,47 +12,51 @@ Neterminály:
 -- TĚLO PROGRAMU --
 
  3: <body>  ->  <stat> ; <body>
- 4: <body>  ->  FILE_END_SIGN <body>
+ 4: <body>  ->  FILE_END_SIGN LEXEOF
  5: <body>  ->  LEXEOF
- 5: <body>  ->  KW_FUNCTION FUNCTION_ID ( <decl-param> ) : <type> { <st-list> } <body> -- bug špatný číslo
- 6: <body>  ->  <control> <body>
+ 6: <body>  ->  KW_FUNCTION FUNCTION_ID ( <decl-param> ) : <type> { <st-list> } <body>
+ 7: <body>  ->  <control> <body>
 
 -- ŘÍDÍCÍ STRUKTURY --
 
- 7: <control>   ->  KW_IF ( <expr> ) { <st-list> } KW_ELSE { <st-list> }
- 8: <control>   ->  KW_WHILE ( <expr> ) { <st-list> }
+ 8: <control>   ->  KW_IF ( <expr> ) { <st-list> } KW_ELSE { <st-list> }
+ 9: <control>   ->  KW_WHILE ( <expr> ) { <st-list> }
 
 -- PŘÍKAZY --
 
- 9: <st-list>   ->  <stat> ; <st-list>
-10: <st-list>   ->  eps
-11: <stat>      ->  VARIABLE_ID = <expr>
-12: <stat>      ->  <expr>
-13: <stat>      ->  VARIABLE_ID = FUNCTION_ID ( <param> )
-14: <stat>      ->  FUNCTION_ID ( <param> )
-15: <stat>      ->  KW_RETURN <ret-expr>
+10: <st-list>   ->  <stat> ; <st-list>
+11: <st-list>   ->  <control> <st-list>
+12: <st-list>   ->  eps
+13: <stat>      ->  VARIABLE_ID = <expr>
+14: <stat>      ->  <expr>
+15: <stat>      ->  VARIABLE_ID = FUNCTION_ID ( <param> )
+16: <stat>      ->  FUNCTION_ID ( <param> )
+17: <stat>      ->  KW_RETURN <ret-expr>
 
 -- TYPY --
 
-16: <type>  ->  KW_INT
-17: <type>  ->  KW_FLOAT
-18: <type>  ->  KW_STRING
-19: <type>  ->  KW_VOID
+18: <type>  ->  KW_INT
+19: <type>  ->  KW_FLOAT
+20: <type>  ->  KW_STRING
+21: <type>  ->  KW_VOID
 
 -- DEKLARACE FUNKCÍ --
 
-20: <decl-param>   ->  eps
-21: <decl-param>   ->  <type> VARIABLE_ID <decl-param>
-22: <decl-param>   ->  , <decl-param>  -- bug (,)
+22: <decl-param>    ->  eps
+23: <decl-param>    ->  <type> VARIABLE_ID <decl-param2>
+24: <decl-param2>   ->  eps
+25: <decl-param2>   ->  , <type> VARIABLE_ID <decl-param2>
 
 -- VOLÁNÍ FUNKCÍ --
 
-23: <param> ->  eps
-24: <param> ->  VARIABLE_ID <param>
-25: <param> ->  , <param>  -- bug (,)
-26: <param> ->  <expr>
+26: <param>  ->  eps
+27: <param>  ->  VARIABLE_ID <param2>
+28: <param2> ->  eps
+29: <param2> ->  , VARIABLE_ID <param2>
+30: <param>  ->  <expr>
 
 -- NÁVRATOVÉ HODNOTY --
 
-27: <ret-expr>  ->  eps
-28: <ret-expr>  ->  <expr>
+31: <ret-expr>  ->  eps
+32: <ret-expr>  ->  <expr>
+
