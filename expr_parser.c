@@ -54,14 +54,24 @@ int expr(context context, p_node symtable, Lexeme *target)
         {
             stack->lpar_count -= 1;
         }
-        check_operation(symtable, stack, &l, context);
+        if(check_operation(symtable, stack, &l, context) == 0)
+        {
+            printf("\n");
+            stack_destroy(stack);
+            return 0;
+        }
     }    
 
     l.type = SEMICOLON;
 
     while (stack->top != 1)
     {
-        check_operation(symtable, stack, &l, context);
+        if(check_operation(symtable, stack, &l, context) == 0)
+        {
+            printf("\n");
+            stack_destroy(stack);
+            return 0;
+        }
     }
     printf("\n");
     stack_destroy(stack);
@@ -91,7 +101,6 @@ int check_operation (p_node symtable, p_stack stack, Lexeme *l, context context)
         if (peek(stack) != SYM_HANDLE_TAG)
         {
             fprintf(stderr, "Chyba syntaxe 1!\n");
-            exit(1);
             return 0;
         }
         reduction_rule result = check_rule(op1, op2, op3, stack);
@@ -100,11 +109,11 @@ int check_operation (p_node symtable, p_stack stack, Lexeme *l, context context)
             pop(stack); // Pop handle
             push(stack, SYM_NONTERMINAL);
             printf("%d ", result);
+            return 1;
         }
         else
         {
             fprintf(stderr, "Chyba syntaxe 2!\n");
-            exit(1);
             return 0;
         }
         break;
@@ -115,7 +124,7 @@ int check_operation (p_node symtable, p_stack stack, Lexeme *l, context context)
 
         printf("%d ", RR_PAR);
         *l = get_token(symtable);
-
+        return 1;
         break;
         
         // SHIFT ( < )
@@ -123,6 +132,7 @@ int check_operation (p_node symtable, p_stack stack, Lexeme *l, context context)
         push_after_terminal(stack, SYM_HANDLE_TAG);
         push(stack, input_symbol);
         *l = get_token(symtable);
+        return 1;
         break;
 
             
@@ -130,7 +140,6 @@ int check_operation (p_node symtable, p_stack stack, Lexeme *l, context context)
         fprintf(stderr, "Chyba syntaxe! (%d)\n", precedence);
         // debug 
         // printf("Stack: %s Input: %s\n",symbol_type_err[non_terminal_check(stack)], symbol_type_err[input_symbol]);
-        exit(1);
         return 0;
     }
 }
