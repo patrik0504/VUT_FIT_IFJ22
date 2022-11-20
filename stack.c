@@ -96,15 +96,16 @@ void push_after_terminal(p_stack stack, symbol_type data)
 {
     int index = stack->top; // index = 1 
     symbol_type symbol = stack->array[index]; // symbol = výraz
-    if (symbol == SYM_NONTERMINAL)            // symbol - je nonterminál
+    while (symbol == SYM_NONTERMINAL)            // symbol - je nonterminál
     {
         symbol = stack->array[--index];       // symbol = $ , index == 0
     }
 
     for (int i = stack->top; i > index; i--)  //i = 1 > 0  i -- 
     {
-        stack->array[i+i] = stack->array[i]; 
+        stack->array[i+1] = stack->array[i]; 
     }
+
     stack->top += 1;
     stack->array[index+1] = data;
 }

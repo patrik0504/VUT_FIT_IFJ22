@@ -27,10 +27,12 @@ typedef enum {
     RR_GREOREQ,    // 9: <term>  -> <term> >= <term>
     RR_EQ,         // 10: <term>  -> <term> === <term>
     RR_NOTEQ,      // 11: <term>  -> <term> !== <term>
-    RR_LPAR,       // 12: <term>  -> (<term>)
-    RR_RPAR,       // 13: <term>  -> (<term>)
-    RR_ID,         // 14: <term>  -> i
+    RR_PAR,        // 12: <term>  -> (<term>)
+    RR_ID,         // 13: <term>  -> i
 } reduction_rule;
+
+// 1+(2+5)
+
 
 /**
  * Funkce pro předání řízení syntaktické analýzy.
@@ -72,9 +74,10 @@ int precedence_lookup(symbol_type stack_symbol, symbol_type input);
     @param op1 1. operand pravidla 
     @param op2 2. operand pravidla
     @param op3  3. operand pravidla
+    @param stack stack nad kterým je funkce prováděna
     @return Číslo pravidla pro redukci
 */
-reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3);
+reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_stack stack);
 
 /** Funkce hledající další operaci dle tabulky
     @param symtable  Tabulka symbolů
@@ -83,4 +86,10 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3);
     @return (true = 1 / false) dle úspěšnosti
 */
 int check_operation (p_node symtable, p_stack stack, Lexeme *l);
+
+/** Funkce pro kontrolu redukce <term>  -> (<term>)
+    @param stack stack nad kterým je funkce prováděna
+    @return RR_none, pokud pravidlo neexistuje \n RR_PAR, při provedení redukčního pravidla
+*/
+// reduction_rule check_par(p_stack stack);
 #endif

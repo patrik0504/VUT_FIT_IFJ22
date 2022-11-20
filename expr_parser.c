@@ -39,18 +39,28 @@ int expr(context context, p_node symtable, Lexeme *target)
     
     l = get_token(symtable);
 
-    //printf("Pravý rozbor: ");
+    printf("Pravý rozbor: ");
 
     while (!should_end(context, &l, stack))
     {
+        //printf("While stack: ");
+        //stack_print(stack);
         if(l.type == LBRACKET)
         {
+            //printf("lpar++\n");
             stack->lpar_count += 1;
         }
         if(l.type == RBRACKET)
         {
+            //printf("lpar--\n");
             stack->lpar_count -= 1;
+            if (stack->lpar_count < 0)
+            {
+                fprintf(stderr, "Neočekávaný znak ')'!\n");
+                return 0;
+            }
         }
+        //printf("Before op check: %s\n", symbol_type_err[lex_type_to_psa(&l)]);
         check_operation(symtable, stack, &l);
         
     }    
@@ -60,7 +70,7 @@ int expr(context context, p_node symtable, Lexeme *target)
     {
         check_operation(symtable, stack, &l);
     }
-    
+    printf("\n");
     stack_print(stack);
 
     
@@ -75,77 +85,99 @@ int expr(context context, p_node symtable, Lexeme *target)
 
 int check_operation (p_node symtable, p_stack stack, Lexeme *l){
     symbol_type input_symbol = lex_type_to_psa(l);
-        int precedence = precedence_lookup(non_terminal_check(stack), input_symbol);
-
-        symbol_type op3 = -1;
-        symbol_type op2 = -1;
-        symbol_type op1 = -1;
-
-        switch (precedence)
+    //printf("Before precedence: %s\n", symbol_type_err[input_symbol]);
+    int precedence = precedence_lookup(non_terminal_check(stack), input_symbol);
+    symbol_type op3 = -1;
+    symbol_type op2 = -1;
+    symbol_type op1 = -1;
+    //printf("Before: ");
+    //stack_print(stack);
+    switch (precedence)
+    {
+        // >
+    case 2:
+        op3 = pop(stack);
+        if (peek(stack) != SYM_HANDLE_TAG && (stack->top > 2))
         {
-            // >
-        case 2:
-            //printf("Before: ");
-            //stack_print(stack);
-            op3 = pop(stack);
-            if (peek(stack) != SYM_HANDLE_TAG && (stack->top > 2))
-            {
-                op2 = pop(stack);
-                op1 = pop(stack);
-            }
-            // TODO: závorky
-            if (peek(stack) != SYM_HANDLE_TAG)
-            {
-                fprintf(stderr, "Chyba syntaxe!\n");
-                return 0;
-            }
-            reduction_rule result = check_rule(op1, op2, op3);
-
-            if (result != RR_None)
-            {
-                pop(stack);
-                push(stack, SYM_NONTERMINAL);
-                printf("Reduction result: %d \n", result);
-            }
-            else
-            {
-                fprintf(stderr, "Chyba syntaxe!\n");
-                return 0;
-            }
-
-            //printf("After: ");
-            //stack_print(stack);
-
-            break;
-            // = 
-        case 1:
-            push(stack, input_symbol);
-            *l = get_token(symtable);
-            break;
-            // <
-        case 0:
-            push_after_terminal(stack, SYM_HANDLE_TAG);
-            push(stack, input_symbol);
-            *l = get_token(symtable);
-            break;
-        
-        default:
-            fprintf(stderr, "Chyba syntaxe!\n");
+            op2 = pop(stack);
+            op1 = pop(stack);
+        }
+        // TODO: závorky
+        if (peek(stack) != SYM_HANDLE_TAG)
+        {
+            fprintf(stderr, "Chyba syntaxe 1!\n");
             exit(1);
             return 0;
         }
-        /*symbol_type symbol = lex_type_to_psa(&l);
-        if (symbol == -1)
+        reduction_rule result = check_rule(op1, op2, op3, stack);
+        if (result != RR_None)
         {
-            fprintf(stderr, "Nevalidní znak v rámci výrazu! (%d) \n", l.type);
-            stack_destroy(stack);
+            
+            pop(stack); // Pop handle
+            push(stack, SYM_NONTERMINAL);
+            printf("%d ", result);
+        }
+        else
+        {
+            fprintf(stderr, "Chyba syntaxe 2!\n");
+            exit(1);
             return 0;
-        }     
-        symbol_type symbol = pop(stack);
-        push(stack, lex_type_to_psa(&l));*/
+        }
+        break;
+        // = 
+    case 1:
+        push(stack, input_symbol);
+        /*if (check_par(stack) != RR_PAR)
+        {
+            fprintf(stderr, "Neočekávaný znak ')'!\n");
+            return 0;
+        }
+        printf("%d ", RR_PAR);*/
+        *l = get_token(symtable);
+
+        // $ ( Handle < (Výraz)
+
+        //stack_print(stack);
+        break;
+        // <
+    case 0:
+        push_after_terminal(stack, SYM_HANDLE_TAG);
+        push(stack, input_symbol);
+        *l = get_token(symtable);
+        break;
+    
+    default:
+        fprintf(stderr, "Chyba syntaxe! (%d)\n", precedence);
+        printf("Stack: %s Input: %s\n",symbol_type_err[non_terminal_check(stack)], symbol_type_err[input_symbol]);
+        exit(1);
+        return 0;
+    }
+    //printf("After: ");
+    //stack_print(stack);
+    /*symbol_type symbol = lex_type_to_psa(&l);
+    if (symbol == -1)
+    {
+        fprintf(stderr, "Nevalidní znak v rámci výrazu! (%d) \n", l.type);
+        stack_destroy(stack);
+        return 0;
+    }     
+    symbol_type symbol = pop(stack);
+    push(stack, lex_type_to_psa(&l));*/
 }
 
-reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3)
+
+// reduction_rule check_par(p_stack stack){
+//     if (non_terminal_check(stack) != SYM_LPAR) // Předchozí terminál musí být levá závorka
+//     {
+//         return RR_None;
+//     }
+
+      
+
+    
+// }
+
+reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_stack stack)
 {
     //printf("checking rule\n");
     // Pravidla s jedním operandem
@@ -160,6 +192,20 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3)
 
         //TODO: závorky 
     }
+
+    if (op3 == SYM_RPAR && op2 == SYM_NONTERMINAL && op1 == SYM_LPAR)
+    {
+        //stack_print(stack);
+        // Nyní se musíme zbavit závorek okolo výrazu dle <term> -> ( <term> )
+        //pop(stack); // - )
+        //pop(stack); // - E
+        //pop(stack); // - (
+        //pop(stack); // - Handle<
+        //push(stack, SYM_NONTERMINAL); // + E
+
+        return RR_PAR;
+    }
+    
     //Pravidla se dvěma operandy
     else if (op1 != -1 && op2 != -1 && op3 != -1)
     {
@@ -168,6 +214,8 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3)
             fprintf(stderr, "Neexistující pravidlo pro redukci!\n");
             return RR_None;
         }
+
+        
 
         switch (op2)
         {
@@ -214,10 +262,11 @@ int should_end(context context, Lexeme *lexeme, p_stack stack)
     {
         if(lexeme->type == SEMICOLON)
         {
-            if(stack->lpar_count != 1)
+            /*if(stack->lpar_count != 1)
             {
+                printf("Lpar count: %d\n", stack->lpar_count);
                 fprintf(stderr, "Ve výrazu chybí znak ')'!\n");
-            }
+            }*/
             return 1;
         }
     }
