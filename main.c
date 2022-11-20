@@ -63,15 +63,15 @@ int main() {
     int some = 0;
     some = parse();
 
-   /* p_node binaryTree = init_binary_treeKW();
+    /*p_node binaryTree = init_binary_treeKW();
     Lexeme l = {.type = NULLLEX};
     while(l.type != LEXEOF)
     {
         l = get_token(binaryTree);
 
-        //printf("TYPE = %d\n", l.type);
+        printf("TYPE = %d\n", l.type);
         //DEBUGOVACI PRINTY, MUZE SE SMAZAT, JEN PRO PREDSTAVU JAK TO VRACI TOKENY
-        /*if (l.type == NUMBER)
+        if (l.type == NUMBER)
         {
             printf("lexem je %d\n", l.extra_data.value);
         } else if (l.type == EXPONENT_NUMBER)
@@ -137,6 +137,7 @@ int main() {
             printf("typ lexemu je %d\n", l.type);
         }
         //KONEC DEBUGOVACICH PRINTU 
+    }
 
 
     tree_destroy(binaryTree); */

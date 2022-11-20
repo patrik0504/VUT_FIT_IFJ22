@@ -108,3 +108,20 @@ int count_tree(p_node root)
     }
     return 1 + count_tree(root->left) + count_tree(root->right);
 }
+
+
+//Function for checking if all functions are defined and declared
+int check_func(p_node root, int *error)
+{
+    if (root != NULL) 
+    {
+        check_func(root->left, error);
+        if(!(root->data->defined == true && root->data->declared == true))
+        {
+            fprintf(stderr, "Chyba: Funkce %s je definovana, ale neni deklarovana.\n", root->key);
+            *error = 1;
+        }
+        check_func(root->right, error);
+    }
+    return *error;
+}
