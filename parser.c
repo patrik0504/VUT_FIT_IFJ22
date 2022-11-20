@@ -15,6 +15,12 @@ int parse(){
     if(found != NULL){
         debug_tree(found->data->params);
         printf("\n");
+        Dprintf("Number of leaves: %d\n", count_tree(found->data->params));
+        if(found->data->elements != NULL){
+            debug_tree(found->data->elements);
+            printf("\n");
+            Dprintf("Number of leaves: %d\n", count_tree(found->data->elements));
+        }
     }
     else{
         printf("Not found\n");
@@ -257,7 +263,8 @@ int st_list(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFrom
                 {
                     if (((functionPtr->data->elements != NULL) && (tree_search(functionPtr->data->elements, l->extra_data.string) == NULL)) || (functionPtr->data->elements == NULL))
                     {
-                        p_node local_var = node_init(NULL, l->extra_data.string);
+                        p_data data = data_init();
+                        p_node local_var = node_init(data, l->extra_data.string);
                         if (functionPtr->data->elements == NULL)
                         {
                             functionPtr->data->elements = local_var;
@@ -336,14 +343,14 @@ int param(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node functionP
     int result = 0;
     if(l->type == VARIABLE_ID)
     { 
-            if (check_if_variable_is_defined(functionPtr, l->extra_data.string) == 1)
-            {
-                *l = get_token(binaryTree);
-                result = param2(l, binaryTree, comesFromFunction, functionPtr);
-            } else
-            {
-                return PARSER_ERROR;
-            }
+        if (check_if_variable_is_defined(functionPtr, l->extra_data.string) == 1)
+        {
+            *l = get_token(binaryTree);
+            result = param2(l, binaryTree, comesFromFunction, functionPtr);
+        } else
+        {
+            return PARSER_ERROR;
+        }
 
     }
     else if(l->type == RBRACKET)

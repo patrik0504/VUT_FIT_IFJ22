@@ -95,7 +95,16 @@ void debug_tree(p_node root)
         debug_tree(root->left);
         printf("%s ", root->key);
         //vymazat
-        printf("%d ", root->data->func_type);
+        //printf("%d ", root->data->func_type);
         debug_tree(root->right);
     }
+}
+
+int count_tree(p_node root) 
+{
+    if (root == NULL) 
+    {
+        return 0;
+    }
+    return 1 + count_tree(root->left) + count_tree(root->right);
 }

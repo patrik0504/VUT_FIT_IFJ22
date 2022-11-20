@@ -67,5 +67,12 @@ void tree_destroy (p_node root);
  * @param root Existující kořen stromu
 */
 void debug_tree(p_node root);
+/**
+ * @brief Funkcia na výpočet počtu listov v strome
+ * 
+ * @param root Koreň stromu
+ * @return int Počet listov v strome
+ */
+int count_tree(p_node root); 
 
 #endif
