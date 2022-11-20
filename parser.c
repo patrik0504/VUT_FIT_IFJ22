@@ -164,6 +164,7 @@ int decl_param2(Lexeme *l, p_node binaryTree, p_node globalFunctions, p_node fun
 int check_if_variable_is_defined(p_node functionPtr, char * variable)
 {
     int result = 0;
+    
     if (((functionPtr->data->params != NULL) && (tree_search(functionPtr->data->params, variable) == NULL)) || (functionPtr->data->params == NULL))
     {
         if(((functionPtr->data->elements != NULL) && (tree_search(functionPtr->data->elements, variable) == NULL)) || (functionPtr->data->elements == NULL))
@@ -209,7 +210,7 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
         if(l->type == LBRACKET)
         {
             *l = get_token(binaryTree);
-            result = param(l, binaryTree, comesFromFunction, functionPtr);
+            result = param(l, binaryTree, comesFromFunction, functionPtr, node);
             if(result)
             {
                 if(l->type == RBRACKET)
@@ -338,15 +339,22 @@ int st_list(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFrom
     return result;
 }
 
-int param(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node functionPtr)
+int param(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node functionPtr, p_node callFunction)
 {
+    int param_count = 0;
     int result = 0;
+    
     if(l->type == VARIABLE_ID)
     { 
+        if(count_tree(callFunction->data->params) == 0){
+            Dprintf("Funkce %s nema zadne parametry a boli jej hodené\n", callFunction->key);
+            return PARSER_ERROR;
+        }
         if (check_if_variable_is_defined(functionPtr, l->extra_data.string) == 1)
         {
+            param_count++;
             *l = get_token(binaryTree);
-            result = param2(l, binaryTree, comesFromFunction, functionPtr);
+            result = param2(l, binaryTree, comesFromFunction, functionPtr, param_count, callFunction);
         } else
         {
             return PARSER_ERROR;
@@ -355,12 +363,20 @@ int param(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node functionP
     }
     else if(l->type == RBRACKET)
     {
-        result = 1;
+        if(param_count == count_tree(callFunction->data->params))
+        {
+            result = 1;
+        }
+        else
+        {
+            Dprintf("Zlý počet parametrov, očakávalo se %d, ale bylo zadáno %d\n", count_tree(callFunction->data->params), param_count);
+            result = PARSER_ERROR;
+        }
     }
     return result;
 }
 
-int param2(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node functionPtr)
+int param2(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node functionPtr, int paramCount, p_node callFunction)
 {
     int result = 0;
     if(l->type == COMMA)
@@ -370,8 +386,9 @@ int param2(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node function
         {
             if (check_if_variable_is_defined(functionPtr, l->extra_data.string) == 1)
             {
+                paramCount++;
                 *l = get_token(binaryTree);
-                result = param2(l, binaryTree, comesFromFunction, functionPtr);
+                result = param2(l, binaryTree, comesFromFunction, functionPtr, paramCount, callFunction);
             } else
             {
                 return PARSER_ERROR;
@@ -380,7 +397,17 @@ int param2(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node function
     }
     else if(l->type == RBRACKET)
     {
-        result = 1;
+        
+        if(paramCount == count_tree(callFunction->data->params))
+        {
+            Dprintf("Nasiel som %d parametrov\n", paramCount);
+            result = 1;
+        }
+        else
+        {
+            Dprintf("Zlý počet parametrov, očakávalo se %d, ale bylo zadáno %d\n", count_tree(callFunction->data->params), paramCount);
+            result = PARSER_ERROR;
+        }
     }
     return result;
 }
