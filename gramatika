@@ -60,21 +60,3 @@ Neterminály:
 31: <ret-expr>  ->  eps
 32: <ret-expr>  ->  <expr>
 
-------------
--- VÝRAZY --
-------------
-
-33: <expr>  -> i = <term>
-34: <term>  -> <term> * <term>
-35: <term>  -> <term> / <term>
-36: <term>  -> <term> + <term>
-37: <term>  -> <term> - <term>
-38: <term>  -> <term> . <term>
-39: <term>  -> <term> < <term>
-40: <term>  -> <term> > <term>
-41: <term>  -> <term> <= <term>
-42: <term>  -> <term> >= <term>
-43: <term>  -> <term> === <term>
-44: <term>  -> <term> !== <term>
-45: <term>  -> (<term>)
-46: <term>  -> i

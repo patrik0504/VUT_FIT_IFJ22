@@ -3,7 +3,9 @@
 
 #include "scanner.h"
 #include "symtable.h"
+#include "stack.h"
 
+#include "expr_parser.h"
 
 void bst_test() 
 {
@@ -55,16 +57,24 @@ void bst_test()
 }
 
 int main() {
+
     p_node binaryTree = init_binary_treeKW();
     Lexeme l = {.type = NULLLEX};
 
     while(l.type != LEXEOF)
     {
         l = get_token(binaryTree);
-
+        if (l.type == LBRACKET)
+        {
+            expr(CALL_CONTROL, binaryTree, NULL);
+        }
+        if (l.type == EQUAL)
+        {
+            expr(ASSIGNMENT, binaryTree, NULL);
+        }
 
         //DEBUGOVACI PRINTY, MUZE SE SMAZAT, JEN PRO PREDSTAVU JAK TO VRACI TOKENY
-        if (l.type == NUMBER)
+        /*if (l.type == NUMBER)
         {
             printf("lexem je %d\n", l.extra_data.value);
         } else if (l.type == EXPONENT_NUMBER)
@@ -124,10 +134,10 @@ int main() {
         else
         {
             printf("lexem je %s\n", str_lexeme(l));
-            //printf("typ lexemu je %d\n", l.type);
+            printf("typ lexemu je %d\n", l.type);
         }
         //KONEC DEBUGOVACICH PRINTU
-        
+        */
     }
 
     tree_destroy(binaryTree);
