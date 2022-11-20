@@ -594,6 +594,7 @@ Lexeme get_token(p_node binaryTree)
     //Preskočenie komentárov
     while(l.type == NULLLEX){
         l = scan_lexeme();
+        
     }
     if (l.type == FUNCTION_ID)
     {
