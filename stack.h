@@ -36,7 +36,7 @@ typedef struct stack
 {
     int top;                ///< Vrchol stacku
     unsigned size;          ///< Size stacku
-    unsigned lpar_count;    ///< Počet levých závorek na stacku (hodnota pro ukončení PSA)
+    int lpar_count;    ///< Počet levých závorek na stacku (hodnota pro ukončení PSA)
     symbol_type *array;     ///< Stack
 } * p_stack;
 

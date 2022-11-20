@@ -83,9 +83,10 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
     @param symtable  Tabulka symbolů
     @param stack     Předávaný stack
     @param l         Předávaný lexém    
+    @param context   Předávaný kontext (jestli jde o přiřazení nebo rozhodování např. v ifu)    
     @return (true = 1 / false) dle úspěšnosti
 */
-int check_operation (p_node symtable, p_stack stack, Lexeme *l);
+int check_operation (p_node symtable, p_stack stack, Lexeme *l,context context);
 
 /** Funkce pro kontrolu redukce <term>  -> (<term>)
     @param stack stack nad kterým je funkce prováděna
