@@ -298,10 +298,9 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
 
 int ret_expr(Lexeme *l, p_node binaryTree)
 {
-    //BUG nefunguje prazdy return
     int result = 0;
     Dprintf("return expression type %d\n", l->type);
-    result = expr(ASSIGNMENT, binaryTree, l);
+    result = expr(RETURN, binaryTree, l);
     if(!result)
     {
         Dputs("Chyba v return expression\n");
