@@ -69,7 +69,7 @@ int main() {
     {
         l = get_token(binaryTree);
 
-        printf("TYPE = %d\n", l.type);
+        //printf("TYPE = %d\n", l.type);
         //DEBUGOVACI PRINTY, MUZE SE SMAZAT, JEN PRO PREDSTAVU JAK TO VRACI TOKENY
         if (l.type == NUMBER)
         {
@@ -134,7 +134,7 @@ int main() {
         }else
         {
             printf("lexem je %s\n", str_lexeme(l));
-            printf("typ lexemu je %d\n", l.type);
+            //printf("typ lexemu je %d\n", l.type);
         }
         //KONEC DEBUGOVACICH PRINTU 
     }
