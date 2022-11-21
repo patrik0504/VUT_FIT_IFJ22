@@ -45,7 +45,6 @@ typedef enum{
     Minus,
     Multiply,
     Divide,
-    DivideOrComment,
     Comma,
     Konkatenace,
     Less,

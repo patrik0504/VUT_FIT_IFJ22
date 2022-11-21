@@ -30,6 +30,7 @@ typedef struct data
     st_type func_type; ///< Datový typ funkce
     unsigned int local_size;
     unsigned int local_n;
+    int param_count;
     p_node params;
     p_node elements;
 } *p_data;
@@ -74,5 +75,13 @@ void debug_tree(p_node root);
  * @return int Počet listov v strome
  */
 int count_tree(p_node root); 
+
+/**
+ * @brief Funkcia na průchod stromu funkcí
+ * Zjišťuje, zda byly všechny funkce definované i deklarované
+ * @param root Koreň stromu
+ * @return int Počet listov v strome
+ */
+int check_func(p_node root, int *error);
 
 #endif

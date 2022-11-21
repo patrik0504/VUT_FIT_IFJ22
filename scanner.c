@@ -71,7 +71,7 @@ AutomatState transition(AutomatState currentState, char c)
                 case '*':
                     return Multiply;
                 case '/':
-                    return DivideOrComment;
+                    return Divide;
                 case ',':
                     return Comma;
                 case '.':
@@ -151,12 +151,12 @@ AutomatState transition(AutomatState currentState, char c)
             else if (c == '*')
                 return BlockCommentPotentialEnd;
             else return BlockComment;
-        case DivideOrComment:
+        case Divide:
             if (c == '/')
                 return LineComment;
             else if(c == '*')
                 return BlockComment;
-            else return Divide; 
+            else return Error;
         case Comma:
         case Prolog:
         case FileEndSign:
@@ -172,7 +172,6 @@ AutomatState transition(AutomatState currentState, char c)
         case Plus:
         case Minus:
         case Multiply:
-        case Divide:
         case Konkatenace:
         case LessEqual:
         case GreaterEqual:
@@ -371,7 +370,6 @@ Lexeme generateLexeme(AutomatState state, char* buffer, int stringlength)
             final_lexeme.type = FILE_END_SIGN;
             break;
         case Start:
-        case DivideOrComment:
         case LineComment:
         case BlockComment:
         case BlockCommentPotentialEnd:
@@ -459,6 +457,10 @@ Lexeme scan_lexeme()
             //Prechod do ďalšieho stavu
             next_state = transition(current_state, (char)c);
         }
+        //if (next_state == Divide)
+        //{
+            //ungetc((char)c, stdin);
+        //}
         if (next_state == Error)
         {
             if (c != ' ')
@@ -466,7 +468,9 @@ Lexeme scan_lexeme()
                 stringlength--;
             }
             if (current_state != BlockCommentPotentialEnd)
-            ungetc((char)c, stdin);
+            {
+                ungetc((char)c, stdin);
+            }
             
             *(current_index++) = '\0';
             stringlength++;
