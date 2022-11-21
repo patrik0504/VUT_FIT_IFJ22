@@ -7,20 +7,8 @@ function some(int $a, int $b, int $c) : int {
 $a = 5;
 $b = 6;
 $c = 7;
-$d = 8;
-$e = 9;
-$f = 10;
-$g = 11;
-$h = 12;
-$i = 13;
-$j = 14;
-$k = 15;
-$l = 16;
-$m = 17;
-$n = 18;
-$o = 19;
-$p = 20;
 
+$d = $a - $b * $c;
 if($a === 3){
     $bbb = 5;
 }
@@ -58,4 +46,5 @@ function test2(int $a, int $b, float $ads, string $tojesuper) : int {
         $c = $a;
         some($a, $b, $c);
     }
+    return $a+$b;
 }
