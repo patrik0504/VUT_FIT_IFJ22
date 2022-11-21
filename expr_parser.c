@@ -39,6 +39,12 @@ int expr(context context, p_node symtable, Lexeme *target)
     
     l = get_token(symtable);
 
+    if (l.type == SEMICOLON && context == RETURN)
+    {
+        stack_destroy(stack);
+        return 1;
+    }
+
     printf("Pravý rozbor: ");
 
     //Check ukončení
@@ -62,7 +68,10 @@ int expr(context context, p_node symtable, Lexeme *target)
         }
     }    
 
-    l.type = SEMICOLON;
+    if(context == ASSIGNMENT || context == RETURN)
+    {
+        l.type = SEMICOLON;
+    }
 
     while (stack->top != 1)
     {
@@ -81,7 +90,7 @@ int expr(context context, p_node symtable, Lexeme *target)
 int check_operation (p_node symtable, p_stack stack, Lexeme *l, context context){
     symbol_type input_symbol = lex_type_to_psa(l);
     int precedence = precedence_lookup(non_terminal_check(stack), input_symbol);
-
+    
     symbol_type op3 = -1;
     symbol_type op2 = -1;
     symbol_type op1 = -1;
@@ -218,7 +227,7 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
 int should_end(context context, Lexeme *lexeme, p_stack stack)
 {
     //Pro assignment hledáme ;
-    if(context == ASSIGNMENT)
+    if(context == ASSIGNMENT || context == RETURN)
     {
         if(lexeme->type == SEMICOLON)
         {
@@ -232,7 +241,6 @@ int should_end(context context, Lexeme *lexeme, p_stack stack)
         {
             // Podmínka v hlavním while cyklu přestane platit dříve, než se závorka dostane na stack
             // Ošetřujeme ji proto manuálně zde
-            push(stack, SYM_RPAR);  
             return 1;
         }
     }
