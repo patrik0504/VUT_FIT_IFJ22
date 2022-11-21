@@ -11,7 +11,8 @@
 
 typedef enum {
     ASSIGNMENT,
-    CALL_CONTROL
+    CALL_CONTROL,
+    RETURN
 } context;
 
 typedef enum {
@@ -30,9 +31,6 @@ typedef enum {
     RR_PAR,        // 12: <term>  -> (<term>)
     RR_ID,         // 13: <term>  -> i
 } reduction_rule;
-
-// 1+(2+5)
-
 
 /**
  * Funkce pro předání řízení syntaktické analýzy.
@@ -88,9 +86,4 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
 */
 int check_operation (p_node symtable, p_stack stack, Lexeme *l,context context);
 
-/** Funkce pro kontrolu redukce <term>  -> (<term>)
-    @param stack stack nad kterým je funkce prováděna
-    @return RR_none, pokud pravidlo neexistuje \n RR_PAR, při provedení redukčního pravidla
-*/
-// reduction_rule check_par(p_stack stack);
 #endif
