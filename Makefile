@@ -6,6 +6,12 @@ TARGET = ifj_comp
 OBJFILES = main.o symtable.o scanner.o stack.o expr_parser.o functions.o
 DEPS = symtable.h scanner.h stack.h expr_parser.h functions.h
 
+all: $(TARGET)
+
+debug: CFLAGS += -ggdb
+debug: LDFLAGS += -ggdb
+debug: $(TARGET)
+
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(LDFLAGS)
 

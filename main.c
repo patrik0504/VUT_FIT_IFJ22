@@ -72,6 +72,10 @@ int main() {
         {
             expr(ASSIGNMENT, binaryTree, NULL);
         }
+        if (l.type == KW_RETURN)
+        {
+            expr(RETURN, binaryTree, NULL);
+        }
 
         //DEBUGOVACI PRINTY, MUZE SE SMAZAT, JEN PRO PREDSTAVU JAK TO VRACI TOKENY
         /*if (l.type == NUMBER)
