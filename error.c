@@ -1,13 +1,24 @@
 #include "error.h"
 
-/** Seznam chyb definovaný jako globální proměnná pro odstranění nutnosti jej předávat
- *  do každé funkce, která by mohla chybovat.
- *  Není určen k přímému přístupu - využijte přiložených funkcí error_list_init, error a error_eval.
+/** 
+ * Seznam chyb definovaný jako globální proměnná pro odstranění nutnosti jej předávat
+ * do každé funkce, která by mohla chybovat.
+ * Není určen k přímému přístupu - využijte přiložených funkcí error_list_init, error a error_eval.
+ * 
+ * WONTFIX: Valgrind zde generuje chyby kvůli použití neinicializované proměnné v podmínkách.
+ *          Tahle situace ale nenastane, protože v těle funkce main() explicitně voláme init.
+ *          V případě, že by se na explicitní inicializaci přeci jen zapomnělo, volá ji také
+ *          první přidaná chyba.
 */
 p_error_list errors;
 
 void error_list_init()
 {
+    if (errors != NULL) // Zabraňujeme opětovné inicializaci
+    {
+        return;
+    }
+
     errors = (p_error_list)malloc(sizeof(struct error_list));
     if(errors == NULL)
     {
@@ -21,8 +32,8 @@ void error(int line, char* message, error_code error_code)
 {
     if (errors == NULL)
     {
-        fprintf(stderr, "Interní chyba: Před voláním funkce error je třeba zavolat error_list_init v těle funkce main!\n");
-        return;
+        error_list_init();
+        fprintf(stderr, "Interní varování: Před voláním funkce error by měl být volán error_list_init!\n");
     }
 
     // Vytvoření chybové struktury
