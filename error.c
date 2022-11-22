@@ -25,6 +25,7 @@ void error(int line, char* message, error_code error_code)
         return;
     }
 
+    // Vytvoření chybové struktury
     p_error data = (p_error)malloc(sizeof(struct error));
     if(data == NULL)
     {
@@ -40,6 +41,7 @@ void error(int line, char* message, error_code error_code)
         return;
     }
 
+    // Vytvoření záznamu v seznamu chyb
     p_error_list new_node = (p_error_list)malloc(sizeof(struct error_list));
     if(new_node == NULL)
     {
@@ -53,7 +55,7 @@ void error(int line, char* message, error_code error_code)
         return;
     }
 
-
+    // Průchod seznamem a přiřazení chyby na konec
     p_error_list err_node = errors;
 
     while (err_node->next != NULL)
@@ -77,6 +79,7 @@ int error_eval()
         return 0;
     }
 
+    // Bereme návratový kód první chyby
     int return_code = errors->data->error_code;
     
     fprintf(stderr, "Překladač se ukončil s chybovou návratovou hodnotou %d\n\n", return_code);

@@ -16,15 +16,17 @@ typedef enum {
     SEM_INTERNAL_ERROR = 99,
 } error_code;
 
+/** Struktura chybového výpisu */
 typedef struct error{
-    int line;
-    char* message;
-    error_code error_code;
+    int line;   ///< Řádek, na kterém se chyba vyskytla
+    char* message;   ///< Chybová hláška
+    error_code error_code;  ///< Kód chyby
 } *p_error;
 
+/** Struktura seznamu chyb */
 typedef struct error_list{
-    p_error data;
-    struct error_list *next;
+    p_error data;   ///< Soubor dat chyby
+    struct error_list *next;  ///< Ukazatel na další error (další položku seznamu)
 } *p_error_list;
 
 /** 

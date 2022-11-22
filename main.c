@@ -149,6 +149,5 @@ int main() {
 
 
     tree_destroy(binaryTree); */
-    int return_code = error_eval();
-    return return_code;
+    return error_eval();
 }
