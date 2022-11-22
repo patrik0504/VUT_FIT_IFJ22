@@ -5,7 +5,9 @@
 #include "symtable.h"
 #include "stack.h"
 #include "parser.h"
+#include "error.h"
 
+// TODO: oddělat (přijde do parseru)
 #include "expr_parser.h"
 
 void bst_test() 
@@ -58,10 +60,16 @@ void bst_test()
 }
 
 int main() {
+    error_list_init();
+    
+    //int some = 0;
+    //some = parse();
 
+    error(1, "Token retrn nebylo možné zpracovat! (Možná jste mysleli return?)", LEX_ERROR);
+    error(69, "U výrazu chybí ';' pro ukončení!", SYNTAX_ERROR);
+    error(112, "Volání funkce neodpovídá její deklaraci!", SEM_INVALID_CALL_ERROR);
+    error(360, "Typy operandů výrazu nejsou navzájem kompatibilní!", SEM_INVALID_TYPE_ERROR);
 
-    int some = 0;
-    some = parse();
 
     /*p_node binaryTree = init_binary_treeKW();
     Lexeme l = {.type = NULLLEX};
@@ -141,5 +149,6 @@ int main() {
 
 
     tree_destroy(binaryTree); */
-    return 0;
+    int return_code = error_eval();
+    return return_code;
 }
