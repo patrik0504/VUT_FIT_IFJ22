@@ -126,7 +126,7 @@ typedef struct {
  * Získava lexémy zo vstupu a vracia ich v tvare štruktúry Lexeme
  * @return Štuktúra Lexeme obsahujúca typ lexému a jeho data 
  */
-Lexeme get_token(p_node binaryTree,int *row);
+Lexeme get_token(p_node binaryTree);
 /**
  * @brief Funkcia na inicializáciu binárneho stromu pre naše kľúčové slová
  * @return Vracia ukazateľ na koreň binárneho stromu

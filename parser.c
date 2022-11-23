@@ -47,7 +47,7 @@ int parse(){
 int check_prolog(Lexeme *l, p_node binaryTree)
 {
     Dputs("Vosiel som do prologu\n");
-    if(get_token().type != PROLOG)
+    if(get_token(binaryTree).type != PROLOG)
     {
         Dputs("Nenaslo sa prolog\n"); 
         return 0;

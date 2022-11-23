@@ -60,15 +60,15 @@ void bst_test()
 int main() {
 
 
-    //int some = 0;
-    //some = parse();
+    int some = 0;
+    some = parse();
 
+    /*
     p_node binaryTree = init_binary_treeKW();
     Lexeme l = {.type = NULLLEX};
-    int row = 1;
     while(l.type != LEXEOF)
     {
-        l = get_token(binaryTree, &row);
+        l = get_token(binaryTree);
         printf("Row of lexeme: %d\n", l.row);
         //printf("TYPE = %d\n", l.type);
         //DEBUGOVACI PRINTY, MUZE SE SMAZAT, JEN PRO PREDSTAVU JAK TO VRACI TOKENY
@@ -141,6 +141,6 @@ int main() {
     }
 
 
-    tree_destroy(binaryTree); 
+    tree_destroy(binaryTree); */
     return 0;
 }

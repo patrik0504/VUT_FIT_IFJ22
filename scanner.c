@@ -5,7 +5,9 @@ p_node init_binary_treeKW()
 {
     // Inicializacia binarneho stromu
     // Postupné vloženie kľúčových slov do binarneho stromu
-    p_node root = node_init(NULL, "if");
+    p_data data = (p_data)malloc(sizeof(struct data));
+    data->data = 1;
+    p_node root = node_init(data, "if");
     p_node node2 = node_init(NULL, "while");
     insert_node(root, node2);
     p_node node3 = node_init(NULL, "else");
@@ -608,18 +610,19 @@ void check_forKW(p_node root, Lexeme *l)
 }
 
 
-Lexeme get_token(p_node binaryTree, int *row)
+Lexeme get_token(p_node binaryTree)
 {
     Lexeme l = {.type = NULLLEX};
-
+    int row = binaryTree->data->data;
     //Preskočenie komentárov
     while(l.type == NULLLEX){
-        l = scan_lexeme(row);
+        l = scan_lexeme(&row);
     }
     if (l.type == FUNCTION_ID)
     {
         //Ak je lexém kľúčové slovo, zmení sa jeho typ
         check_forKW(binaryTree, &l);
     }
+    binaryTree->data->data = row;
     return l;
 }   
