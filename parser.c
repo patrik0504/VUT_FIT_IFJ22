@@ -46,7 +46,6 @@ int parse(){
 
 int check_prolog(Lexeme *l, p_node binaryTree)
 {
-    Dputs("Vosiel som do prologu\n");
     if(get_token(binaryTree).type != PROLOG)
     {
         Dputs("Nenaslo sa prolog\n"); 
@@ -54,7 +53,6 @@ int check_prolog(Lexeme *l, p_node binaryTree)
     }
     int result = 0;
     *l = get_token(binaryTree);
-    Dprintf("TU SOM %d\n", l->type);
     if(l->type == FUNCTION_ID)
     {
         if(!strcmp(l->extra_data.string, "declare"))
@@ -240,9 +238,15 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
             }
         }
         *l = get_token(binaryTree);
-        while(l->type != SEMICOLON){
-           *l = get_token(binaryTree);
+        result = expr(ASSIGNMENT, binaryTree, l);
+        if(result != 1)
+        {
+            Dputs("chyba vo variable expression\n");
+            result = PARSER_ERROR;
+            return result;
         }
+        //Docasne lebo to nevracia tak ako ma l->type
+        l->type = SEMICOLON;
         printf("statement prosel v poradku!\n");
         result = 1;
     } else if (l->type == FUNCTION_ID)
@@ -295,19 +299,16 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
 int ret_expr(Lexeme *l, p_node binaryTree)
 {
     int result = 0;
-    *l = get_token(binaryTree);
-    if(l->type == SEMICOLON)
+    Dprintf("return expression type %d\n", l->type);
+    result = expr(RETURN, binaryTree, l);
+    if(!result)
     {
-        result = 1;
+        Dputs("Chyba v return expression\n");
+        return PARSER_ERROR;
     }
-    else{
-        //Call expr
-        while (l->type != SEMICOLON)
-        {
-            *l = get_token(binaryTree);
-        }
-        result = 1;
-    }
+    //Docasne kvoli bugu v expr
+    l->type = SEMICOLON;
+    result = 1;
     return result;
 }
 
@@ -563,11 +564,13 @@ int while_check(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comes
     if(l->type == LBRACKET)
     {
         //Call expression
-        *l = get_token(binaryTree);
-        while (l->type != RBRACKET)
+        result = expr(CALL_CONTROL, binaryTree, l);
+        if(!result)
         {
-            *l = get_token(binaryTree);
+            Dputs("Chyba pri vyrazoch v ife\n");
+            return PARSER_ERROR;
         }
+        Dprintf("Typ vyrazu v ife je %d\n", l->type);
         *l = get_token(binaryTree);
         if(l->type == LBRACKET_S_KUDRLINKOU)
         {
@@ -703,11 +706,13 @@ int if_check(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFro
     if (l->type == LBRACKET)
     {
         //Call expression
-        *l = get_token(binaryTree);
-        while (l->type != RBRACKET)
+        result = expr(CALL_CONTROL, binaryTree, l);
+        if(!result)
         {
-            *l = get_token(binaryTree);
+            Dputs("Chyba pri vyrazoch v ife\n");
+            return PARSER_ERROR;
         }
+        Dprintf("Typ vyrazu v ife je %d\n", l->type);
         *l = get_token(binaryTree);
         if(l->type == LBRACKET_S_KUDRLINKOU)
         {

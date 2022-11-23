@@ -12,6 +12,7 @@
 #include "functions.h"
 #include "symtable.h"
 #include "scanner.h"
+#include "expr_parser.h"
 
 typedef enum{
     PARSER_ERROR

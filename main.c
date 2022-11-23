@@ -73,12 +73,12 @@ int main() {
 
     /*
     p_node binaryTree = init_binary_treeKW();
+
     Lexeme l = {.type = NULLLEX};
 
     while(l.type != LEXEOF)
     {
         l = get_token(binaryTree);
-
         printf("Row of lexeme: %d\n", l.row);
         //printf("TYPE = %d\n", l.type);
 
