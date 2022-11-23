@@ -71,7 +71,7 @@ AutomatState transition(AutomatState currentState, char c)
                 case '*':
                     return Multiply;
                 case '/':
-                    return DivideOrComment;
+                    return Divide;
                 case ',':
                     return Comma;
                 case '.':
@@ -151,12 +151,12 @@ AutomatState transition(AutomatState currentState, char c)
             else if (c == '*')
                 return BlockCommentPotentialEnd;
             else return BlockComment;
-        case DivideOrComment:
+        case Divide:
             if (c == '/')
                 return LineComment;
             else if(c == '*')
                 return BlockComment;
-            else return Divide; 
+            else return Error;
         case Comma:
         case Prolog:
         case FileEndSign:
@@ -172,7 +172,6 @@ AutomatState transition(AutomatState currentState, char c)
         case Plus:
         case Minus:
         case Multiply:
-        case Divide:
         case Konkatenace:
         case LessEqual:
         case GreaterEqual:
@@ -262,10 +261,12 @@ int transferEscapeSequences(char* buffer, int stringlength)
 }
 
 
-Lexeme generateLexeme(AutomatState state, char* buffer, int stringlength)
+Lexeme generateLexeme(AutomatState state, char* buffer, int stringlength, int row)
 {
     //Vytvorenie lexému
     Lexeme final_lexeme;
+    //Dprintf("Row: %d Buffer: %s \n", row, buffer);
+    final_lexeme.row = row;
     switch(state)
     {
         case LexEOF:
@@ -365,13 +366,16 @@ Lexeme generateLexeme(AutomatState state, char* buffer, int stringlength)
             final_lexeme.type = NOTEQUAL;
             break;
         case Prolog:
+            if((!(strcmp(buffer, "<?php\n"))))
+            {
+                final_lexeme.row--;
+            }
             final_lexeme.type = PROLOG;
             break;
         case FileEndSign:
             final_lexeme.type = FILE_END_SIGN;
             break;
         case Start:
-        case DivideOrComment:
         case LineComment:
         case BlockComment:
         case BlockCommentPotentialEnd:
@@ -390,7 +394,7 @@ Lexeme generateLexeme(AutomatState state, char* buffer, int stringlength)
     return final_lexeme;
 }
 
-Lexeme scan_lexeme()
+Lexeme scan_lexeme(int *row)
 {
     //Inicializácia premenných
     AutomatState current_state = Start;
@@ -405,6 +409,11 @@ Lexeme scan_lexeme()
     {
         //Načítanie znaku zo vstupu
         c = getchar();
+        //Ak je znak nový riadok, zvýšenie počítadla riadkov
+        if(c == '\n')
+        {
+            (*row)++;
+        }
         //Escapovanie uvozoviek
         if(c == '"')
         {
@@ -429,22 +438,26 @@ Lexeme scan_lexeme()
         {
             if (current_state == Start)
             {
-                return (Lexeme){.type = LEXEOF};
+                return (Lexeme){.type = LEXEOF, .row = *row};
             }
             if (current_state == LineComment)
             {
                 free(buffer);
-                return (Lexeme){.type = LEXEOF};
+                return (Lexeme){.type = LEXEOF, .row = *row};
             }
             *(current_index++) = '\0';
             stringlength++;
-            return generateLexeme(current_state, buffer, stringlength);
+            return generateLexeme(current_state, buffer, stringlength, *row);
             stringlength = 0;
         }
         //Načítanie prologu
         if (current_state == String && (!(strcmp(buffer, "<?php\n")) || !(strcmp(buffer, "<?php\t")) || !(strcmp(buffer, "<?php "))))
         {
             next_state = Prolog;
+            if(c == '\n')
+            {
+                (*row)--;
+            }
             ungetc(c, stdin);
         }else if (current_state == String && stringlength == 7)
         {
@@ -466,7 +479,13 @@ Lexeme scan_lexeme()
                 stringlength--;
             }
             if (current_state != BlockCommentPotentialEnd)
-            ungetc((char)c, stdin);
+            {
+                if(c == '\n')
+                {
+                    (*row)--;
+                }
+                ungetc((char)c, stdin);
+            }
             
             *(current_index++) = '\0';
             stringlength++;
@@ -476,9 +495,10 @@ Lexeme scan_lexeme()
                 free(buffer);
                 Lexeme l;
                 l.type = NULLLEX;
+                l.row = *row;
                 return l;
             }
-            Lexeme l = generateLexeme(current_state, buffer, stringlength);
+            Lexeme l = generateLexeme(current_state, buffer, stringlength, *row);
             free(buffer);
             return l;
         } else if (next_state == ScanError)
@@ -486,6 +506,7 @@ Lexeme scan_lexeme()
             free(buffer);
             Lexeme l;
             l.type = SCANERROR;
+            l.row = *row;
             return l;
         }
         *(current_index++) = c;
@@ -590,10 +611,10 @@ void check_forKW(p_node root, Lexeme *l)
 Lexeme get_token(p_node binaryTree)
 {
     Lexeme l = {.type = NULLLEX};
-
+    static int row = 1;
     //Preskočenie komentárov
     while(l.type == NULLLEX){
-        l = scan_lexeme();
+        l = scan_lexeme(&row);
     }
     if (l.type == FUNCTION_ID)
     {

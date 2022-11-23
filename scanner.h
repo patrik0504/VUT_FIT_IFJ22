@@ -45,7 +45,6 @@ typedef enum{
     Minus,
     Multiply,
     Divide,
-    DivideOrComment,
     Comma,
     Konkatenace,
     Less,
@@ -116,8 +115,10 @@ typedef struct {
         int value;
         float exponent;
         float decimal;
+        int row_number;
         //int symtab_index;
     } extra_data;
+    int row;
 }Lexeme;
 
 /**
@@ -125,7 +126,7 @@ typedef struct {
  * Získava lexémy zo vstupu a vracia ich v tvare štruktúry Lexeme
  * @return Štuktúra Lexeme obsahujúca typ lexému a jeho data 
  */
-Lexeme get_token();
+Lexeme get_token(p_node binaryTree);
 /**
  * @brief Funkcia na inicializáciu binárneho stromu pre naše kľúčové slová
  * @return Vracia ukazateľ na koreň binárneho stromu
@@ -160,7 +161,7 @@ Lexeme scan_lexeme();
  * @param stringlength Dľžka vstupného stringu
  * @return Lexeme Štruktúra Lexeme obsahujúca typ lexému a jeho data
  */
-Lexeme generateLexeme(AutomatState state, char* pole, int stringlength);
+Lexeme generateLexeme(AutomatState state, char* pole, int stringlength, int row);
 /**
  * @brief Funckia na zmenu stavu konečného automatu
  * Funkcia dostáva na vstup aktuálny stav konečného automatu a znak zo vstupu a pomocou neho rozhodne o násl. stave

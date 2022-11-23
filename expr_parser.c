@@ -1,5 +1,8 @@
 #include "expr_parser.h"
 
+int negative_num = 0;
+int negative_par = 0;
+
 int precedence_lookup(symbol_type stack_symbol, symbol_type input)
 {
     /** Precedenční tabulka jako dvojrozměrný array (viz. dokumentace).
@@ -32,7 +35,7 @@ int precedence_lookup(symbol_type stack_symbol, symbol_type input)
 
 int expr(context context, p_node symtable, Lexeme *target)
 {
-    p_stack stack = stack_init(256);
+    p_stack stack = stack_init(PSA_STACK_SIZE);
     Lexeme l = {.type = NULLLEX};
 
     push(stack, SYM_STACK_TAG);
@@ -89,11 +92,43 @@ int expr(context context, p_node symtable, Lexeme *target)
 
 int check_operation (p_node symtable, p_stack stack, Lexeme *l, context context){
     symbol_type input_symbol = lex_type_to_psa(l);
+
+    //Řešení záporných hodnot
+    if (input_symbol == SYM_MINUS)
+    {
+        if (peek(stack) != SYM_ID && peek(stack) != SYM_NONTERMINAL)
+        {
+            *l = get_token();
+
+            //Mínus před závorkou   2*-(3+6)
+            if (l->type == LBRACKET)
+            {
+                negative_par = 1;
+            }
+            //Mínus před hodnotou   2+-3
+            else 
+            {
+                negative_num = 1;
+            }
+            
+            return 1;
+        }
+        
+    }
+
     int precedence = precedence_lookup(non_terminal_check(stack), input_symbol);
     
     symbol_type op3 = -1;
     symbol_type op2 = -1;
     symbol_type op1 = -1;
+
+
+
+    // 1 + (-2)
+
+    //VALID:     2-(-2),
+    //NOT VALID: 2--2, 
+    
 
     
     switch (precedence)
@@ -158,9 +193,15 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
     // Pravidla s jedním operandem
     if (op1 == -1 && op2 == -1)
     {
+
+        // 2*-(3+6)
         // <term>  -> i
-        if (op3 == SYM_ID)
+        if (op3 == SYM_ID )
         {
+            if(negative_num == 1){
+                printf("NEG_NUM ");
+                negative_num = 0;
+            }
             // TODO: semantická akce
             return RR_ID;
         }
@@ -169,18 +210,29 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
     // Pravidlo pro E <- (E)
     if (op3 == SYM_RPAR && op2 == SYM_NONTERMINAL && op1 == SYM_LPAR)
     {
+        if(negative_par == 1){
+                printf("NEG_PAR ");
+                negative_par = 0;
+        }
+
         return RR_PAR;
     }
     
     //Pravidla se dvěma operandy
     else if (op1 != -1 && op2 != -1 && op3 != -1)
     {
+        //2+(-3)
         //Pokud není op1 a op3 neterminál -> neexistuje takové pravidlo               PŘ: (EE+ nejde)
         if (op1 != SYM_NONTERMINAL || op3 != SYM_NONTERMINAL)
         {
             fprintf(stderr, "Neexistující pravidlo pro redukci!\n");
             return RR_None;
         }
+        /*else if (/* condition )
+        {
+            /* code */
+        
+        
 
         //Switch, který rozhodne o pravidlu redukce na základě operandu v op2
         switch (op2)
