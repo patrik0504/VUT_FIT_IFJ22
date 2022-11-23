@@ -5,6 +5,12 @@ int negative_par = 0;
 
 int precedence_lookup(symbol_type stack_symbol, symbol_type input)
 {
+    // Zabraňujeme přístupu do tabulky mimo její rozsah
+    if (stack_symbol >= 15 || input >= 15 || stack_symbol < 0 || input < 0)
+    {
+        return -1;
+    }
+
     /** Precedenční tabulka jako dvojrozměrný array (viz. dokumentace).
      *  @return  2: '>'
      *  @return  1: '='
@@ -98,7 +104,7 @@ int check_operation (p_node symtable, p_stack stack, Lexeme *l, context context)
     {
         if (peek(stack) != SYM_ID && peek(stack) != SYM_NONTERMINAL)
         {
-            *l = get_token();
+            *l = get_token(symtable);
 
             //Mínus před závorkou   2*-(3+6)
             if (l->type == LBRACKET)
@@ -122,14 +128,10 @@ int check_operation (p_node symtable, p_stack stack, Lexeme *l, context context)
     symbol_type op2 = -1;
     symbol_type op1 = -1;
 
-
-
     // 1 + (-2)
 
     //VALID:     2-(-2),
     //NOT VALID: 2--2, 
-    
-
     
     switch (precedence)
     {
@@ -144,7 +146,7 @@ int check_operation (p_node symtable, p_stack stack, Lexeme *l, context context)
         
         if (peek(stack) != SYM_HANDLE_TAG)
         {
-            fprintf(stderr, "Chyba syntaxe 1!\n");
+            error(l->row, "Ve výrazu chybí některý z operandů!", SYNTAX_ERROR);
             return 0;
         }
         reduction_rule result = check_rule(op1, op2, op3, stack);
@@ -157,7 +159,7 @@ int check_operation (p_node symtable, p_stack stack, Lexeme *l, context context)
         }
         else
         {
-            fprintf(stderr, "Chyba syntaxe 2!\n");
+            error(l->row, "Ve výrazu byla nalezena neznámá operace!", SYNTAX_ERROR);
             return 0;
         }
         break;
@@ -181,7 +183,14 @@ int check_operation (p_node symtable, p_stack stack, Lexeme *l, context context)
 
             
     default:
-        fprintf(stderr, "Chyba syntaxe! (%d)\n", precedence);
+            // Zabraňujeme přístupu do tabulky mimo její rozsah
+        if (input_symbol >= 17 || input_symbol < 0)
+        {
+            error(l->row, "Výraz nebyl správně ukončen, nebo se ve výrazu nachází neznámý symbol!", SYNTAX_ERROR);
+            return 0;
+        }
+
+        error(l->row, "Chyba v posloupnosti symbolů v rámci výrazu!", SYNTAX_ERROR);
         // debug 
         // printf("Stack: %s Input: %s\n",symbol_type_err[non_terminal_check(stack)], symbol_type_err[input_symbol]);
         return 0;
@@ -225,14 +234,8 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
         //Pokud není op1 a op3 neterminál -> neexistuje takové pravidlo               PŘ: (EE+ nejde)
         if (op1 != SYM_NONTERMINAL || op3 != SYM_NONTERMINAL)
         {
-            fprintf(stderr, "Neexistující pravidlo pro redukci!\n");
             return RR_None;
         }
-        /*else if (/* condition )
-        {
-            /* code */
-        
-        
 
         //Switch, který rozhodne o pravidlu redukce na základě operandu v op2
         switch (op2)
@@ -262,14 +265,12 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
 
         //Pokud se nenajde vhodné pravidlo, neexistuje.
         default:
-            fprintf(stderr, "Neexistující pravidlo pro redukci!\n");
             return RR_None;
         }        
     }
     else
     {
         //Neexistuje odpovídající pravidlo
-        fprintf(stderr, "Neexistující pravidlo pro redukci!\n");
         return RR_None;
     }
 
@@ -300,7 +301,7 @@ int should_end(context context, Lexeme *lexeme, p_stack stack)
     // V případě, že se neukončí dříve, vypne se  na EOF
     if (lexeme->type == LEXEOF)
     {
-        fprintf(stderr, "Chyba ukončení výrazu!\n");
+        error(lexeme->row, "Nějaký výraz nebyl správně ukončen - syntaktická analýza byla ukončena.", SYNTAX_ERROR);
         return 1;
     }
     return 0;

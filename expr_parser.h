@@ -4,6 +4,7 @@
 #include "scanner.h"
 #include "stack.h"
 #include "symtable.h"
+#include "error.h"
 
 #define PSA_STACK_SIZE 256
 
