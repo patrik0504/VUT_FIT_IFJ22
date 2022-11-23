@@ -6,6 +6,13 @@ int parse(){
     Lexeme * l = token_init(); 
     p_node globalFunctions = init_global_function();
     prog(l, binaryTree, globalFunctions);
+    int err;
+    check_func(globalFunctions, &err);
+    if(err == 0){
+        //TODO ERROR    
+        printf("Error: function not declared\n");
+        return 0;
+    }
     //debug_tree(globalFunctions);
 
     //Len pre testovanie
@@ -21,7 +28,7 @@ int parse(){
             }
         }
         else{
-            printf("Not found\n");
+            printf("Not found test2\n");
         }
         //debug tree elements globalono/lokalne
         if(globalFunctions->data->elements != NULL){
@@ -40,7 +47,7 @@ int parse(){
 int check_prolog(Lexeme *l, p_node binaryTree)
 {
     Dputs("Vosiel som do prologu\n");
-    if(get_token().type != PROLOG)
+    if(get_token(binaryTree).type != PROLOG)
     {
         Dputs("Nenaslo sa prolog\n"); 
         return 0;
@@ -131,7 +138,18 @@ int decl_param(Lexeme *l, p_node binaryTree, p_node globalFunctions)
     }
     else if(l->type == RBRACKET)
     {
-        result = 1;
+        p_node func = tree_search(globalFunctions, function_name);
+        if (func->data->defined)
+        {
+            if(func->data->param_count == count_tree(func->data->params))
+            {
+                result = 1;
+            }
+        }
+        else
+        {
+            result = 1;
+        }
     }
     return result;
 }
@@ -160,7 +178,18 @@ int decl_param2(Lexeme *l, p_node binaryTree, p_node globalFunctions, p_node fun
     }
     else if(l->type == RBRACKET)
     {
-        result = 1;
+        p_node func = function_node;
+        if (func->data->defined)
+        {
+            if(func->data->param_count == count_tree(func->data->params))
+            {
+                result = 1;
+            }
+        }
+        else
+        {
+            result = 1;
+        }
     }
     return result;
 }
@@ -191,6 +220,7 @@ int check_if_variable_is_defined(p_node functionPtr, char * variable)
 int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr)
 {
     int result = 0;
+    Dprintf("statement type %d\n", l->type);
     if (l->type == VARIABLE_ID)
     {
         if(!comesFromFunction)
@@ -221,8 +251,17 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
         p_node node = tree_search(globalFunctions, function_name);
         if(node == NULL)
         {
-            Dprintf("Funkcia %s neexistuje\n", function_name);
-            return PARSER_ERROR;
+            if(comesFromFunction)
+            {
+                p_data data = data_init();
+                node = node_init(data, function_name);
+                node->data->defined = true;
+                insert_node(globalFunctions, node);
+            } else
+            {
+                Dprintf("Funkcia %s neexistuje\n", function_name);
+                return PARSER_ERROR;
+            }
         }
         Dprintf("Funkcia %s existuje\n", function_name);
         *l = get_token(binaryTree);
@@ -370,6 +409,15 @@ int st_list(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFrom
             *l = get_token(binaryTree);
             result = st_list(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
         }
+    }else if(l->type == KW_RETURN)
+    {
+        result = statement(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
+        if(result)
+        {
+            Dputs("Nasiel som return v st_list\n");
+            *l = get_token(binaryTree);
+            result = st_list(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
+        }
     }
     result = 1;
     return result;
@@ -382,10 +430,15 @@ int param(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node functionP
     
     if(l->type == VARIABLE_ID)
     { 
-        if(count_tree(callFunction->data->params) == 0){
+        if((count_tree(callFunction->data->params) == 0) && (callFunction->data->declared)){
             Dprintf("Funkce %s nema zadne parametry a boli jej hodené\n", callFunction->key);
             return PARSER_ERROR;
+        } else if (callFunction->data->defined && !callFunction->data->declared )
+        {
+            Dprintf("pricitam parametr %s\n", l->extra_data.string);
+            callFunction->data->param_count++;
         }
+
         if(comesFromFunction)
         {
             if (check_if_variable_is_defined(functionPtr, l->extra_data.string) == 1)
@@ -412,19 +465,27 @@ int param(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node functionP
                 return PARSER_ERROR;
             }
         }
+    
     }
     else if(l->type == RBRACKET)
     {
-        if(param_count == count_tree(callFunction->data->params))
+        if(callFunction->data->defined && callFunction->data->declared)
+        {
+            if(param_count == count_tree(callFunction->data->params))
+            {
+                result = 1;
+            }
+            else
+            {
+                Dprintf("Zlý počet parametrov, očakávalo se %d, ale bylo zadáno %d\n", count_tree(callFunction->data->params), param_count);
+                result = PARSER_ERROR;
+            }
+        } else
         {
             result = 1;
         }
-        else
-        {
-            Dprintf("Zlý počet parametrov, očakávalo se %d, ale bylo zadáno %d\n", count_tree(callFunction->data->params), param_count);
-            result = PARSER_ERROR;
-        }
     }
+        
     return result;
 }
 
@@ -436,6 +497,11 @@ int param2(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node function
         *l = get_token(binaryTree);
         if(l->type == VARIABLE_ID)
         {
+            if (callFunction->data->defined && !callFunction->data->declared )
+            {
+                Dprintf("pricitam parametr %s\n", l->extra_data.string);
+                callFunction->data->param_count++;
+            }
             if(comesFromFunction)
             {
                 if (check_if_variable_is_defined(functionPtr, l->extra_data.string) == 1)
@@ -467,16 +533,23 @@ int param2(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node function
     }
     else if(l->type == RBRACKET)
     {
-        
-        if(paramCount == count_tree(callFunction->data->params))
+        if(callFunction->data->defined && callFunction->data->declared)
         {
-            Dprintf("Nasiel som %d parametrov\n", paramCount);
+            debug_tree(callFunction->data->params);
+            printf("\n");
+            if(paramCount == count_tree(callFunction->data->params))
+            {
+                Dprintf("Nasiel som %d parametrov\n", paramCount);
+                result = 1;
+            }
+            else
+            {
+                Dprintf("Zlý počet parametrov, očakávalo se %d, ale bylo zadáno %d\n", count_tree(callFunction->data->params), paramCount);
+                result = PARSER_ERROR;
+            }
+        }else
+        {
             result = 1;
-        }
-        else
-        {
-            Dprintf("Zlý počet parametrov, očakávalo se %d, ale bylo zadáno %d\n", count_tree(callFunction->data->params), paramCount);
-            result = PARSER_ERROR;
         }
     }
     return result;
@@ -532,16 +605,17 @@ int function_check(Lexeme *l, p_node binaryTree, p_node globalFunctions)
 
     int result = -1;
     char * func_name = l->extra_data.string;
-    if(tree_search(globalFunctions, l->extra_data.string) == NULL)
+    p_node root = tree_search(globalFunctions, l->extra_data.string);
+    Dprintf("Funkcia %s\n", l->extra_data.string);
+    if(root == NULL)
     {
-        //p_node node = node_init(NULL, l->extra_data.string);
-        //insert_node(globalFunctions, node);
         insert_function(globalFunctions, l);
         if(get_token(binaryTree).type == LBRACKET)
         {
             int result_args = decl_param(l, binaryTree, globalFunctions);
             if (result_args != 1)
             {
+                Dputs("Chyba pri deklaracii parametrov\n");
                 return result_args;
             }
             
@@ -565,6 +639,8 @@ int function_check(Lexeme *l, p_node binaryTree, p_node globalFunctions)
                         {
                             if(l->type == RBRACKET_S_KUDRLINKOU)
                             {
+                                node->data->declared = true;
+                                node->data->defined = true;
                                 Dputs("Funkcia je v poriadku\n");
                                 result = 1;
                             }
@@ -572,7 +648,49 @@ int function_check(Lexeme *l, p_node binaryTree, p_node globalFunctions)
                     }
                 }
             }
-
+        }
+    } else if (root->data->defined && !root->data->declared)
+    {
+        Dprintf("Funkcia %s je definovana, ale nie deklarovana\n", func_name);
+        if(get_token(binaryTree).type == LBRACKET)
+        {
+            int result_args = decl_param(l, binaryTree, globalFunctions);
+            if (result_args != 1)
+            {
+                //TODO error ale opacne pozor na ze program hadze chybu pri deklaracii, ale je to chyba pri volani lebo bola zavolana s inym poctom argumentom ako v definicii
+                Dputs("Chyba pri deklaracii parametrov\n");
+                return result_args;
+            }
+            
+            if(get_token(binaryTree).type == COLON)
+            {
+                *l = get_token(binaryTree);
+                int type = check_type(l);
+                if(type != -1)
+                {
+                    p_node node = tree_search(globalFunctions, func_name);
+                    if(node != NULL)
+                    {
+                        node->data->func_type = lexeme_type_to_type(l);
+                    }
+                    *l = get_token(binaryTree);
+                    if(l->type == LBRACKET_S_KUDRLINKOU)
+                    {
+                        *l = get_token(binaryTree);
+                        result = st_list(l, binaryTree, globalFunctions, 1, node);
+                        if(result)
+                        {
+                            if(l->type == RBRACKET_S_KUDRLINKOU)
+                            {
+                                node->data->declared = true;
+                                node->data->defined = true;
+                                Dputs("Funkcia je v poriadku\n");
+                                result = 1;
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
     return result;
@@ -721,6 +839,7 @@ p_data data_init()
     p_data data = (p_data)malloc(sizeof(struct data));
     data->declared = false;
     data->defined = false;
+    data->param_count = 0;
     data->func_type = -1;
     data->params = NULL;
     data->elements = NULL;
@@ -745,7 +864,19 @@ p_data data_init_type(int type)
     p_data data = (p_data)malloc(sizeof(struct data));
     data->declared = false;
     data->defined = false;
+    data->param_count = 0;
     data->func_type = type;
+    data->params = NULL;
+    data->elements = NULL;
+    return data;
+}
+p_data data_init_KW()
+{
+    p_data data = (p_data)malloc(sizeof(struct data));
+    data->declared = true;
+    data->defined = true;
+    data->param_count = 0;
+    data->func_type = -1;
     data->params = NULL;
     data->elements = NULL;
     return data;
@@ -773,7 +904,7 @@ int lexeme_type_to_type(Lexeme *l)
 
 p_node init_global_function()
 {
-    p_data data = data_init();
+    p_data data = data_init_KW();
     p_node root = node_init(data, "if");
     p_node node2 = node_init(data, "while");
     insert_node(root, node2);

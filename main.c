@@ -5,7 +5,9 @@
 #include "symtable.h"
 #include "stack.h"
 #include "parser.h"
+#include "error.h"
 
+// TODO: oddělat (přijde do parseru)
 #include "expr_parser.h"
 
 void bst_test() 
@@ -58,28 +60,30 @@ void bst_test()
 }
 
 int main() {
+    error_list_init();
+    
+    //int some = 0;
+    //some = parse();
 
+    error(1, "Token retrn nebylo možné zpracovat! (Možná jste mysleli return?)", LEX_ERROR);
+    error(69, "U výrazu chybí ';' pro ukončení!", SYNTAX_ERROR);
+    error(112, "Volání funkce neodpovídá její deklaraci!", SEM_INVALID_CALL_ERROR);
+    error(360, "Typy operandů výrazu nejsou navzájem kompatibilní!", SEM_INVALID_TYPE_ERROR);
+
+
+    /*
     p_node binaryTree = init_binary_treeKW();
     Lexeme l = {.type = NULLLEX};
 
     while(l.type != LEXEOF)
     {
         l = get_token(binaryTree);
-        if (l.type == LBRACKET)
-        {
-            expr(CALL_CONTROL, binaryTree, NULL);
-        }
-        if (l.type == EQUAL)
-        {
-            expr(ASSIGNMENT, binaryTree, NULL);
-        }
-        if (l.type == KW_RETURN)
-        {
-            expr(RETURN, binaryTree, NULL);
-        }
+
+        printf("Row of lexeme: %d\n", l.row);
+        //printf("TYPE = %d\n", l.type);
 
         //DEBUGOVACI PRINTY, MUZE SE SMAZAT, JEN PRO PREDSTAVU JAK TO VRACI TOKENY
-        /*if (l.type == NUMBER)
+        if (l.type == NUMBER)
         {
             printf("lexem je %d\n", l.extra_data.value);
         } else if (l.type == EXPONENT_NUMBER)
@@ -139,12 +143,11 @@ int main() {
         else
         {
             printf("lexem je %s\n", str_lexeme(l));
-            printf("typ lexemu je %d\n", l.type);
+            //printf("typ lexemu je %d\n", l.type);
         }
-        //KONEC DEBUGOVACICH PRINTU
-        */
+        //KONEC DEBUGOVACICH PRINTU 
     }
 
-    tree_destroy(binaryTree);
-    return 0;
+    tree_destroy(binaryTree); */
+    return error_eval();
 }
