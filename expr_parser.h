@@ -7,8 +7,6 @@
 
 #define PSA_STACK_SIZE 256
 
-
-
 typedef enum {
     ASSIGNMENT,
     CALL_CONTROL,

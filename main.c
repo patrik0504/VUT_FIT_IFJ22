@@ -74,11 +74,14 @@ int main() {
     /*
     p_node binaryTree = init_binary_treeKW();
     Lexeme l = {.type = NULLLEX};
+
     while(l.type != LEXEOF)
     {
         l = get_token(binaryTree);
+
         printf("Row of lexeme: %d\n", l.row);
         //printf("TYPE = %d\n", l.type);
+
         //DEBUGOVACI PRINTY, MUZE SE SMAZAT, JEN PRO PREDSTAVU JAK TO VRACI TOKENY
         if (l.type == NUMBER)
         {
@@ -136,18 +139,14 @@ int main() {
         else if (l.type == KW_STRING)
         {
             printf("keyword je STRING\n");
-        }else if (l.type == KW_FUNCTION)
-        {
-            printf("keyword je FUNCTION\n");
-
-        }else
+        }
+        else
         {
             printf("lexem je %s\n", str_lexeme(l));
             //printf("typ lexemu je %d\n", l.type);
         }
         //KONEC DEBUGOVACICH PRINTU 
     }
-
 
     tree_destroy(binaryTree); */
     return error_eval();

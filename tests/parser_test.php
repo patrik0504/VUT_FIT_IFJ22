@@ -1,7 +1,8 @@
 <?php 
 declare(strict_types=1);
 
-function some(int $a, int $b, int $c) : int {
+$bbb = ($a + 3)/3;
+/*function some(int $a, int $b, int $c) : int {
     
 }
 $a = 5;
@@ -58,4 +59,4 @@ function test2(int $a, int $b, float $ads, string $tojesuper) : int {
         $c = $a;
         some($a, $b, $c);
     }
-}
+}*/
