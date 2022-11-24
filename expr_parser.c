@@ -98,7 +98,7 @@ int check_operation (p_node symtable, p_stack stack, Lexeme *l, context context)
     {
         if (peek(stack) != SYM_ID && peek(stack) != SYM_NONTERMINAL)
         {
-            *l = get_token();
+            *l = get_token(symtable);
 
             //Mínus před závorkou   2*-(3+6)
             if (l->type == LBRACKET)
