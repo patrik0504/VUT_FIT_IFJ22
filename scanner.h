@@ -9,6 +9,7 @@
 #include <malloc.h>
 #include "functions.h"
 #include "symtable.h"
+#include "error.h"
 
 #define ARRAYSIZE 5
 // Dlžka escape sekvencie pre Hexa formát

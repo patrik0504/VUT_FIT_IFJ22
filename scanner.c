@@ -621,5 +621,9 @@ Lexeme get_token(p_node binaryTree)
         //Ak je lexém kľúčové slovo, zmení sa jeho typ
         check_forKW(binaryTree, &l);
     }
+    if(l.type == SCANERROR)
+    {
+        error(l.row, "Lexikalna chyba", LEX_ERROR);
+    }
     return l;
 }   

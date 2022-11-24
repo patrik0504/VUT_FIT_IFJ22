@@ -626,7 +626,7 @@ int function_check(Lexeme *l, p_node binaryTree, p_node globalFunctions)
             {
                 *l = get_token(binaryTree);
                 int type = check_type(l);
-                if(type != -1)
+                if(type != 0)
                 {
                     p_node node = tree_search(globalFunctions, func_name);
                     if(node != NULL)
@@ -637,8 +637,8 @@ int function_check(Lexeme *l, p_node binaryTree, p_node globalFunctions)
                     if(l->type == LBRACKET_S_KUDRLINKOU)
                     {
                         *l = get_token(binaryTree);
-                        result = st_list(l, binaryTree, globalFunctions, 1, node);
-                        if(result)
+                        int result_st = st_list(l, binaryTree, globalFunctions, 1, node);
+                        if(result_st)
                         {
                             if(l->type == RBRACKET_S_KUDRLINKOU)
                             {
@@ -669,7 +669,7 @@ int function_check(Lexeme *l, p_node binaryTree, p_node globalFunctions)
             {
                 *l = get_token(binaryTree);
                 int type = check_type(l);
-                if(type != -1)
+                if(type != 0)
                 {
                     p_node node = tree_search(globalFunctions, func_name);
                     if(node != NULL)
@@ -680,8 +680,8 @@ int function_check(Lexeme *l, p_node binaryTree, p_node globalFunctions)
                     if(l->type == LBRACKET_S_KUDRLINKOU)
                     {
                         *l = get_token(binaryTree);
-                        result = st_list(l, binaryTree, globalFunctions, 1, node);
-                        if(result)
+                        int result_st = st_list(l, binaryTree, globalFunctions, 1, node);
+                        if(result_st)
                         {
                             if(l->type == RBRACKET_S_KUDRLINKOU)
                             {
@@ -696,6 +696,10 @@ int function_check(Lexeme *l, p_node binaryTree, p_node globalFunctions)
             }
         }
     }
+    if(!result)
+    {
+        error(l->row, "Chyba pri deklaracii funkcie", SYNTAX_ERROR);
+    }
     return result;
 }
 
@@ -706,8 +710,8 @@ int if_check(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFro
     if (l->type == LBRACKET)
     {
         //Call expression
-        result = expr(CALL_CONTROL, binaryTree, l);
-        if(!result)
+        int result_expr = expr(CALL_CONTROL, binaryTree, l);
+        if(!result_expr)
         {
             Dputs("Chyba pri vyrazoch v ife\n");
             return 0;
@@ -717,8 +721,8 @@ int if_check(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFro
         if(l->type == LBRACKET_S_KUDRLINKOU)
         {
             *l = get_token(binaryTree);
-            result = st_list(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
-            if (result)
+            int result_st = st_list(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
+            if (result_st)
             {
                 if(l->type == RBRACKET_S_KUDRLINKOU)
                 {
@@ -729,8 +733,8 @@ int if_check(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFro
                         if(l->type == LBRACKET_S_KUDRLINKOU)
                         {
                             *l = get_token(binaryTree);
-                            result = st_list(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
-                            if (result)
+                            result_st = st_list(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
+                            if (result_st)
                             {
                                 if(l->type == RBRACKET_S_KUDRLINKOU)
                                 {
@@ -743,7 +747,10 @@ int if_check(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFro
                 }
             }
         }
-        
+    }
+    if(!result)
+    {
+        error(l->row, "Chyba pri definicii ifu\n", SYNTAX_ERROR);
     }
     return result;
 }

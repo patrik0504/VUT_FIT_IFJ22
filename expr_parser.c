@@ -54,12 +54,12 @@ int expr(context context, p_node symtable, Lexeme *target)
         return 1;
     }
 
-    printf("Pravý rozbor: ");
+    //printf("Pravý rozbor: ");
 
     //Check ukončení
     while (!should_end(context, &l, stack))
     {
-        //printf("While stack: ");
+        ////printf("While stack: ");
         //stack_print(stack);
         if(l.type == LBRACKET)
         {
@@ -71,7 +71,7 @@ int expr(context context, p_node symtable, Lexeme *target)
         }
         if(check_operation(symtable, stack, &l, context) == 0)
         {
-            printf("\n");
+            //printf("\n");
             stack_destroy(stack);
             return 0;
         }
@@ -86,12 +86,12 @@ int expr(context context, p_node symtable, Lexeme *target)
     {
         if(check_operation(symtable, stack, &l, context) == 0)
         {
-            printf("\n");
+            //printf("\n");
             stack_destroy(stack);
             return 0;
         }
     }
-    printf("\n");
+    //printf("\n");
     stack_destroy(stack);
     return 1;
 }
@@ -154,7 +154,7 @@ int check_operation (p_node symtable, p_stack stack, Lexeme *l, context context)
         {
             pop(stack); // Pop handle
             push(stack, SYM_NONTERMINAL);
-            printf("%d ", result);
+            //printf("%d ", result);
             return 1;
         }
         else
@@ -168,7 +168,7 @@ int check_operation (p_node symtable, p_stack stack, Lexeme *l, context context)
     case 1:
         push(stack, input_symbol);
 
-        printf("%d ", RR_PAR);
+        //printf("%d ", RR_PAR);
         *l = get_token(symtable);
         return 1;
         break;
@@ -192,7 +192,7 @@ int check_operation (p_node symtable, p_stack stack, Lexeme *l, context context)
 
         error(l->row, "Chyba v posloupnosti symbolů v rámci výrazu!", SYNTAX_ERROR);
         // debug 
-        // printf("Stack: %s Input: %s\n",symbol_type_err[non_terminal_check(stack)], symbol_type_err[input_symbol]);
+        // //printf("Stack: %s Input: %s\n",symbol_type_err[non_terminal_check(stack)], symbol_type_err[input_symbol]);
         return 0;
     }
 }
@@ -208,7 +208,7 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
         if (op3 == SYM_ID )
         {
             if(negative_num == 1){
-                printf("NEG_NUM ");
+                //printf("NEG_NUM ");
                 negative_num = 0;
             }
             // TODO: semantická akce
@@ -220,7 +220,7 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
     if (op3 == SYM_RPAR && op2 == SYM_NONTERMINAL && op1 == SYM_LPAR)
     {
         if(negative_par == 1){
-                printf("NEG_PAR ");
+                //printf("NEG_PAR ");
                 negative_par = 0;
         }
 
