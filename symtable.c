@@ -118,7 +118,7 @@ int check_func(p_node root, int *error)
         check_func(root->left, error);
         if(!(root->data->defined == true && root->data->declared == true))
         {
-            fprintf(stderr, "Chyba: Funkce %s je definovana, ale neni deklarovana.\n", root->key);
+            Dprintf("Chyba: Funkce %s je definovana, ale neni deklarovana.\n", root->key);
             *error = 1;
         }
         check_func(root->right, error);

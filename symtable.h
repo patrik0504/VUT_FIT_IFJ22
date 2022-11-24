@@ -2,6 +2,7 @@
 #define SYMTABLE_FILE
 
 #include <stdbool.h>
+#include "functions.h"
 
 typedef enum{
     INT,

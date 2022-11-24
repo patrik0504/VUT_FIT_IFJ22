@@ -62,45 +62,23 @@ void bst_test()
 int main() {
     error_list_init();
     
-    //int some = 0;
-    //some = parse();
+    int some = 0;
+    some = parse();
 
-    /* Příklady volání chyb
-    error(1, "Token retrn nebylo možné zpracovat! (Možná jste mysleli return?)", LEX_ERROR);
-    error(69, "U výrazu chybí ';' pro ukončení!", SYNTAX_ERROR);
-    error(112, "Volání funkce neodpovídá její deklaraci!", SEM_INVALID_CALL_ERROR);
-    error(360, "Typy operandů výrazu nejsou navzájem kompatibilní!", SEM_INVALID_TYPE_ERROR);
-    */
-
-    p_node binaryTree = init_binary_treeKW();
-    Lexeme l = {.type = NULLLEX};
-
-    while(l.type != LEXEOF)
-    {
-        l = get_token(binaryTree);
-        if (l.type == LBRACKET)
-        {
-            expr(CALL_CONTROL, binaryTree, NULL);
-        }
-        if (l.type == EQUAL)
-        {
-            expr(ASSIGNMENT, binaryTree, NULL);
-        }
-        if (l.type == KW_RETURN)
-        {
-            expr(RETURN, binaryTree, NULL);
-        }
-    }
+    //error(1, "Token retrn nebylo možné zpracovat! (Možná jste mysleli return?)", LEX_ERROR);
+    //error(69, "U výrazu chybí ';' pro ukončení!", SYNTAX_ERROR);
+    //error(112, "Volání funkce neodpovídá její deklaraci!", SEM_INVALID_CALL_ERROR);
+    //error(360, "Typy operandů výrazu nejsou navzájem kompatibilní!", SEM_INVALID_TYPE_ERROR);
 
 
     /*
     p_node binaryTree = init_binary_treeKW();
+
     Lexeme l = {.type = NULLLEX};
 
     while(l.type != LEXEOF)
     {
         l = get_token(binaryTree);
-
         printf("Row of lexeme: %d\n", l.row);
         //printf("TYPE = %d\n", l.type);
 
