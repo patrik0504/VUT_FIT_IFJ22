@@ -6,6 +6,7 @@
 #include <stdio.h>
 
 #include "scanner.h"
+#include "error.h"
 
 /** Enum značící typ symbolu pro precedenční syntaktickou analýzu */
 typedef enum 

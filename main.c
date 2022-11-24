@@ -147,7 +147,7 @@ int main() {
         }
         //KONEC DEBUGOVACICH PRINTU 
     }
-
-    tree_destroy(binaryTree); */
+    */
+    tree_destroy(binaryTree); 
     return error_eval();
 }

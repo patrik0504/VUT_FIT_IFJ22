@@ -19,8 +19,7 @@ int checkOverflow(p_stack stack)
 {
     if (stack->top == stack->size - 1)
     {
-        fprintf(stderr, "\
-        Chyba při vkládání do stacku: Bylo zabráněno přetečení\n");
+        error(0, "Chyba při vkládání do stacku: Bylo zabráněno přetečení", SEM_INTERNAL_ERROR);
         return 0;
     }
     return 1;
@@ -30,8 +29,7 @@ int checkUnderflow(p_stack stack)
 {
     if (stack->top == -1)
     {
-        fprintf(stderr, "\
-        Chyba při mazání ze stacku: Bylo zabráněno podtečení\n");
+        error(0, "Chyba při mazání ze stacku: Bylo zabráněno podtečení", SEM_INTERNAL_ERROR);
         return 0;
     }
     return 1;
