@@ -11,7 +11,7 @@
 
 
 //odkomentovat pre vypnutie debugovania
-//#define NDEBUG
+#define NDEBUG
 
 #ifdef NDEBUG
 #define Dprintf(FORMAT, ...) ((void)0)
