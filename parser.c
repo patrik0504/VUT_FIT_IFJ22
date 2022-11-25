@@ -695,6 +695,9 @@ int function_check(Lexeme *l, p_node binaryTree, p_node globalFunctions)
                 }
             }
         }
+    } else if (root->data->defined && root->data->declared)
+    {
+        error(l->row, "Pokus o redefinici funkce", SEM_UNDEFINED_FUNC_ERROR);
     }
     if(!result)
     {
