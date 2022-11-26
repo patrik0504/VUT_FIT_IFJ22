@@ -5,6 +5,7 @@ int parse(){
     p_node binaryTree = init_binary_treeKW();
     Lexeme * l = token_init(); 
     p_node globalFunctions = init_global_function();
+    printProlog();
     prog(l, binaryTree, globalFunctions);
     int err = 0;
     check_func(globalFunctions, &err);
@@ -43,6 +44,7 @@ int parse(){
     token_free(l);
     return result;
 }
+
 
 int check_prolog(Lexeme *l, p_node binaryTree)
 {
@@ -261,11 +263,16 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
                 node = node_init(data, function_name);
                 node->data->defined = true;
                 insert_node(globalFunctions, node);
-            } else
+            }
+            else
             {
                 error(l->row, "Funkcia nie je definovana", SEM_UNDEFINED_FUNC_ERROR);
                 return 0;
             }
+        } else if (strcmp(node->key, "write") == 0)
+        {
+            result = writeString(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
+            return result;
         }
         *l = get_token(binaryTree);
         
@@ -605,7 +612,6 @@ int control(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFrom
 int function_check(Lexeme *l, p_node binaryTree, p_node globalFunctions)
 {
     *l = get_token(binaryTree);
-
     int result = 0;
     char * func_name = l->extra_data.string;
     p_node root = tree_search(globalFunctions, l->extra_data.string);
@@ -652,7 +658,7 @@ int function_check(Lexeme *l, p_node binaryTree, p_node globalFunctions)
                 }
             }
         }
-    } else if (root->data->defined && !root->data->declared)
+    }else if (root->data->defined && !root->data->declared)
     {
         Dprintf("Funkcia %s je definovana, ale nie deklarovana\n", func_name);
         if(get_token(binaryTree).type == LBRACKET)
@@ -939,5 +945,7 @@ p_node init_global_function()
     insert_node(root, node9);
     p_node node10 = node_init(data, "function");
     insert_node(root, node10);
+    p_node node11 = node_init(data, "write");
+    insert_node(root, node11);
     return root;
 }

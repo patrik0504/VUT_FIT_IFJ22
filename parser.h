@@ -14,6 +14,8 @@
 #include "scanner.h"
 #include "expr_parser.h"
 #include "error.h"
+#include "code_gen.h"
+#include "built_in_functions.h"
 
 typedef enum{
     PARSER_ERROR
