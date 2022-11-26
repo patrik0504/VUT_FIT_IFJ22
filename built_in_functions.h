@@ -13,6 +13,9 @@
  
 int writeString(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr);
 int writeString2(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr);
-bool declaredCheck(p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr, Lexeme L);
+bool declaredCheck(p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr, Lexeme l);
+void shiftRight(char* buffer, int shift, int stringlength);
+void evaluateEscapeSequencies(Lexeme *l);
+void replaceEscapeSequenceByNumber(char *buffer, char c);
 
 #endif

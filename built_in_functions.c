@@ -34,7 +34,10 @@ int writeString(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comes
                     ok = false;
                     error(l->row, "Neočekávaný znak ve volání WRITE", SYNTAX_ERROR);
             }
-        }
+        }else if (l->type == STRING_LITERAL)
+        {
+            evaluateEscapeSequencies(l);
+        } 
         if (ok)
         {
             write(*l);
@@ -78,7 +81,10 @@ int writeString2(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool come
                     ok = false;
                     error(l->row, "Neočekávaný znak ve volání WRITE", SYNTAX_ERROR);
             }
-        }  
+        } else if (l->type == STRING_LITERAL)
+        {
+            evaluateEscapeSequencies(l);
+        } 
         if (ok)
         {
             write(*l);
@@ -113,5 +119,52 @@ bool declaredCheck(p_node binaryTree, p_node globalFunctions, bool comesFromFunc
                     }
         }
         return true;
+    }
+}
+
+void shiftRight(char* buffer, int shift, int stringlength) 
+{
+    for(int j = stringlength - 1 - shift; j>0; j--)
+    {
+        buffer[j+shift] = buffer[j];
+    }
+    return;
+}
+
+void replaceEscapeSequenceByNumber(char *buffer, char c)
+{
+    int asciivalue = (int)c;
+    buffer[3] = asciivalue%10 + 48;
+    asciivalue = (asciivalue - asciivalue%10)/10;
+    buffer[2] = asciivalue%10 + 48;
+    asciivalue = (asciivalue - asciivalue%10)/10;
+    buffer[1] = asciivalue%10 + 48;
+    //92 == '\'
+    buffer[0] = 92;
+    return;
+}
+
+void evaluateEscapeSequencies(Lexeme *l)
+{
+    int stringlength = strlen(l->extra_data.string);
+    stringlength +=1;   //kvuli znaku '\0', ktery tam funkce strlen nezapocitava
+    int i = 0;
+    char c;
+    while (i < stringlength-1)
+    {
+        c = l->extra_data.string[i];
+        switch(c)
+        {
+            case '\0'...' ':
+            case '#':
+            case 92:
+                l->extra_data.string = realloc(l->extra_data.string, stringlength+3);
+                shiftRight(&l->extra_data.string[i], 3, stringlength-i+3);
+                replaceEscapeSequenceByNumber(&l->extra_data.string[i], c);
+                stringlength +=3;
+                break;
+
+        }
+        i++;
     }
 }
