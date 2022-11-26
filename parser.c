@@ -173,6 +173,11 @@ int decl_param2(Lexeme *l, p_node binaryTree, p_node globalFunctions, p_node fun
             {
                 //p_node node = tree_search(globalFunctions, function_name);
                 p_data data = data_init_type(type);
+                if(tree_search(function_node->data->params, l->extra_data.string) != NULL)
+                {
+                    error(l->row, "Premenná bola deklarovaná viackrát", SEM_OTHER_ERROR);
+                    return 0;
+                }
                 p_node param = node_init(data, l->extra_data.string);
                 insert_node(function_node->data->params, param);
                 result = decl_param2(l, binaryTree, globalFunctions, function_node);
