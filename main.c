@@ -92,10 +92,6 @@ int main() {
         } else if (l.type == DECIMAL_NUMBER)
         {
             printf("lexem je %f\n", l.extra_data.decimal);
-        } else if (l.type == SCANERROR)
-        {
-            printf("Unexpected character\n");
-            return 1;
         }else if (l.type == COMMA)
         {
             printf("lexem je carka\n");

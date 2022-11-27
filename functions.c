@@ -27,6 +27,10 @@ int StrOctToDec(char* buffer)
     }
     int oct = atoi(buffer);
 
+    if (oct > 255 || oct <= 0)
+    {
+        return -1;
+    }
     int rem, dec=0, mul=1;
     while(oct != 0)
     {
@@ -63,6 +67,10 @@ int StrHexToDec(char* hex){
         {
             return -1;
         }
+    }
+    if(dec == 0)
+    {
+        return -1;
     }
     return dec;
 }
