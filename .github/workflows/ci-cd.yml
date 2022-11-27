@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: configure
-        run: git clone https://github.com/galloj/IFJ22_Tester.git testsJirka
+        run: git clone https://github.com/galloj/IFJ22_Tester.git /testsJirka
 
       - name: Install dependencies
         run: sudo apt-get -y install valgrind
@@ -28,4 +28,4 @@ jobs:
 
       - name: valgrind
         run: |
-          valgrind --leak-check=yes ./ifj_comp < tests/factorial_rek.php
+          valgrind --leak-check=yes ./ifj_comp < tests/faktorial_rek.php
