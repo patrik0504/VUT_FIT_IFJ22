@@ -25,7 +25,7 @@ jobs:
         run: |
          make
          cd testsJirka
-         ./test.py ../ifj_comp ../ic22int
+         sudo ./test.py ../ifj_comp ../ic22int
 
       - name: valgrind
         run: |
