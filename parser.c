@@ -708,7 +708,15 @@ int function_check(Lexeme *l, p_node binaryTree, p_node globalFunctions)
         }
     } else if (root->data->defined && root->data->declared)
     {
-        error(l->row, "Pokus o redefinici funkce", SEM_UNDEFINED_FUNC_ERROR);
+        if(tree_search(binaryTree, func_name) == NULL)
+        {
+            error(l->row, "Pokus o redefinici funkce", SEM_UNDEFINED_FUNC_ERROR);
+        }
+        else
+        {
+            error(l->row, "Názov funkcie je key word", SYNTAX_ERROR);
+        }
+        
     }
     if(!result)
     {
