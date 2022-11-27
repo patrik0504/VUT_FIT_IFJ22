@@ -24,6 +24,7 @@ jobs:
       - name: make
         run: |
          make
+         sudo chmod +777 ic22int
          cd testsJirka
          ./test.py ../ifj_comp ../ic22int
 
