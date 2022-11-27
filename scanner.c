@@ -295,6 +295,11 @@ Lexeme generateLexeme(AutomatState state, char* buffer, int stringlength, int ro
         case Decimal:
             final_lexeme.type = DECIMAL_NUMBER;
             //Prevedenie stringu na číslo a uloženie do lexému
+            if(buffer[stringlength-2] == '.')
+            {
+                error(row, "Desatinné číslo nemôže končiť s .", LEX_ERROR);
+                final_lexeme.type = SCANERROR;
+            }
             final_lexeme.extra_data.decimal = atof(buffer);
             break;
         case Exponent:
@@ -409,6 +414,7 @@ Lexeme scan_lexeme(int *row)
     {
         //Načítanie znaku zo vstupu
         c = getchar();
+        //printf("Aktualny znak: %c\n", c);
         //Ak je znak nový riadok, zvýšenie počítadla riadkov
         if(c == '\n')
         {
@@ -451,20 +457,32 @@ Lexeme scan_lexeme(int *row)
             stringlength = 0;
         }
         //Načítanie prologu
-        if (current_state == String && (!(strcmp(buffer, "<?php\n")) || !(strcmp(buffer, "<?php\t")) || !(strcmp(buffer, "<?php "))))
+        if (current_state == String && (!(strcmp(buffer, "<?php\n")) || !(strcmp(buffer, "<?php\t")) || !(strcmp(buffer, "<?php ")) || !(strcmp(buffer, "<?php/"))))
         {
             next_state = Prolog;
             if(c == '\n')
             {
                 (*row)--;
             }
-            ungetc(c, stdin);
+            if(c == '/')
+            {
+                ungetc(c, stdin);
+            }
+            if(c == '*')
+            {
+                ungetc(c, stdin);
+                ungetc('/', stdin);
+            }
+            else
+            {
+                ungetc(c, stdin);
+            }
         }else if (current_state == String && stringlength == 7)
         {
             if(!strncmp(buffer, "<?phpx", 5))
             {
                 free(buffer);
-                return (Lexeme){.type = SCANERROR};
+                return (Lexeme){.type = SCANERROR, .row = *row};
             }
         }
         else
