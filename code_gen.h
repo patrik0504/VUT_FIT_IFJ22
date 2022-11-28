@@ -21,6 +21,13 @@ void printBuiltInFunctions();
 void codeGenReads();
 void codeGenReadi();
 void codeGenReadf();
+void createFrame();
+void generateParam(int number, Lexeme *l, bool comesFromFunction);
+void callFunction(char *functionName);
+void defineNewVar(char *varName, bool comesFromFunction);
+void declareFunction(char *functionName);
+void declareParams(int number, char *varName);
+void codeGenReturn(bool comesFromFunction, char *functionName);
 
 
 #endif

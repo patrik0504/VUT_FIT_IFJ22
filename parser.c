@@ -138,6 +138,8 @@ int decl_param(Lexeme *l, p_node binaryTree, p_node globalFunctions)
             p_data data = data_init_type(type);
             p_node param = node_init(data, l->extra_data.string);
             node->data->params = param;
+            node->data->param_count++;
+            declareParams(node->data->param_count, l->extra_data.string);
             result = decl_param2(l, binaryTree, globalFunctions, node);
         }
     }
@@ -181,6 +183,8 @@ int decl_param2(Lexeme *l, p_node binaryTree, p_node globalFunctions, p_node fun
                 }
                 p_node param = node_init(data, l->extra_data.string);
                 insert_node(function_node->data->params, param);
+                function_node->data->param_count++;
+                declareParams(function_node->data->param_count, l->extra_data.string);
                 result = decl_param2(l, binaryTree, globalFunctions, function_node);
 
             }
@@ -246,6 +250,7 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
                 {
                     insert_node(globalFunctions->data->elements, local_var);
                 }
+                defineNewVar(l->extra_data.string, false);
             }
         }
         *l = get_token(binaryTree);
@@ -303,6 +308,7 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
                 if(l->type == RBRACKET)
                 {
                     Dputs("Nasiel som volanie funkcie v statemente\n");
+                    callFunction(function_name);
                     result = 1;
                 }
             }
@@ -315,6 +321,7 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
             Dputs("Nasiel som return v statemente\n");
             result = 1;
         }
+        codeGenReturn(comesFromFunction, functionPtr->key);
     }
     return result;
 }
@@ -355,6 +362,7 @@ int st_list(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFrom
                             insert_node(functionPtr->data->elements, local_var);
                         }
                         Dprintf("nasel jsem lokalni promennou %s\n", l->extra_data.string);
+                        defineNewVar(l->extra_data.string, comesFromFunction);
                     }
                 } else
                 {
@@ -467,6 +475,8 @@ int param(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node functionP
             if (check_if_variable_is_defined(functionPtr, l->extra_data.string) == 1)
             {
                 param_count++;
+                createFrame();
+                generateParam(param_count, l, comesFromFunction);
                 *l = get_token(binaryTree);
                 result = param2(l, binaryTree, comesFromFunction, functionPtr, param_count, callFunction, globalFunctions);
             } else
@@ -480,6 +490,7 @@ int param(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node functionP
             if(tree_search(globalFunctions->data->elements, l->extra_data.string) != NULL)
             {
                 param_count++;
+                generateParam(param_count, l, comesFromFunction);
                 *l = get_token(binaryTree);
                 result = param2(l, binaryTree, comesFromFunction, functionPtr, param_count, callFunction, globalFunctions);
             }
@@ -491,6 +502,23 @@ int param(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node functionP
             }
         }
     
+    } else if (l->type == NUMBER || l->type == STRING_LITERAL || l->type == DECIMAL_NUMBER || l->type == EXPONENT_NUMBER)
+    {
+        if((count_tree(callFunction->data->params) == 0) && (callFunction->data->declared)){
+            Dprintf("Funkce %s nema zadne parametry a boli jej hodené\n", callFunction->key);
+            error(l->row, "Funkce nema zadne parametry a boli jej hodené", SEM_INVALID_CALL_ERROR);
+            return 0;
+        } else if (callFunction->data->defined && !callFunction->data->declared )
+        {
+            Dprintf("pricitam parametr %s\n", l->extra_data.string);
+            callFunction->data->param_count++;
+        }
+
+        param_count++;
+        createFrame();
+        generateParam(param_count, l, comesFromFunction);
+        *l = get_token(binaryTree);
+        result = param2(l, binaryTree, comesFromFunction, functionPtr, param_count, callFunction, globalFunctions);
     }
     else if(l->type == RBRACKET)
     {
@@ -533,6 +561,7 @@ int param2(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node function
                 if (check_if_variable_is_defined(functionPtr, l->extra_data.string) == 1)
                 {
                     paramCount++;
+                    generateParam(paramCount, l, comesFromFunction);
                     *l = get_token(binaryTree);
                     result = param2(l, binaryTree, comesFromFunction, functionPtr, paramCount, callFunction, globalFunctions);
                 } else
@@ -546,6 +575,7 @@ int param2(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node function
                 if(tree_search(globalFunctions->data->elements, l->extra_data.string) != NULL)
                 {
                     paramCount++;
+                    generateParam(paramCount, l, comesFromFunction);
                     *l = get_token(binaryTree);
                     result = param2(l, binaryTree, comesFromFunction, functionPtr, paramCount, callFunction, globalFunctions);
                 }
@@ -556,7 +586,19 @@ int param2(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node function
                 }
             }
             
-        }
+        } else if (l->type == NUMBER || l->type == STRING_LITERAL || l->type == DECIMAL_NUMBER || l->type == EXPONENT_NUMBER)
+        {
+            if (callFunction->data->defined && !callFunction->data->declared )
+            {
+                Dprintf("pricitam parametr %s\n", l->extra_data.string);
+                callFunction->data->param_count++;
+            }
+
+            paramCount++;
+            generateParam(paramCount, l, comesFromFunction);
+            *l = get_token(binaryTree);
+            result = param2(l, binaryTree, comesFromFunction, functionPtr, paramCount, callFunction, globalFunctions);
+    }
     }
     else if(l->type == RBRACKET)
     {
@@ -637,6 +679,7 @@ int function_check(Lexeme *l, p_node binaryTree, p_node globalFunctions)
     if(root == NULL)
     {
         insert_function(globalFunctions, l);
+        declareFunction(l->extra_data.string);
         if(get_token(binaryTree).type == LBRACKET)
         {
             int result_args = decl_param(l, binaryTree, globalFunctions);
@@ -979,5 +1022,7 @@ p_node init_global_function()
     insert_node(root, node13);
     p_node node14 = node_init(data, "readf");
     insert_node(root, node14);
+    p_node node15 = node_init(data, "strlen");
+    insert_node(root, node15);
     return root;
 }
