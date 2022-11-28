@@ -6,6 +6,7 @@ int parse(){
     Lexeme * l = token_init(); 
     p_node globalFunctions = init_global_function();
     printProlog();
+    printBuiltInFunctions();
     prog(l, binaryTree, globalFunctions);
     int err = 0;
     check_func(globalFunctions, &err);
@@ -277,6 +278,10 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
         } else if (strcmp(node->key, "write") == 0)
         {
             result = writeString(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
+            return result;
+        } else if (strcmp(node->key, "reads") == 0)
+        {
+            result = builtInReads(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
             return result;
         }
         *l = get_token(binaryTree);
@@ -960,5 +965,7 @@ p_node init_global_function()
     insert_node(root, node10);
     p_node node11 = node_init(data, "write");
     insert_node(root, node11);
+    p_node node12 = node_init(data, "reads");
+    insert_node(root, node12);
     return root;
 }

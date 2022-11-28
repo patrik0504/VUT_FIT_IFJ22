@@ -40,7 +40,7 @@ int writeString(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comes
         } 
         if (ok)
         {
-            write(*l);
+            codeGenWrite(*l);
             result = writeString2(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
         }
     }
@@ -57,7 +57,7 @@ int writeString2(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool come
         *l = get_token(binaryTree);
         if (l->type == VARIABLE_ID)
         {
-            declaredCheck(binaryTree, globalFunctions, comesFromFunction, functionPtr, *l);    
+            ok = declaredCheck(binaryTree, globalFunctions, comesFromFunction, functionPtr, *l);    
             if (!ok)
             {
                 error(l->row, "Promenna ve volani WRITE neni definovana", SEM_UNDEFINED_VAR_ERROR);
@@ -87,7 +87,7 @@ int writeString2(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool come
         } 
         if (ok)
         {
-            write(*l);
+            codeGenWrite(*l);
             result = writeString2(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
         }
     }else if (l->type == RBRACKET)
@@ -167,4 +167,20 @@ void evaluateEscapeSequencies(Lexeme *l)
         }
         i++;
     }
+}
+
+int builtInReads(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr)
+{
+    int result = 0;
+    *l = get_token(binaryTree);
+    if (l->type == LBRACKET)
+    {
+        *l = get_token(binaryTree);
+        if (l->type == RBRACKET)
+        {
+            codeGenReads();
+            result = 1;
+        }
+    }
+    return result;
 }

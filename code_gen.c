@@ -6,7 +6,7 @@ void printProlog()
     return;
 }
 
-void write(Lexeme l)
+void codeGenWrite(Lexeme l)
 {
     switch(l.type)
     {
@@ -23,4 +23,29 @@ void write(Lexeme l)
             printf("WRITE float@%a\n", l.extra_data.exponent);
             break;
     }
+}
+
+void printBuiltInFunctions()
+{
+    printf("JUMP MAIN\n");
+    /***************FUNCTION READS***************/
+    printf("LABEL READS\n");
+    printf("PUSHFRAME\n");
+    printf("DEFVAR LF@returnvar\n");
+    printf("READ LF@returnvar string\n");
+    printf("POPFRAME\n");
+    printf("RETURN\n");
+    /*****************END READS******************/
+
+    printf("LABEL MAIN\n");
+}
+
+
+void codeGenReads(Lexeme l)
+{
+    printf("CREATEFRAME\n");
+    printf("CALL READS\n");
+
+    //DEBUG PRINT
+    printf("WRITE TF@returnvar\n");
 }

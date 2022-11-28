@@ -17,5 +17,6 @@ bool declaredCheck(p_node binaryTree, p_node globalFunctions, bool comesFromFunc
 void shiftRight(char* buffer, int shift, int stringlength);
 void evaluateEscapeSequencies(Lexeme *l);
 void replaceEscapeSequenceByNumber(char *buffer, char c);
+int builtInReads(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr);
 
 #endif

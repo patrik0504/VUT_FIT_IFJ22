@@ -16,7 +16,9 @@
 #include "error.h"
 
 void printProlog();
-void write(Lexeme l);
+void codeGenWrite(Lexeme l);
+void printBuiltInFunctions();
+void codeGenReads();
 
 
 #endif
