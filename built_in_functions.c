@@ -184,3 +184,35 @@ int builtInReads(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool come
     }
     return result;
 }
+
+int builtInReadi(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr)
+{
+    int result = 0;
+    *l = get_token(binaryTree);
+    if (l->type == LBRACKET)
+    {
+        *l = get_token(binaryTree);
+        if (l->type == RBRACKET)
+        {
+            codeGenReadi();
+            result = 1;
+        }
+    }
+    return result;
+}
+
+int builtInReadf(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr)
+{
+    int result = 0;
+    *l = get_token(binaryTree);
+    if (l->type == LBRACKET)
+    {
+        *l = get_token(binaryTree);
+        if (l->type == RBRACKET)
+        {
+            codeGenReadf();
+            result = 1;
+        }
+    }
+    return result;
+}

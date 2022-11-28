@@ -283,6 +283,14 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
         {
             result = builtInReads(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
             return result;
+        } else if (strcmp(node->key, "readi") == 0)
+        {
+            result = builtInReadi(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
+            return result;
+        } else if (strcmp(node->key, "readf") == 0)
+        {
+            result = builtInReadf(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
+            return result;
         }
         *l = get_token(binaryTree);
         
@@ -967,5 +975,9 @@ p_node init_global_function()
     insert_node(root, node11);
     p_node node12 = node_init(data, "reads");
     insert_node(root, node12);
+    p_node node13 = node_init(data, "readi");
+    insert_node(root, node13);
+    p_node node14 = node_init(data, "readf");
+    insert_node(root, node14);
     return root;
 }

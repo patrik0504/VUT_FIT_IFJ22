@@ -18,5 +18,7 @@ void shiftRight(char* buffer, int shift, int stringlength);
 void evaluateEscapeSequencies(Lexeme *l);
 void replaceEscapeSequenceByNumber(char *buffer, char c);
 int builtInReads(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr);
+int builtInReadi(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr);
+int builtInReadf(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr);
 
 #endif

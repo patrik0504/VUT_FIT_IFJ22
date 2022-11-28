@@ -19,6 +19,8 @@ void printProlog();
 void codeGenWrite(Lexeme l);
 void printBuiltInFunctions();
 void codeGenReads();
+void codeGenReadi();
+void codeGenReadf();
 
 
 #endif
