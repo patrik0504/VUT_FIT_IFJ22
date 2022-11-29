@@ -259,8 +259,6 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
         {
             return result;
         }
-        //Docasne lebo to nevracia tak ako ma l->type
-        l->type = SEMICOLON;
         result = 1;
     } else if (l->type == FUNCTION_ID)
     {
@@ -302,14 +300,28 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
         if(l->type == LBRACKET)
         {
             *l = get_token(binaryTree);
-            result = param(l, binaryTree, comesFromFunction, functionPtr, node, globalFunctions);
-            if(result)
+            int result_par = param(l, binaryTree, comesFromFunction, functionPtr, node, globalFunctions);
+            if(result_par)
             {
                 if(l->type == RBRACKET)
                 {
-                    Dputs("Nasiel som volanie funkcie v statemente\n");
-                    callFunction(function_name);
-                    result = 1;
+                    *l = get_token(binaryTree);
+                    if(l->type == SEMICOLON)
+                    {
+                        Dputs("Nasiel som volanie funkcie v statemente\n");
+                        callFunction(function_name);
+                        result = 1;
+                    }
+                    else
+                    {
+                        error(l->row, "Chýba bodkočiarka.", SYNTAX_ERROR);
+                        return 0;
+                    }
+                }
+                else
+                {
+                    error(l->row, "Chýba zatvorka.", SYNTAX_ERROR);
+                    return 0;
                 }
             }
         }
@@ -334,8 +346,6 @@ int ret_expr(Lexeme *l, p_node binaryTree)
     {
         return result;
     }
-    //Docasne kvoli bugu v expr
-    l->type = SEMICOLON;
     result = 1;
     return result;
 }
@@ -388,21 +398,14 @@ int st_list(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFrom
         result = statement(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
         if(result)
         {
-            if(l->type == SEMICOLON)
+            *l = get_token(binaryTree);
+            if (comesFromFunction == 1)
             {
-                *l = get_token(binaryTree);
-                if (comesFromFunction == 1)
-                {
-                   result = st_list(l, binaryTree, globalFunctions, 1, functionPtr);
-            
-                } else
-                {
-                    result = st_list(l, binaryTree, globalFunctions, 0, NULL);
-                }
-            }
-            else
+                result = st_list(l, binaryTree, globalFunctions, 1, functionPtr);
+        
+            } else
             {
-                result = PARSER_ERROR;
+                result = st_list(l, binaryTree, globalFunctions, 0, NULL);
             }
         }
     }
@@ -412,17 +415,8 @@ int st_list(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFrom
         if(result)
         {
             *l = get_token(binaryTree);
-            if(l->type == SEMICOLON)
-            {
-                *l = get_token(binaryTree);
-                Dputs("Nacital som spravne volanie funkcie\n");
-                result = st_list(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
-            }
-            else
-            {
-                result = 0;
-                return result;
-            }
+            Dputs("Nacital som spravne volanie funkcie\n");
+            result = st_list(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
         }
     }else if(l->type == KW_IF){
         Dputs("Nasiel som if v st_list\n");
@@ -866,8 +860,7 @@ int body(Lexeme *l, p_node binaryTree, p_node globalFunctions){
             result = control(l, binaryTree, globalFunctions, 0, NULL);
             if(result == -1)
             {
-                //TODO ERROR
-                return PARSER_ERROR;
+                return 0;
             }
             result = body(l, binaryTree, globalFunctions);
             break;
@@ -878,21 +871,9 @@ int body(Lexeme *l, p_node binaryTree, p_node globalFunctions){
             result = statement(l, binaryTree, globalFunctions, 0, NULL);
             if(result == -1)
             {
-                //TODO ERROR
-                return PARSER_ERROR;
+                return 0;
             }
-            if(l->type == SEMICOLON)
-            {
-                result = body(l, binaryTree, globalFunctions);
-            }
-            //Docasne kvoli bugu v statement lebo sa semicolon nema nacitavat a to je problem pri expression
-            else{
-                *l = get_token(binaryTree);
-                if(l->type == SEMICOLON)
-                {
-                    result = body(l, binaryTree, globalFunctions);
-                }
-            }
+            result = body(l, binaryTree, globalFunctions);
             break;
     }
     return result;
