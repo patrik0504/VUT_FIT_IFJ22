@@ -309,7 +309,6 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
                 {
                     Dputs("Nasiel som volanie funkcie v statemente\n");
                     callFunction(function_name);
-                    *l = get_token(binaryTree);
                     result = 1;
                 }
             }
@@ -412,7 +411,7 @@ int st_list(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFrom
         result = statement(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
         if(result)
         {
-            //*l = get_token(binaryTree);
+            *l = get_token(binaryTree);
             if(l->type == SEMICOLON)
             {
                 *l = get_token(binaryTree);
@@ -882,16 +881,10 @@ int body(Lexeme *l, p_node binaryTree, p_node globalFunctions){
                 //TODO ERROR
                 return PARSER_ERROR;
             }
-
             if(l->type == SEMICOLON)
             {
                 result = body(l, binaryTree, globalFunctions);
             }
-            else
-            {
-                error(l->row, "Chýba bodkočiarka na konci", SYNTAX_ERROR);
-            }
-            /*
             //Docasne kvoli bugu v statement lebo sa semicolon nema nacitavat a to je problem pri expression
             else{
                 *l = get_token(binaryTree);
@@ -899,7 +892,7 @@ int body(Lexeme *l, p_node binaryTree, p_node globalFunctions){
                 {
                     result = body(l, binaryTree, globalFunctions);
                 }
-            }*/
+            }
             break;
     }
     return result;
