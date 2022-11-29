@@ -327,13 +327,22 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
         }
     } else if(l->type == KW_RETURN)
     {
+        printf("Vstupujem do expression\n");
         result = ret_expr(l, binaryTree);
         if(result)
         {
             Dputs("Nasiel som return v statemente\n");
             result = 1;
         }
-        codeGenReturn(comesFromFunction, functionPtr->key);
+        if(functionPtr == NULL)
+        {
+            //DOCASNE RIESNIE ZMENIT KED SA TO BUDE RIESIT
+            codeGenReturn(comesFromFunction, "main");
+        }
+        else
+        {
+            codeGenReturn(comesFromFunction, functionPtr->key);
+        }
     }
     return result;
 }
@@ -868,7 +877,9 @@ int body(Lexeme *l, p_node binaryTree, p_node globalFunctions){
         case VARIABLE_ID:
         case FUNCTION_ID:
         case KW_RETURN:
+            printf("Vstupujem do expression\n");
             result = statement(l, binaryTree, globalFunctions, 0, NULL);
+            printf("Vstupujem do expression\n");
             if(result == -1)
             {
                 return 0;
