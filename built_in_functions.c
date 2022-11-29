@@ -157,7 +157,7 @@ void evaluateEscapeSequencies(Lexeme *l)
         {
             case '\0'...' ':
             case '#':
-            case 92:
+            case '\\':
                 l->extra_data.string = realloc(l->extra_data.string, stringlength+3);
                 shiftRight(&l->extra_data.string[i], 3, stringlength-i+3);
                 replaceEscapeSequenceByNumber(&l->extra_data.string[i], c);

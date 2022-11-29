@@ -25,8 +25,12 @@ int StrOctToDec(char* buffer)
     {
         return -1;
     }
-    int oct = atoi(buffer);
+    char octNumber[3];
+    octNumber[0] = buffer[0];
+    octNumber[1] = buffer[1];
+    octNumber[2] = buffer[2];
 
+    int oct = atoi(octNumber);
     if (oct > 255 || oct <= 0)
     {
         return -1;
