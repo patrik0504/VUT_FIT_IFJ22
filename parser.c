@@ -325,6 +325,31 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
             result = builtInReadf(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
             return result;
         }
+         else if (strcmp(node->key, "ord") == 0)
+        {
+            result = builtInOrd(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
+            return result;
+        } else if (strcmp(node->key, "chr") == 0)
+        {
+            result = builtInChr(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
+            return result;
+        } else if (strcmp(node->key, "floatval") == 0)
+        {
+            result = builtInFloatval(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
+            return result;
+        } else if (strcmp(node->key, "intval") == 0)
+        {
+            result = builtInIntval(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
+            return result;
+        } else if (strcmp(node->key, "strlen") == 0)
+        {
+            result = builtInStrlen(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
+            return result;
+        } else if (strcmp(node->key, "substring") == 0)
+        {
+            result = builtInSubstring(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
+            return result;
+        }
         *l = get_token(binaryTree);
         
         if(l->type == LBRACKET)
@@ -1051,6 +1076,18 @@ void set_params_in_builtin_functions(p_node binaryTree)
     p_node param3 = node_init(data, "$j");
     insert_node(function->data->params, param3);
 
+    /*************FUNCTION ORD*************************/
+    function = tree_search(binaryTree, "ord");
+    data = data_init_type(STRING_LITERAL);
+    param1 = node_init(data, "$s");
+    function->data->params = param1;
+
+    /*************FUNCTION CHR*************************/
+    function = tree_search(binaryTree, "chr");
+    data = data_init_type(NUMBER);
+    param1 = node_init(data, "$i");
+    function->data->params = param1;
+
 
 }
 
@@ -1088,6 +1125,16 @@ p_node init_global_function()
     insert_node(root, node15);
     p_node node16 = node_init(data, "substring");
     insert_node(root, node16);
+    p_node node17 = node_init(data, "ord");
+    insert_node(root, node17);
+    p_node node18 = node_init(data, "chr");
+    insert_node(root, node18);
+    p_node node19 = node_init(data, "floatval");
+    insert_node(root, node19);
+    p_node node20 = node_init(data, "intval");
+    insert_node(root, node20);
+    p_node node21 = node_init(data, "strval");
+    insert_node(root, node21);
 
     set_params_in_builtin_functions(root);
     return root;

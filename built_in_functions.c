@@ -233,3 +233,332 @@ int builtInReadf(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool come
     return result;
 }
 
+int builtInOrd(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr)
+{
+    int result = 0;
+    bool ok = true;
+    *l = get_token(binaryTree);
+    if (l->type == LBRACKET)
+    {
+        *l = get_token(binaryTree);
+        if (l->type == VARIABLE_ID)
+        {
+            ok = declaredCheck(binaryTree, globalFunctions, comesFromFunction, functionPtr, *l);
+            if (!ok)
+            {
+                error(l->row, "Proměnná ve volání ORD není definovaná", SEM_UNDEFINED_VAR_ERROR);
+                return 0;
+            }
+        }else if (l->type == STRING_LITERAL)
+        {
+            evaluateEscapeSequencies(l);
+        }else
+        {
+            error(l->row, "Špatný typ parametru alebo bez parametrov pri voláni ORD", SYNTAX_ERROR);
+            return 0;
+        }
+        *l = get_token(binaryTree);
+        if (l->type == RBRACKET)
+        {
+            codeGenOrd();
+            result = 1;
+        }
+    }
+    if (get_token(binaryTree).type != SEMICOLON)
+    {
+        result = 0;
+    }
+    return result;
+}
+
+int builtInChr(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr)
+{
+    int result = 0;
+    bool ok = true;
+    *l = get_token(binaryTree);
+    if (l->type == LBRACKET)
+    {
+        *l = get_token(binaryTree);
+        if (l->type == VARIABLE_ID)
+        {
+            ok = declaredCheck(binaryTree, globalFunctions, comesFromFunction, functionPtr, *l);
+            if (!ok)
+            {
+                error(l->row, "Proměnná ve volání CHR není definovaná", SEM_UNDEFINED_VAR_ERROR);
+                return 0;
+            }
+        }else if (l->type == NUMBER)
+        {
+            ok = true;
+        }else
+        {
+            error(l->row, "Špatný typ parametru alebo bez parametrov pri voláni ORD", SYNTAX_ERROR);
+            return 0;
+        }
+        *l = get_token(binaryTree);
+        if (l->type == RBRACKET)
+        {
+            //Vytvorit funckciu codeGenChr
+            //codeGenChr();
+            result = 1;
+        }
+    }
+    if (get_token(binaryTree).type != SEMICOLON)
+    {
+        result = 0;
+    }
+    return result;
+}
+
+///////////////////////////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!///////////////////////////
+///////////////////////////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!///////////////////////////
+//Floatval, Intval, Strval neberú momentálne BOOL ako parameter 
+///////////////////////////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!///////////////////////////
+///////////////////////////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!///////////////////////////
+
+int builtInFloatval(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr)
+{
+    int result = 0;
+    bool ok = true;
+    *l = get_token(binaryTree);
+    if (l->type == LBRACKET)
+    {
+        *l = get_token(binaryTree);
+        if (l->type == VARIABLE_ID)
+        {
+            ok = declaredCheck(binaryTree, globalFunctions, comesFromFunction, functionPtr, *l);
+            if (!ok)
+            {
+                error(l->row, "Proměnná ve volání FLOATVAL není definovaná", SEM_UNDEFINED_VAR_ERROR);
+                return 0;
+            }
+        }else if (l->type == NUMBER || l->type == FLOAT || l->type == STRING_LITERAL)
+        {
+            ok = true;
+        } else
+        {
+            error(l->row, "Špatný typ parametru alebo bez parametrov pri voláni FLOATVAL", SYNTAX_ERROR);
+            return 0;
+        }
+        *l = get_token(binaryTree);
+        if (l->type == RBRACKET)
+        {
+            //Vytvorit funckciu codeGenFloatval
+            //codeGenFloatval();
+            result = 1;
+        }
+    }
+    if (get_token(binaryTree).type != SEMICOLON)
+    {
+        result = 0;
+    }
+    return result;
+}
+
+int builtInIntval(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr)
+{
+    int result = 0;
+    bool ok = true;
+    *l = get_token(binaryTree);
+    if (l->type == LBRACKET)
+    {
+        *l = get_token(binaryTree);
+        if (l->type == VARIABLE_ID)
+        {
+            ok = declaredCheck(binaryTree, globalFunctions, comesFromFunction, functionPtr, *l);
+            if (!ok)
+            {
+                error(l->row, "Proměnná ve volání INTVAL není definovaná", SEM_UNDEFINED_VAR_ERROR);
+                return 0;
+            }
+        }else if (l->type == NUMBER || l->type == FLOAT || l->type == STRING_LITERAL)
+        {
+            ok = true;
+        } else
+        {
+            error(l->row, "Špatný typ parametru alebo bez parametrov pri voláni INTVAL", SYNTAX_ERROR);
+            return 0;
+        }
+        *l = get_token(binaryTree);
+        if (l->type == RBRACKET)
+        {
+            //Vytvorit funckciu codeGenIntval
+            //codeGenIntval();
+            result = 1;
+        }
+    }
+    if (get_token(binaryTree).type != SEMICOLON)
+    {
+        result = 0;
+    }
+    return result;
+}
+
+int builtInStrval(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr)
+{
+    int result = 0;
+    bool ok = true;
+    *l = get_token(binaryTree);
+    if (l->type == LBRACKET)
+    {
+        *l = get_token(binaryTree);
+        if (l->type == VARIABLE_ID)
+        {
+            ok = declaredCheck(binaryTree, globalFunctions, comesFromFunction, functionPtr, *l);
+            if (!ok)
+            {
+                error(l->row, "Proměnná ve volání STRVAL není definovaná", SEM_UNDEFINED_VAR_ERROR);
+                return 0;
+            }
+        }else if (l->type == NUMBER || l->type == FLOAT || l->type == STRING_LITERAL)
+        {
+            ok = true;
+        } else
+        {
+            error(l->row, "Špatný typ parametru alebo bez parametrov pri voláni STRVAL", SYNTAX_ERROR);
+            return 0;
+        }
+        *l = get_token(binaryTree);
+        if (l->type == RBRACKET)
+        {
+            //Vytvorit funckciu codeGenStrval
+            //codeGenStrval();
+            result = 1;
+        }
+    }
+    if (get_token(binaryTree).type != SEMICOLON)
+    {
+        result = 0;
+    }
+    return result;
+}
+
+int builtInSubstring(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr)
+{
+    int result = 0;
+    bool ok = true;
+    *l = get_token(binaryTree);
+    if (l->type == LBRACKET)
+    {
+        *l = get_token(binaryTree);
+        if (l->type == VARIABLE_ID)
+        {
+            ok = declaredCheck(binaryTree, globalFunctions, comesFromFunction, functionPtr, *l);
+            if (!ok)
+            {
+                error(l->row, "Proměnná ve volání SUBSTR není definovaná", SEM_UNDEFINED_VAR_ERROR);
+                return 0;
+            }
+        }else if (l->type == STRING_LITERAL)
+        {
+            ok = true;
+        } else
+        {
+            error(l->row, "Špatný typ parametru alebo bez parametrov pri voláni SUBSTR", SYNTAX_ERROR);
+            return 0;
+        }
+        *l = get_token(binaryTree);
+        if (l->type == COMMA)
+        {
+            *l = get_token(binaryTree);
+            if (l->type == VARIABLE_ID)
+            {
+                ok = declaredCheck(binaryTree, globalFunctions, comesFromFunction, functionPtr, *l);
+                if (!ok)
+                {
+                    error(l->row, "Proměnná ve volání SUBSTR není definovaná", SEM_UNDEFINED_VAR_ERROR);
+                    return 0;
+                }
+            }else if (l->type == NUMBER)
+            {
+                ok = true;
+            } else
+            {
+                error(l->row, "Špatný typ parametru alebo bez parametrov pri voláni SUBSTR", SYNTAX_ERROR);
+                return 0;
+            }
+            *l = get_token(binaryTree);
+            if (l->type == COMMA)
+            {
+                *l = get_token(binaryTree);
+                if (l->type == VARIABLE_ID)
+                {
+                    ok = declaredCheck(binaryTree, globalFunctions, comesFromFunction, functionPtr, *l);
+                    if (!ok)
+                    {
+                        error(l->row, "Proměnná ve volání SUBSTR není definovaná", SEM_UNDEFINED_VAR_ERROR);
+                        return 0;
+                    }
+                }else if (l->type == NUMBER)
+                {
+                    ok = true;
+                } else
+                {
+                    error(l->row, "Špatný typ parametru alebo bez parametrov pri voláni SUBSTR", SYNTAX_ERROR);
+                    return 0;
+                }
+                *l = get_token(binaryTree);
+                if (l->type == RBRACKET)
+                {
+                    //Vytvorit funckciu codeGenSubstring
+                    //codeGenSubstring();
+                    result = 1;
+                }
+            }
+            else
+            {
+                error(l->row, "Chýba čiarka", SYNTAX_ERROR);
+                return 0;
+            }
+        }
+        else
+        {
+            error(l->row, "Chýba čiarka", SYNTAX_ERROR);
+            return 0;
+        }
+    }
+    if (get_token(binaryTree).type != SEMICOLON)
+    {
+        result = 0;
+    }
+    return result;
+}
+
+int builtInStrlen(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr)
+{
+    int result = 0;
+    bool ok = true;
+    *l = get_token(binaryTree);
+    if (l->type == LBRACKET)
+    {
+        *l = get_token(binaryTree);
+        if (l->type == VARIABLE_ID)
+        {
+            ok = declaredCheck(binaryTree, globalFunctions, comesFromFunction, functionPtr, *l);
+            if (!ok)
+            {
+                error(l->row, "Proměnná ve volání STRLEN není definovaná", SEM_UNDEFINED_VAR_ERROR);
+                return 0;
+            }
+        }else if (l->type == STRING_LITERAL)
+        {
+            ok = true;
+        } else
+        {
+            error(l->row, "Špatný typ parametru alebo bez parametrov pri voláni STRLEN", SYNTAX_ERROR);
+            return 0;
+        }
+        *l = get_token(binaryTree);
+        if (l->type == RBRACKET)
+        {
+            //Vytvorit funckciu codeGenStrlen
+            //codeGenStrlen();
+            result = 1;
+        }
+    }
+    if (get_token(binaryTree).type != SEMICOLON)
+    {
+        result = 0;
+    }
+    return result;
+}
