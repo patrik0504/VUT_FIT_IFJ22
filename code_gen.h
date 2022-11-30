@@ -29,7 +29,6 @@ void defineNewVar(char *varName, bool comesFromFunction);
 void declareFunction(char *functionName);
 void declareParams(int number, char *varName);
 void codeGenReturn(bool comesFromFunction, char *functionName);
-void codeGenOrd();
 
 
 #endif

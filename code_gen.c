@@ -60,16 +60,6 @@ void printBuiltInFunctions()
     printf("WRITE LF@returnvar\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
-    /*****************FUNCTION ORD******************/
-    printf("LABEL ord\n");
-    printf("PUSHFRAME\n");
-    printf("DEFVAR LF@returnvar\n");
-    printf("DEFVAR LF@temp\n");
-    printf("GETCHAR LF@temp LF@param1 int@0\n");
-    printf("STRI2INT LF@returnvar LF@temp int@0\n");
-    printf("WRITE LF@returnvar\n");
-    printf("POPFRAME\n");
-    printf("RETURN\n");
     /*****************FUNCTION SUBSTRING******************/
     printf("LABEL substring\n");
     printf("PUSHFRAME\n");
@@ -217,13 +207,4 @@ void codeGenReturn(bool comesFromFunction, char *functionName)
     {
         printf("LABEL %sEND\n\n", functionName);
     }
-}
-
-void codeGenOrd()
-{
-    printf("CREATEFRAME\n");
-    printf("CALL ORD\n");
-
-    //DEBUG PRINT
-    printf("WRITE TF@returnvar\n");
 }
