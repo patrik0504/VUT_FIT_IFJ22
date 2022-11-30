@@ -44,6 +44,7 @@ p_data data_init();
 p_data data_init_type(int type);
 int lexeme_type_to_type(Lexeme *l);
 p_node init_global_function();
+void set_params_in_builtin_functions(p_node binaryTree);
 
 
 #endif

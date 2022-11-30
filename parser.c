@@ -123,6 +123,36 @@ int type(Lexeme *l)
     return result;
 }
 
+int check_minus(Lexeme *l, p_node binaryTree)
+{
+    int result = 0;
+    if(l->type == MINUS)
+    {
+        *l = get_token(binaryTree);
+        switch (l->type)
+        {
+            case NUMBER:
+                l->extra_data.value = -l->extra_data.value;
+                result = 1;
+                break;
+            case EXPONENT_NUMBER:
+                l->extra_data.exponent = -l->extra_data.exponent;
+                result = 1;
+                break;
+            case DECIMAL_NUMBER:
+                l->extra_data.decimal = -l->extra_data.decimal;
+                result = 1;
+                break;
+            default:
+                error(l->row, "Neočekávaný znak '-'", SYNTAX_ERROR);
+        }
+    } else
+    {
+        result = 1;
+    }
+    return result;
+}
+
 int decl_param(Lexeme *l, p_node binaryTree, p_node globalFunctions)
 {
     char * function_name = l->extra_data.string;
@@ -327,7 +357,7 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
         }
     } else if(l->type == KW_RETURN)
     {
-        printf("Vstupujem do expression\n");
+        //printf("Vstupujem do expression\n");
         result = ret_expr(l, binaryTree);
         if(result)
         {
@@ -505,8 +535,15 @@ int param(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node functionP
             }
         }
     
-    } else if (l->type == NUMBER || l->type == STRING_LITERAL || l->type == DECIMAL_NUMBER || l->type == EXPONENT_NUMBER)
+    } else if (l->type == NUMBER || l->type == STRING_LITERAL || l->type == DECIMAL_NUMBER || l->type == EXPONENT_NUMBER || l->type == MINUS)
     {
+        if(l->type == MINUS)
+        {
+            if (!check_minus(l, binaryTree))
+            {
+                return 0;
+            }
+        }
         if((count_tree(callFunction->data->params) == 0) && (callFunction->data->declared)){
             Dprintf("Funkce %s nema zadne parametry a boli jej hodené\n", callFunction->key);
             error(l->row, "Funkce nema zadne parametry a boli jej hodené", SEM_INVALID_CALL_ERROR);
@@ -589,8 +626,15 @@ int param2(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node function
                 }
             }
             
-        } else if (l->type == NUMBER || l->type == STRING_LITERAL || l->type == DECIMAL_NUMBER || l->type == EXPONENT_NUMBER)
+        } else if (l->type == NUMBER || l->type == STRING_LITERAL || l->type == DECIMAL_NUMBER || l->type == EXPONENT_NUMBER || l->type == MINUS)
         {
+            if(l->type == MINUS)
+            {
+                if (!check_minus(l, binaryTree))
+                {
+                    return 0;
+                }
+            }
             if (callFunction->data->defined && !callFunction->data->declared )
             {
                 Dprintf("pricitam parametr %s\n", l->extra_data.string);
@@ -598,6 +642,7 @@ int param2(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node function
             }
 
             paramCount++;
+
             generateParam(paramCount, l, comesFromFunction);
             *l = get_token(binaryTree);
             result = param2(l, binaryTree, comesFromFunction, functionPtr, paramCount, callFunction, globalFunctions);
@@ -607,7 +652,7 @@ int param2(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node function
     {
         if(callFunction->data->defined && callFunction->data->declared)
         {
-            debug_tree(callFunction->data->params);
+            //debug_tree(callFunction->data->params);
             printf("\n");
             if(paramCount == count_tree(callFunction->data->params))
             {
@@ -877,9 +922,9 @@ int body(Lexeme *l, p_node binaryTree, p_node globalFunctions){
         case VARIABLE_ID:
         case FUNCTION_ID:
         case KW_RETURN:
-            printf("Vstupujem do expression\n");
+            //printf("Vstupujem do expression\n");
             result = statement(l, binaryTree, globalFunctions, 0, NULL);
-            printf("Vstupujem do expression\n");
+            //printf("Vstupujem do expression\n");
             if(result == -1)
             {
                 return 0;
@@ -984,6 +1029,31 @@ int lexeme_type_to_type(Lexeme *l)
     }
 }
 
+void set_params_in_builtin_functions(p_node binaryTree)
+{
+    /*************FUNCTION STRLEN**********************/
+    p_node function = tree_search(binaryTree, "strlen");
+    p_data data = data_init_type(STRING_LITERAL);
+    p_node param1 = node_init(data, "$s");
+    function->data->params = param1;
+    
+    /*************FUNCTION SUBSTRING*******************/
+    function = tree_search(binaryTree, "substring");
+    data = data_init_type(STRING_LITERAL);
+    param1 = node_init(data, "$s");
+    function->data->params = param1;
+
+    data = data_init_type(NUMBER);
+    p_node param2 = node_init(data, "$i");
+    insert_node(function->data->params, param2);
+
+    data = data_init_type(NUMBER);
+    p_node param3 = node_init(data, "$j");
+    insert_node(function->data->params, param3);
+
+
+}
+
 p_node init_global_function()
 {
     p_data data = data_init_KW();
@@ -1016,5 +1086,9 @@ p_node init_global_function()
     insert_node(root, node14);
     p_node node15 = node_init(data, "strlen");
     insert_node(root, node15);
+    p_node node16 = node_init(data, "substring");
+    insert_node(root, node16);
+
+    set_params_in_builtin_functions(root);
     return root;
 }

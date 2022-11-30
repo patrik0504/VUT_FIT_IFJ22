@@ -42,6 +42,10 @@ int writeString(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comes
         {
             codeGenWrite(*l);
             result = writeString2(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
+            if (get_token(binaryTree).type != SEMICOLON)
+            {
+                result = 0;
+            }
         }
     }
     return result;   
@@ -182,6 +186,10 @@ int builtInReads(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool come
             result = 1;
         }
     }
+    if (get_token(binaryTree).type != SEMICOLON)
+    {
+        result = 0;
+    }
     return result;
 }
 
@@ -198,6 +206,10 @@ int builtInReadi(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool come
             result = 1;
         }
     }
+    if (get_token(binaryTree).type != SEMICOLON)
+    {
+        result = 0;
+    }
     return result;
 }
 
@@ -213,6 +225,10 @@ int builtInReadf(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool come
             codeGenReadf();
             result = 1;
         }
+    }
+    if (get_token(binaryTree).type != SEMICOLON)
+    {
+        result = 0;
     }
     return result;
 }

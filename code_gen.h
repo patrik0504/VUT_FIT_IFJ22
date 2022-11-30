@@ -14,6 +14,7 @@
 #include "scanner.h"
 #include "expr_parser.h"
 #include "error.h"
+#include "built_in_functions.h"
 
 void printProlog();
 void codeGenWrite(Lexeme l);
