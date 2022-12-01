@@ -399,7 +399,7 @@ Lexeme generateLexeme(AutomatState state, char* buffer, int stringlength, int ro
     return final_lexeme;
 }
 
-Lexeme scan_lexeme(int *row, bool epilog)
+Lexeme scan_lexeme(int *row, bool epilog, bool prolog)
 {
     //Inicializácia premenných
     AutomatState current_state = Start;
@@ -418,6 +418,15 @@ Lexeme scan_lexeme(int *row, bool epilog)
             error(*row, "Po epilogu nesmie nasledovať žiadny znak.", SYNTAX_ERROR); 
         }
         return (Lexeme){.type = LEXEOF, .row = *row};
+    } else if (!prolog)
+    {
+        c = getchar();
+        if (c != '<')
+        {
+            error(*row, "Pred prologom sa nesmie nachádzať žiadny znak.", SYNTAX_ERROR); 
+            return (Lexeme){.type = SCANERROR, .row = *row};
+        }
+        ungetc(c, stdin);
     }
     while(true)
     {
@@ -640,24 +649,26 @@ Lexeme get_token(p_node binaryTree)
     Lexeme l = {.type = NULLLEX};
     static int row = 1;
     static bool epilog = false;
+    static bool prolog = false;
 
     //Preskočenie komentárov
     while(l.type == NULLLEX){
-        l = scan_lexeme(&row, epilog);
+        l = scan_lexeme(&row, epilog, prolog);
     }
 
     if (l.type == FUNCTION_ID)
     {
         //Ak je lexém kľúčové slovo, zmení sa jeho typ
         check_forKW(binaryTree, &l);
-    }
-    if(l.type == SCANERROR)
+    } else if(l.type == SCANERROR)
     {
         error(l.row, "Lexikalna chyba", LEX_ERROR);
-    }
-    if (l.type == FILE_END_SIGN)
+    } else if (l.type == FILE_END_SIGN)
     {
         epilog = true;
+    } else if (l.type == PROLOG)
+    {
+        prolog = true;
     }
     return l;
 }   
