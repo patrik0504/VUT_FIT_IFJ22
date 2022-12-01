@@ -1,5 +1,6 @@
 #include "code_gen.h"
 
+
 void printProlog()
 {
     printf(".IFJcode22\n");

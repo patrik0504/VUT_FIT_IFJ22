@@ -5,6 +5,7 @@ int parse(){
     p_node binaryTree = init_binary_treeKW();
     Lexeme * l = token_init(); 
     p_node globalFunctions = init_global_function();
+
     printProlog();
     printBuiltInFunctions();
     prog(l, binaryTree, globalFunctions);
@@ -1033,24 +1034,23 @@ void set_params_in_builtin_functions(p_node binaryTree)
 {
     /*************FUNCTION STRLEN**********************/
     p_node function = tree_search(binaryTree, "strlen");
-    p_data data = data_init_type(STRING_LITERAL);
+    p_data data = data_init_type(KW_STRING);
     p_node param1 = node_init(data, "$s");
     function->data->params = param1;
-    
-    /*************FUNCTION SUBSTRING*******************/
-    function = tree_search(binaryTree, "substring");
-    data = data_init_type(STRING_LITERAL);
-    param1 = node_init(data, "$s");
-    function->data->params = param1;
+    function->data->param_count = 1;
 
-    data = data_init_type(NUMBER);
+    /*************FUNCTION SUBSTRING**********************/
+    p_node function2 = tree_search(binaryTree, "substring");
+    data = data_init_type(KW_STRING);
+     param1 = node_init(data, "$c");
+    function2->data->params = param1;
+
     p_node param2 = node_init(data, "$i");
-    insert_node(function->data->params, param2);
+    insert_node(function2->data->params, param2);
 
-    data = data_init_type(NUMBER);
     p_node param3 = node_init(data, "$j");
-    insert_node(function->data->params, param3);
-
+    insert_node(function2->data->params, param3);
+    function2->data->param_count = 3;
 
 }
 
@@ -1084,9 +1084,11 @@ p_node init_global_function()
     insert_node(root, node13);
     p_node node14 = node_init(data, "readf");
     insert_node(root, node14);
-    p_node node15 = node_init(data, "strlen");
+    p_data datastrlen = data_init_KW();
+    p_node node15 = node_init(datastrlen, "strlen");
     insert_node(root, node15);
-    p_node node16 = node_init(data, "substring");
+    p_data datasubstring = data_init_KW();
+    p_node node16 = node_init(datasubstring, "substring");
     insert_node(root, node16);
 
     set_params_in_builtin_functions(root);
