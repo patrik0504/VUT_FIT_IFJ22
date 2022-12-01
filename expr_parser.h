@@ -37,9 +37,13 @@ typedef enum {
  * @param context Kontext, ve kterém je PSA zavolána (přiřazení, volání funkce/vyhodnocení podmínky)
  * @param symtable Globální tabulka symbolů
  * @param target Lexém cílové proměnné pro přiřazení (může být NULL)
+ * @param varable_name Názov premmenej pri vaiable
+ * @param globalFunctions obalovací seznam globálních funkcí
+ * @param comesFromFunction TRUE, pokud je PSA zavolána z funkce, FALSE jinak
+ * @param functionPtr ukazatel na funkci, ve které je PSA zavolána (může být NULL)
  * @return 1 (true) pokud nedošlo k chybě, jinak 0
 */
-int expr(context context, p_node symtable, Lexeme *target);
+int expr(context context, p_node symtable, Lexeme *target, char * variable_name, p_node globalFunctions, bool comesFromFunction, p_node functionPtr);
 
 /**
  * Funkce v závislosti na kontextu určí, zda má být PSA ukončena.

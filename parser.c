@@ -268,6 +268,7 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
     int result = 0;
     if (l->type == VARIABLE_ID)
     {
+        char * variable = l->extra_data.string;
         if(!comesFromFunction)
         {
             if (((globalFunctions->data->elements != NULL) && (tree_search(globalFunctions->data->elements, l->extra_data.string) == NULL)) || (globalFunctions->data->elements == NULL))
@@ -285,7 +286,7 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
             }
         }
         *l = get_token(binaryTree);
-        result = expr(ASSIGNMENT, binaryTree, l);
+        result = expr(ASSIGNMENT, binaryTree, l, variable, globalFunctions, comesFromFunction, functionPtr);
         if(result != 1)
         {
             return result;
@@ -359,7 +360,7 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
     } else if(l->type == KW_RETURN)
     {
         //printf("Vstupujem do expression\n");
-        result = ret_expr(l, binaryTree);
+        result = ret_expr(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
         if(result)
         {
             Dputs("Nasiel som return v statemente\n");
@@ -378,10 +379,10 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
     return result;
 }
 
-int ret_expr(Lexeme *l, p_node binaryTree)
+int ret_expr(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr)
 {
     int result = 0;
-    result = expr(RETURN, binaryTree, l);
+    result = expr(RETURN, binaryTree, l, NULL, globalFunctions, comesFromFunction, functionPtr);
     if(!result)
     {
         return result;
@@ -681,7 +682,7 @@ int while_check(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comes
     if(l->type == LBRACKET)
     {
         //Call expression
-        result = expr(CALL_CONTROL, binaryTree, l);
+        result = expr(CALL_CONTROL, binaryTree, l, NULL, globalFunctions, comesFromFunction, functionPtr);
         if(!result)
         {
             return result;
@@ -837,7 +838,7 @@ int if_check(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFro
     if (l->type == LBRACKET)
     {
         //Call expression
-        int result_expr = expr(CALL_CONTROL, binaryTree, l);
+        int result_expr = expr(CALL_CONTROL, binaryTree, l, NULL, globalFunctions, comesFromFunction, functionPtr);
         if(!result_expr)
         {
             Dputs("Chyba pri vyrazoch v ife\n");

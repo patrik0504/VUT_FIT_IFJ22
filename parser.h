@@ -37,7 +37,7 @@ int param(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node functionP
 int param2(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node functionPtr, int paramCount, p_node callFunction, p_node globalFunctions);
 int st_list(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr);
 int while_check(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr);
-int ret_expr(Lexeme *l, p_node binaryTree);
+int ret_expr(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr);
 int control(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr);
 void insert_function(p_node globalFunctions, Lexeme *l);
 p_data data_init();

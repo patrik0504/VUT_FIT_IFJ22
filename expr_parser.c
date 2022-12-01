@@ -39,7 +39,7 @@ int precedence_lookup(symbol_type stack_symbol, symbol_type input)
     return precedence[stack_symbol][input];
 }
 
-int expr(context context, p_node symtable, Lexeme *target)
+int expr(context context, p_node symtable, Lexeme *target, char * variable_name, p_node globalFunctions, bool comesFromFunction, p_node functionPtr)
 {
     p_stack stack = stack_init(PSA_STACK_SIZE);
     Lexeme l = {.type = NULLLEX};
