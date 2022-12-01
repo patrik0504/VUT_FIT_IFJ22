@@ -1,7 +1,9 @@
 #include "expr_parser.h"
 
+
 int negative_num = 0;
 int negative_par = 0;
+static int expr_var_counter = 0;
 
 int precedence_lookup(symbol_type stack_symbol, symbol_type input)
 {
@@ -42,6 +44,7 @@ int precedence_lookup(symbol_type stack_symbol, symbol_type input)
 int expr(context context, p_node symtable, Lexeme *target, char * variable_name, p_node globalFunctions, bool comesFromFunction, p_node functionPtr)
 {
     p_stack stack = stack_init(PSA_STACK_SIZE);
+    p_lex_stack lex_stack = lex_stack_init(LEX_STACK_SIZE);
     Lexeme l = {.type = NULLLEX};
 
     push(stack, SYM_STACK_TAG);
@@ -69,7 +72,7 @@ int expr(context context, p_node symtable, Lexeme *target, char * variable_name,
         {
             stack->lpar_count -= 1;
         }
-        if(check_operation(symtable, stack, &l, context) == 0)
+        if(check_operation(symtable, stack, lex_stack, &l, context, comesFromFunction) == 0)
         {
             //printf("\n");
             stack_destroy(stack);
@@ -84,19 +87,29 @@ int expr(context context, p_node symtable, Lexeme *target, char * variable_name,
 
     while (stack->top != 1)
     {
-        if(check_operation(symtable, stack, &l, context) == 0)
+        if(check_operation(symtable, stack, lex_stack, &l, context, comesFromFunction) == 0)
         {
             //printf("\n");
             stack_destroy(stack);
             return 0;
         }
     }
+
+    expr_move(variable_name, lexStack_pop(lex_stack)->extra_data.value, comesFromFunction);
     //printf("\n");
     stack_destroy(stack);
+    lexStack_stack_destroy(lex_stack);
     return 1;
 }
 
-int check_operation (p_node symtable, p_stack stack, Lexeme *l, context context){
+int check_operation (p_node symtable, p_stack stack, p_lex_stack lex_stack, Lexeme *l, context context, bool comesFromFunction){
+    if (l->type == VARIABLE_ID || l->type == STRING_LITERAL || l->type == NUMBER ||
+        l->type == DECIMAL_NUMBER || l->type == EXPONENT_NUMBER)
+    {
+        lexStack_push(lex_stack, l);
+        //printf("%d\n", lexStack_pop(lex_stack)->type);
+    }
+    
     symbol_type input_symbol = lex_type_to_psa(l);
 
     //Řešení záporných hodnot
@@ -149,8 +162,8 @@ int check_operation (p_node symtable, p_stack stack, Lexeme *l, context context)
             error(l->row, "Ve výrazu chybí některý z operandů!", SYNTAX_ERROR);
             return 0;
         }
-        reduction_rule result = check_rule(op1, op2, op3, stack);
-        if (result != RR_None)
+        reduction_rule result = check_rule(op1, op2, op3, stack, lex_stack, comesFromFunction);
+        if (result != 0)
         {
             pop(stack); // Pop handle
             push(stack, SYM_NONTERMINAL);
@@ -197,7 +210,7 @@ int check_operation (p_node symtable, p_stack stack, Lexeme *l, context context)
     }
 }
 
-reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_stack stack)
+reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_stack stack, p_lex_stack lex_stack, bool comesFromFunction)
 {
     // Pravidla s jedním operandem
     if (op1 == -1 && op2 == -1)
@@ -234,44 +247,65 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
         //Pokud není op1 a op3 neterminál -> neexistuje takové pravidlo               PŘ: (EE+ nejde)
         if (op1 != SYM_NONTERMINAL || op3 != SYM_NONTERMINAL)
         {
-            return RR_None;
+            return 0;
         }
+        //printf("%d\n", lexStack_pop(lex_stack)->type);
+        //printf("%d\n", lexStack_pop(lex_stack)->type);
+
+        Lexeme *sym2 = lexStack_pop(lex_stack);
+        Lexeme *sym1 = lexStack_pop(lex_stack);
+        Lexeme expr_lex = {.type = EQUAL};
 
         //Switch, který rozhodne o pravidlu redukce na základě operandu v op2
         switch (op2)
         {
         case SYM_MUL:
-            return RR_MUL;
+            break;
         case SYM_DIV:
-            return RR_DIV;
+            break;
         case SYM_PLUS:
-            return RR_PLUS;
+            generate_operation(expr_var_counter, sym1, sym2, RR_PLUS, comesFromFunction);
+            break;
         case SYM_MINUS:
-            return RR_MINUS;
+            generate_operation(expr_var_counter, sym1, sym2, RR_MINUS, comesFromFunction);
+            break;
         case SYM_CONCAT:
-            return RR_CONCAT;
+            // generate_operation(expr_var_counter, sym1, sym2, RR_CONCAT, comesFromFunction);
+            break;
         case SYM_LESSER:
-            return RR_LESSER;
+            // generate_operation(expr_var_counter, sym1, sym2, RR_LESSER, comesFromFunction);
+            break;
         case SYM_GREATER:
-            return RR_GREATER;
+            // generate_operation(expr_var_counter, sym1, sym2, RR_GREATER, comesFromFunction);
+            break;
         case SYM_LESOREQ:
-            return RR_LESOREQ;
+            // generate_operation(expr_var_counter, sym1, sym2, RR_LESOREQ, comesFromFunction);
+            break;
         case SYM_GREOREQ:
-            return RR_GREOREQ;
+            // generate_operation(expr_var_counter, sym1, sym2, RR_GREOREQ, comesFromFunction);
+            break;
         case SYM_EQ:
-            return RR_EQ;
+            // generate_operation(expr_var_counter, sym1, sym2, RR_EQ, comesFromFunction);
+            break;
         case SYM_NOTEQ:
-            return RR_NOTEQ;
+            // generate_operation(expr_var_counter, sym1, sym2, RR_NOTEQ, comesFromFunction);
+            break;
 
         //Pokud se nenajde vhodné pravidlo, neexistuje.
         default:
-            return RR_None;
-        }        
+            return 0;
+        }
+
+        // Používáme equal, který se jinak na stack nedostane, jako lexém pro compiler proměnnou
+        expr_lex.extra_data.value = expr_var_counter;
+        expr_var_counter++;
+        lexStack_push(lex_stack, &expr_lex);
+        return 1;
     }
     else
     {
         //Neexistuje odpovídající pravidlo
-        return RR_None;
+        return 0;
     }
 
 }

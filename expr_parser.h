@@ -5,8 +5,10 @@
 #include "stack.h"
 #include "symtable.h"
 #include "error.h"
+#include "code_gen.h"
 
 #define PSA_STACK_SIZE 256
+#define LEX_STACK_SIZE 256
 
 typedef enum {
     ASSIGNMENT,
@@ -77,8 +79,9 @@ int precedence_lookup(symbol_type stack_symbol, symbol_type input);
     @param op3  3. operand pravidla
     @param stack stack nad kterým je funkce prováděna
     @return Číslo pravidla pro redukci
+    @param comesFromFunction Bool hodnota určující globální / lokální rámec
 */
-reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_stack stack);
+reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_stack stack, p_lex_stack lex_stack, bool comesFromFunction);
 
 /** Funkce hledající další operaci dle tabulky
     @param symtable  Tabulka symbolů
@@ -86,7 +89,8 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
     @param l         Předávaný lexém    
     @param context   Předávaný kontext (jestli jde o přiřazení nebo rozhodování např. v ifu)    
     @return (true = 1 / false) dle úspěšnosti
+    @param comesFromFunction Bool hodnota určující globální / lokální rámec
 */
-int check_operation (p_node symtable, p_stack stack, Lexeme *l,context context);
+int check_operation (p_node symtable, p_stack stack, p_lex_stack lex_stack, Lexeme *l,context context, bool comesFromFunction);
 
 #endif

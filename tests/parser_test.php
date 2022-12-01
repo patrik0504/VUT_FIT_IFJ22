@@ -1,7 +1,31 @@
 <?php 
 declare(strict_types=1);
 
-$bbb = ($a + 3)/3;
+$a = 1+2;
+$bbb = $a + 20 - 7;
+$ccc = $bbb + 6;
+write($ccc);
+
+
+
+
+
+
+// $b = 3;
+// $c = 2;
+// function foo(int $a) : void {
+//     $bbb = $a + 20 - 7;
+//     write($bbb);
+//     return;
+// }
+// foo(1);
+
+
+
+//$a = 2 + 3;
+
+//$bbb = $a+$b+$c;
+
 /*function some(int $a, int $b, int $c) : int {
     
 }
@@ -49,3 +73,4 @@ function test2(int $a, int $b, float $ads, string $tojesuper) : int {
     }
     return $a+$b;
 }
+*/
