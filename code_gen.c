@@ -101,6 +101,7 @@ void printBuiltInFunctions()
     printf("WRITE LF@returnvar\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
+
     /*****************FUNCTION ORD******************/
     printf("LABEL ord\n");
     printf("PUSHFRAME\n");
@@ -112,6 +113,15 @@ void printBuiltInFunctions()
     printf("MOVE LF@returnvar int@0\n");
     printf("JUMP returnord\n");
     printf("LABEL returnord\n");
+    printf("WRITE LF@returnvar\n");
+    printf("POPFRAME\n");
+    printf("RETURN\n");
+
+    /*****************FUNCTION CHR******************/
+    printf("LABEL chr\n");
+    printf("PUSHFRAME\n");
+    printf("DEFVAR LF@returnvar\n");
+    printf("INT2CHAR LF@returnvar LF@param1\n");
     printf("WRITE LF@returnvar\n");
     printf("POPFRAME\n");
     printf("RETURN\n");

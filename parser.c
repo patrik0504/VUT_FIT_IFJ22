@@ -1059,6 +1059,13 @@ void set_params_in_builtin_functions(p_node binaryTree)
     function->data->params = param1;
     function->data->param_count = 1;
 
+    /*************FUNCTION CHR****************************/
+    function = tree_search(binaryTree, "chr");
+    data = data_init_type(KW_INT);
+    param1 = node_init(data, "$i");
+    function->data->params = param1;
+    function->data->param_count = 1;
+
 }
 
 p_node init_global_function()
@@ -1100,6 +1107,9 @@ p_node init_global_function()
     p_data dataord = data_init_KW();
     p_node node17 = node_init(dataord, "ord");
     insert_node(root, node17);
+    p_data datachr = data_init_KW();
+    p_node node18 = node_init(datachr, "chr");
+    insert_node(root, node18);
 
     set_params_in_builtin_functions(root);
     return root;
