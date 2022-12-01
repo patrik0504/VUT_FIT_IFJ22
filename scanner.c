@@ -399,7 +399,7 @@ Lexeme generateLexeme(AutomatState state, char* buffer, int stringlength, int ro
     return final_lexeme;
 }
 
-Lexeme scan_lexeme(int *row)
+Lexeme scan_lexeme(int *row, bool epilog)
 {
     //Inicializácia premenných
     AutomatState current_state = Start;
@@ -410,6 +410,15 @@ Lexeme scan_lexeme(int *row)
     char* current_index;
     current_index = buffer;
     char c;
+    if(epilog)
+    {
+        c = getchar();
+        if(c != EOF)
+        {
+            error(*row, "Po epilogu nesmie nasledovať žiadny znak.", SYNTAX_ERROR); 
+        }
+        return (Lexeme){.type = LEXEOF, .row = *row};
+    }
     while(true)
     {
         //Načítanie znaku zo vstupu
@@ -630,10 +639,13 @@ Lexeme get_token(p_node binaryTree)
 {
     Lexeme l = {.type = NULLLEX};
     static int row = 1;
+    static bool epilog = false;
+
     //Preskočenie komentárov
     while(l.type == NULLLEX){
-        l = scan_lexeme(&row);
+        l = scan_lexeme(&row, epilog);
     }
+
     if (l.type == FUNCTION_ID)
     {
         //Ak je lexém kľúčové slovo, zmení sa jeho typ
@@ -642,6 +654,10 @@ Lexeme get_token(p_node binaryTree)
     if(l.type == SCANERROR)
     {
         error(l.row, "Lexikalna chyba", LEX_ERROR);
+    }
+    if (l.type == FILE_END_SIGN)
+    {
+        epilog = true;
     }
     return l;
 }   

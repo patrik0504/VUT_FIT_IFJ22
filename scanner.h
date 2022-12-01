@@ -153,7 +153,7 @@ char * str_lexeme(Lexeme in);
  * Funkcia skenuje lexémy zo vstupu a vracia ich v tvare štruktúry Lexeme
  * @return Lexeme Vracia načítaný lexém
  */
-Lexeme scan_lexeme();
+Lexeme scan_lexeme(int *row, bool epilog);
 /**
  * @brief Funkcia na generovania lexemu
  * Funkcia generuje lexém pomocou konečného automatu
