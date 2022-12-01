@@ -17,7 +17,7 @@
 #include "built_in_functions.h"
 
 void printProlog();
-void codeGenWrite(Lexeme l);
+void codeGenWrite(Lexeme l, bool comesFromFunction);
 void printBuiltInFunctions();
 void codeGenReads();
 void codeGenReadi();
@@ -29,6 +29,12 @@ void defineNewVar(char *varName, bool comesFromFunction);
 void declareFunction(char *functionName);
 void declareParams(int number, char *varName);
 void codeGenReturn(bool comesFromFunction, char *functionName);
+void codeGenIfStart(int c);
+void codeGenIfEnd(int c);
+void codeGenIfElse(int c);
+void codeGenFunctionEnd(char *functionName);
+void codeGenWhileStart(int c);
+void codeGenWhileEnd(int c);
 
 
 #endif

@@ -40,7 +40,7 @@ int writeString(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comes
         } 
         if (ok)
         {
-            codeGenWrite(*l);
+            codeGenWrite(*l, comesFromFunction);
             result = writeString2(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
             if (get_token(binaryTree).type != SEMICOLON)
             {
@@ -91,7 +91,7 @@ int writeString2(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool come
         } 
         if (ok)
         {
-            codeGenWrite(*l);
+            codeGenWrite(*l, comesFromFunction);
             result = writeString2(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
         }
     }else if (l->type == RBRACKET)

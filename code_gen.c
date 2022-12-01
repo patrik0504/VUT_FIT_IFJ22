@@ -1,6 +1,5 @@
 #include "code_gen.h"
 
-int navestiCount = 0;
 
 void printProlog()
 {
@@ -8,7 +7,7 @@ void printProlog()
     return;
 }
 
-void codeGenWrite(Lexeme l)
+void codeGenWrite(Lexeme l, bool comesFromFunction)
 {
     switch(l.type)
     {
@@ -25,8 +24,16 @@ void codeGenWrite(Lexeme l)
             printf("WRITE float@%a\n", l.extra_data.exponent);
             break;
         case VARIABLE_ID:
+        if(comesFromFunction)
+        {
             printf("WRITE LF@$%s\n", l.extra_data.string);
             break;
+        }else
+        {
+            printf("WRITE GF@$%s\n", l.extra_data.string);
+            break;
+        }
+            
     }
 }
 
@@ -229,8 +236,35 @@ void declareParams(int number, char *varName)
 void codeGenReturn(bool comesFromFunction, char *functionName)
 {
     printf("RETURN\n");
-    if (comesFromFunction)
-    {
-        printf("LABEL %sEND\n\n", functionName);
-    }
+}
+
+void codeGenFunctionEnd(char *functionName)
+{
+    printf("RETURN\n");
+    printf("LABEL %sEND\n\n", functionName);
+
+}
+
+void codeGenIfStart(int c)
+{
+    printf("LABEL IFSTART%d\n", c);
+}
+void codeGenIfElse(int c)
+{
+    printf("JUMP IFEND%d\n", c);
+    printf("LABEL IFELSE%d\n", c);
+}
+void codeGenIfEnd(int c)
+{
+    printf("LABEL IFEND%d\n", c);
+}
+
+void codeGenWhileStart(int c)
+{
+    printf("LABEL WHILESTART%d\n", c);
+}
+void codeGenWhileEnd(int c)
+{
+    printf("JUMP WHILESTART%d\n", c);
+    printf("LABEL WHILEEND%d\n", c);
 }

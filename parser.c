@@ -568,6 +568,7 @@ int param(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node functionP
         {
             if(param_count == count_tree(callFunction->data->params))
             {
+                createFrame();
                 result = 1;
             }
             else
@@ -678,10 +679,14 @@ int while_check(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comes
 {
     
     int result = 0;
+    static int while_count = 0;
+    while_count++;
+    int while_id = while_count;
     *l = get_token(binaryTree);
     if(l->type == LBRACKET)
     {
         //Call expression
+        codeGenWhileStart(while_id);
         result = expr(CALL_CONTROL, binaryTree, l, NULL, globalFunctions, comesFromFunction, functionPtr);
         if(!result)
         {
@@ -696,6 +701,7 @@ int while_check(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comes
             if (result)
             {
                 if(l->type == RBRACKET_S_KUDRLINKOU){
+                    codeGenWhileEnd(while_id);
                     Dputs("While je v poriadku\n");
                     result = 1;
                 }
@@ -759,6 +765,7 @@ int function_check(Lexeme *l, p_node binaryTree, p_node globalFunctions)
                         {
                             if(l->type == RBRACKET_S_KUDRLINKOU)
                             {
+                                codeGenFunctionEnd(func_name);
                                 node->data->declared = true;
                                 node->data->defined = true;
                                 Dputs("Funkcia je v poriadku\n");
@@ -835,6 +842,10 @@ int if_check(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFro
 {
     int result = 0;
     *l = get_token(binaryTree);
+    static int if_counter = 0;
+    if_counter++;
+    const int if_label = if_counter;
+    codeGenIfStart(if_label);
     if (l->type == LBRACKET)
     {
         //Call expression
@@ -857,6 +868,7 @@ int if_check(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFro
                     *l = get_token(binaryTree);
                     if(l->type == KW_ELSE)
                     {
+                        codeGenIfElse(if_label);
                         *l = get_token(binaryTree);
                         if(l->type == LBRACKET_S_KUDRLINKOU)
                         {
@@ -866,6 +878,7 @@ int if_check(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFro
                             {
                                 if(l->type == RBRACKET_S_KUDRLINKOU)
                                 {
+                                    codeGenIfEnd(if_label);
                                     Dputs("If je v poriadku\n");
                                     result = 1;
                                 }
