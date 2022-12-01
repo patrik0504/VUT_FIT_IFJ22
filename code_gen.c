@@ -1,5 +1,6 @@
 #include "code_gen.h"
 
+int navestiCount = 0;
 
 void printProlog()
 {
@@ -72,31 +73,45 @@ void printBuiltInFunctions()
     printf("DEFVAR LF@char\n");
     printf("DEFVAR LF@check\n");
     printf("LT LF@check LF@param2 int@0\n");                // i<0
-    printf("JUMPIFEQ error LF@check bool@true\n");
+    printf("JUMPIFEQ errorsubstring LF@check bool@true\n");
     printf("LT LF@check LF@param3 int@0\n");                // j<0
-    printf("JUMPIFEQ error LF@check bool@true\n");
+    printf("JUMPIFEQ errorsubstring LF@check bool@true\n");
     printf("GT LF@check LF@param2 LF@param3\n");            // i>j
-    printf("JUMPIFEQ error LF@check bool@true\n");
+    printf("JUMPIFEQ errorsubstring LF@check bool@true\n");
     printf("DEFVAR LF@length\n");
     printf("STRLEN LF@length LF@param1\n");
     printf("LT LF@check LF@param2 LF@length\n");            // i>=strlen($s)
-    printf("JUMPIFNEQ error LF@check bool@true\n");
+    printf("JUMPIFNEQ errorsubstring LF@check bool@true\n");
     printf("GT LF@check LF@param3 LF@length\n");            // j>strlen($s)
-    printf("JUMPIFEQ error LF@check bool@true\n");
+    printf("JUMPIFEQ errorsubstring LF@check bool@true\n");
 
     printf("LABEL whilesubstring\n");
     printf("EQ LF@greaterthen LF@indexcount LF@param3\n");
-    printf("JUMPIFEQ end LF@greaterthen bool@true\n");
+    printf("JUMPIFEQ endsubstring LF@greaterthen bool@true\n");
     printf("GETCHAR LF@char LF@param1 LF@indexcount\n");
     printf("CONCAT LF@returnvar LF@returnvar LF@char\n");
     printf("ADD LF@indexcount LF@indexcount int@1\n");
     printf("JUMP whilesubstring\n");
 
-    printf("LABEL error\n");
+    printf("LABEL errorsubstring\n");
     printf("MOVE LF@returnvar nil@nil\n");
     printf("WRITE string@chyba\n");
 
-    printf("LABEL end\n");
+    printf("LABEL endsubstring\n");
+    printf("WRITE LF@returnvar\n");
+    printf("POPFRAME\n");
+    printf("RETURN\n");
+    /*****************FUNCTION ORD******************/
+    printf("LABEL ord\n");
+    printf("PUSHFRAME\n");
+    printf("DEFVAR LF@returnvar\n");
+    printf("JUMPIFEQ errorord LF@param1 string@\n");
+    printf("STRI2INT LF@returnvar LF@param1 int@0\n");
+    printf("JUMP returnord\n");
+    printf("LABEL errorord\n");
+    printf("MOVE LF@returnvar int@0\n");
+    printf("JUMP returnord\n");
+    printf("LABEL returnord\n");
     printf("WRITE LF@returnvar\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
