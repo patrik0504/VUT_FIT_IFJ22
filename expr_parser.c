@@ -51,6 +51,20 @@ int expr(context context, p_node symtable, Lexeme *target, char * variable_name,
     
     l = get_token(symtable);
 
+    if(l.type == FUNCTION_ID)
+    {
+        int res_func = statement(&l, symtable, globalFunctions, comesFromFunction, functionPtr);
+        if(!res_func)
+        {
+            return 0;
+        }
+        else
+        {
+            returnVariable(variable_name, comesFromFunction);
+            return 1;
+        }
+    }
+
     if (l.type == SEMICOLON && context == RETURN)
     {
         stack_destroy(stack);

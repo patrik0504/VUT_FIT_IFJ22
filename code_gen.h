@@ -43,6 +43,7 @@ void codeGenReadf();
 void createFrame();
 void generateParam(int number, Lexeme *l, bool comesFromFunction);
 void callFunction(char *functionName);
+void returnVariable(char *destination, bool comesFromFunction);
 void defineNewVar(char *varName, bool comesFromFunction);
 void declareFunction(char *functionName);
 void declareParams(int number, char *varName);
