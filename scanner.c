@@ -441,6 +441,7 @@ Lexeme scan_lexeme(int *row, bool epilog, bool prolog)
         //Escapovanie uvozoviek
         if(c == '"')
         {
+            // \" -> "
             if(buffer[stringlength-1] == 92)
             {
                 buffer[stringlength-1] = c;
@@ -501,11 +502,16 @@ Lexeme scan_lexeme(int *row, bool epilog, bool prolog)
             {
                 free(buffer);
                 return (Lexeme){.type = SCANERROR, .row = *row};
+            } else
+            {
+                next_state = transition(current_state, (char)c);
             }
         }
         else
         {
             //Prechod do ďalšieho stavu
+            //printf("current_state: %d\n", current_state);
+            //printf("Current char: %c\n", c);
             next_state = transition(current_state, (char)c);
         }
         if (next_state == Error)
