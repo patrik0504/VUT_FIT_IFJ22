@@ -332,3 +332,119 @@ void codeGenWhileEnd(int c)
     printf("JUMP WHILESTART%d\n", c);
     printf("LABEL WHILEEND%d\n", c);
 }
+
+void expr_move(char* target, int source_var_count, bool comesFromFunction)
+{
+    if (comesFromFunction)
+    {
+        printf("MOVE LF@$%s LF@$expr%d\n", target, source_var_count);
+    }
+    else
+    {
+        printf("MOVE GF@$%s GF@$expr%d\n", target, source_var_count);
+    }
+    
+}
+
+void generate_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, operation operation, bool comesFromFunction)
+{
+    
+    //Switch pro generaci jednotlivých operací
+    switch (operation)
+    {
+    case RR_PLUS: //  +
+        operation_print_symbols(expr_var_count, sym1, sym2, "ADD", comesFromFunction);
+        break;
+        
+    case RR_MINUS: //  -
+        operation_print_symbols(expr_var_count, sym1, sym2, "SUB", comesFromFunction);
+        break;
+
+    case RR_MUL: //  *
+        operation_print_symbols(expr_var_count, sym1, sym2, "MUL", comesFromFunction);
+        break;
+        
+    case RR_DIV: //  /
+        operation_print_symbols(expr_var_count, sym1, sym2, "IDIV", comesFromFunction);
+        break;
+        
+    case RR_CONCAT: //  .
+        operation_print_symbols(expr_var_count, sym1, sym2, "CONCAT", comesFromFunction);
+        break;
+    // case RR_LESSER: //  <
+        // operation_print_symbols(expr_var_count, sym1, sym2, "LT", comesFromFunction);
+        // break;
+    // case RR_LESOREQ: //  <=
+        // operation_print_symbols(expr_var_count, sym1, sym2, "LT", comesFromFunction); // EQ !!!!!!!!
+        // break;
+    // case RR_GREATER: //  >
+        // operation_print_symbols(expr_var_count, sym1, sym2, "GT", comesFromFunction);
+        // break;
+    // case RR_GREOREQ: //  >=
+        // operation_print_symbols(expr_var_count, sym1, sym2, "GT", comesFromFunction); // EQ !!!!!!!!
+        // break;
+    // case RR_EQ: //  ===
+        // operation_print_symbols(expr_var_count, sym1, sym2, "EQ", comesFromFunction);
+        // break;
+    // case RR_NOTEQ: //  !==
+        // operation_print_symbols(expr_var_count, sym1, sym2, "EQ", comesFromFunction);  // NOT EQ !!!!!!!!!!!!
+        // break;
+
+    default:
+        break;
+    }
+}
+
+void operation_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* operation, bool comesFromFunction){
+    char* scope;
+    if (comesFromFunction)
+    {
+        // Nastavení kontextu
+        scope = "LF@";
+        // Definování překladačové proměnné pro uložení dočasného výsledku
+        printf("DEFVAR LF@$expr%d\n", expr_var_count);
+    }
+    else
+    {
+        scope = "GF@";
+        printf("DEFVAR GF@$expr%d\n", expr_var_count);
+    }
+
+    // Print operace a výstupní proměnné
+    printf("%s %s$expr%d ", operation, scope, expr_var_count);
+
+    // Print prvního symbolu
+    print_single_symbol(sym1, scope);
+
+    // Print druhého symbolu
+    print_single_symbol(sym2, scope);
+    printf("\n");
+}
+
+void print_single_symbol(Lexeme* lexeme, char* scope)
+{
+    switch (lexeme->type)
+    {
+    case EQUAL: // Enum symbolizující expression (ve value je uloženo číslo compiler proměnné)
+        printf("%s$expr%d ", scope, lexeme->extra_data.value);
+        break;
+    case VARIABLE_ID:
+        printf("%s$%s ", scope, lexeme->extra_data.string);
+        break;
+    case NUMBER:
+        printf("int@%d ", lexeme->extra_data.value);
+        break;
+    case DECIMAL_NUMBER:
+        printf("float@%a ", lexeme->extra_data.decimal);
+        break;
+    case EXPONENT_NUMBER:
+        printf("float@%a ", lexeme->extra_data.exponent);
+        break;
+    case STRING_LITERAL:
+        evaluateEscapeSequencies(lexeme);
+        printf("string@%s ", lexeme->extra_data.string);
+        break;
+    default:
+        break;
+    }
+}

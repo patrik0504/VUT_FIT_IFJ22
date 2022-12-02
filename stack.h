@@ -41,6 +41,16 @@ typedef struct stack
     symbol_type *array;     ///< Stack
 } * p_stack;
 
+/** Struktura stacku pro lexémy */
+typedef struct lex_stack
+{
+    int top;                ///< Vrchol stacku
+    unsigned size;          ///< Size stacku
+    Lexeme *array;     ///< Stack
+} *p_lex_stack;
+
+
+/** ------------------------------------------ Funkce pro PSA stack ------------------------------------------------- */
 /**
  * Funkce inicializující stack.
  * @param size Maximální velikost stacku
@@ -116,8 +126,6 @@ symbol_type non_terminal_check(p_stack stack);
  */
 void push_after_terminal(p_stack stack, symbol_type data);
 
-
-
 /**
  * DEBUG
  * Funkce pro vypsání stacku
@@ -125,5 +133,71 @@ void push_after_terminal(p_stack stack, symbol_type data);
  * @param stack Stack nad kterým operaci provádíme
  */
 void stack_print(p_stack stack);
+/** ---------------------------------------------------------------------------------------------------------------- */
+
+
+/** ------------------------------------------ Funkce pro lexStack ------------------------------------------------- */
+
+/**
+ * Funkce inicializující lexStack.
+ * @param size Maximální velikost stacku
+ * @return Stack s maximání velikostí size
+ */
+p_lex_stack lex_stack_init(unsigned size);
+
+/**
+ * Pomocná funkce pro funkci Push - kontroluje přetečení stacku.
+ * @param stack Kontrolovaný stack
+ * @return 0 (false) při přetečení, jinak 1
+ */
+int lexStack_checkOverflow(p_lex_stack stack);
+
+/**
+ * Pomocná funkce pro funkci Pop - kontroluje podtečení stacku.
+ * @param stack Kontrolovaný stack
+ * @return 0 (false) při podtečení, jinak 1
+ */
+int lexStack_checkUnderflow(p_lex_stack stack);
+
+/**
+ * Funkce kontrolující plnost stacku.
+ * @param stack Kontrolovaný stack
+ * @return 1 (true) když je stack plný, jinak 0
+*/
+int lexStack_is_full(p_lex_stack stack);
+
+/**
+ * Funkce kontrolující prázdnost stacku.
+ * @param stack Kontrolovaný stack
+ * @return 1 (true) když je stack prázdný, jinak 1
+*/
+int lexStack_is_empty(p_lex_stack stack);
+
+/**
+ * Funkce pro vložení do stacku. Posouvá top o +1.
+ * @param stack Stack do kterého se vkládá
+ * @param lexeme Vkládaný lexém
+ */
+void lexStack_push(p_lex_stack stack, Lexeme* lexeme);
+
+/**
+ * Funkce pro odstranění ze stacku. Posouvá top o -1. (Hodnoty prvků zůstávají stejné??)
+ * @param stack Stack ze kterého se odstraňuje
+ * @return Lexém z vrcholu stacku, -1 při chybě
+ */
+Lexeme* lexStack_pop(p_lex_stack stack);
+
+/**
+ * Funkce pro nahlédnutí na prvek na vrcholu stacku bez jeho odstranění.
+ * @param stack Stack jehož prvky sledujeme
+ * @return Lexém z vrcholu stacku, -1 při chybě
+ */
+Lexeme* lexStack_peek(p_lex_stack stack);
+
+/**
+ * Funkce pro smazání a dealokaci stacku.
+ * @param stack Mazaný lexStack
+ */
+void lexStack_stack_destroy(p_lex_stack stack);
 
 #endif
