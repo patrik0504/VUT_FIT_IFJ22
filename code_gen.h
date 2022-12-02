@@ -66,6 +66,12 @@ void generate_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, operatio
 */
 void operation_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* operation, bool comesFromFunction);
 
+/** Pomocná funkce pro výpis jednotlivých symbolů u operací
+ *  @param lexeme Lexém pro korespondující symbol
+ *  @param scope  Buď "LF@" nebo "GF@" v závislosti na kontextu
+*/
+void print_single_symbol(Lexeme* lexeme, char* scope);
+
 /** Funkce pro uložení výsledku ze source do target
  *  @param target Název proměnné kam ukládáme
  *  @param source_var_count Počítadlo dočasných proměnných - Dá nám poslední proměnnou (poslední zredukovaný expression), ze které uložíme výsledek do targetu.

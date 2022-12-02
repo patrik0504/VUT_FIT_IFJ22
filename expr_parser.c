@@ -260,17 +260,39 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
         switch (op2)
         {
         case SYM_MUL:
+            if (type_check(sym1, sym2) == 1)
+            {
+                generate_operation(expr_var_counter, sym1, sym2, RR_MUL, comesFromFunction);
+            }
             break;
         case SYM_DIV:
+            if (type_check(sym1, sym2) == 1)
+            {
+                generate_operation(expr_var_counter, sym1, sym2, RR_DIV, comesFromFunction);
+            }
             break;
         case SYM_PLUS:
-            generate_operation(expr_var_counter, sym1, sym2, RR_PLUS, comesFromFunction);
+            if (type_check(sym1, sym2) == 1)
+            {
+                generate_operation(expr_var_counter, sym1, sym2, RR_PLUS, comesFromFunction);
+            }
             break;
         case SYM_MINUS:
-            generate_operation(expr_var_counter, sym1, sym2, RR_MINUS, comesFromFunction);
+            if (type_check(sym1, sym2) == 1)
+            {
+                generate_operation(expr_var_counter, sym1, sym2, RR_MINUS, comesFromFunction);
+            }
             break;
         case SYM_CONCAT:
-            // generate_operation(expr_var_counter, sym1, sym2, RR_CONCAT, comesFromFunction);
+            //TODO: Zkontrolovat kompatibilitu datových typů u proměnných
+            if (sym1->type == STRING_LITERAL && sym2->type == STRING_LITERAL)
+            {
+                generate_operation(expr_var_counter, sym1, sym2, RR_CONCAT, comesFromFunction);
+            }
+            else
+            {
+                error(sym1->row, "Operace konkatenace je možná pouze pro datové typy string!", SEM_INVALID_TYPE_ERROR);
+            }
             break;
         case SYM_LESSER:
             // generate_operation(expr_var_counter, sym1, sym2, RR_LESSER, comesFromFunction);
@@ -310,6 +332,39 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
 
 }
 
+int type_check(Lexeme *sym1, Lexeme *sym2)
+{
+    if (sym1->type == NUMBER && sym2->type == NUMBER)
+    {
+        return 1;
+    }
+    else if (sym1->type == DECIMAL_NUMBER && (sym2->type == DECIMAL_NUMBER || sym2->type == EXPONENT_NUMBER))
+    {
+        return 1;
+    }
+    else if (sym1->type == EXPONENT_NUMBER && (sym2->type == DECIMAL_NUMBER || sym2->type == EXPONENT_NUMBER))
+    {
+        return 1;
+    }
+    // ODTUD DOČASNÝ KÓD
+    else if (sym1->type == VARIABLE_ID || sym2->type == VARIABLE_ID)
+    {
+        //TODO: Zkontrolovat kompatibilitu datových typů u proměnných
+        return 1;
+    }
+    else if (sym1->type == EQUAL || sym2->type == EQUAL)
+    {
+        //TODO: Vkládání redukovaných expressions buď jako VARIABLE_ID včetně typu do stromu
+        //      nebo přímo do kódu jako konstanty.
+        return 1;
+    }
+    // POTUD DOČASNÝ KÓD
+    else 
+    {
+        error(sym1->row, "Ve výrazu se nachází nekompatibilní datové typy!", SEM_INVALID_TYPE_ERROR);
+        return 0;
+    }
+}
 
 int should_end(context context, Lexeme *lexeme, p_stack stack)
 {

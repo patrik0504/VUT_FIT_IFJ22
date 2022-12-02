@@ -1,10 +1,10 @@
 <?php 
 declare(strict_types=1);
 
-$a = 1+2;
-$bbb = $a + 20 - 7;
-$ccc = $bbb + 6;
-write($ccc);
+// $a = 1+2;
+// $bbb = $a + 20 - 7;
+// $ccc = $bbb + 6;
+// write($ccc);
 
 
 
@@ -13,12 +13,14 @@ write($ccc);
 
 // $b = 3;
 // $c = 2;
-// function foo(int $a) : void {
-//     $bbb = $a + 20 - 7;
-//     write($bbb);
-//     return;
-// }
-// foo(1);
+function foo(?int $a) : void {
+    $bbb = ($a + 2 * (3 + 7))/3;
+    $error = 6 + 2;
+    $concat = "IFJ "."swag";
+    write($bbb, "\n", $concat, "\n");
+    return;
+}
+foo(1);
 
 
 

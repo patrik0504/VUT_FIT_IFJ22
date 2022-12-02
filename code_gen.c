@@ -254,26 +254,25 @@ void generate_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, operatio
     //Switch pro generaci jednotlivých operací
     switch (operation)
     {
-    case RR_PLUS:
+    case RR_PLUS: //  +
         operation_print_symbols(expr_var_count, sym1, sym2, "ADD", comesFromFunction);
-        //printf("ADD %s$expr%s %s%s %s%s\n", scope, expr_var_count, var1, sym1->extra_data.string, var2, sym2->extra_data.string);
         break;
         
     case RR_MINUS: //  -
         operation_print_symbols(expr_var_count, sym1, sym2, "SUB", comesFromFunction);
         break;
 
-    // case RR_MUL: //  *
-        // operation_print_symbols(expr_var_count, sym1, sym2, "MUL", comesFromFunction);
-        // break;
+    case RR_MUL: //  *
+        operation_print_symbols(expr_var_count, sym1, sym2, "MUL", comesFromFunction);
+        break;
         
-    // case RR_DIV: //  /
-        // operation_print_symbols(expr_var_count, sym1, sym2, "DIV", comesFromFunction);
-        // break;
+    case RR_DIV: //  /
+        operation_print_symbols(expr_var_count, sym1, sym2, "IDIV", comesFromFunction);
+        break;
         
-    // case RR_CONCAT: //  .
-        // operation_print_symbols(expr_var_count, sym1, sym2, "CONCAT", comesFromFunction);
-        // break;
+    case RR_CONCAT: //  .
+        operation_print_symbols(expr_var_count, sym1, sym2, "CONCAT", comesFromFunction);
+        break;
     // case RR_LESSER: //  <
         // operation_print_symbols(expr_var_count, sym1, sym2, "LT", comesFromFunction);
         // break;
@@ -302,7 +301,9 @@ void operation_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, cha
     char* scope;
     if (comesFromFunction)
     {
+        // Nastavení kontextu
         scope = "LF@";
+        // Definování překladačové proměnné pro uložení dočasného výsledku
         printf("DEFVAR LF@$expr%d\n", expr_var_count);
     }
     else
@@ -311,71 +312,41 @@ void operation_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, cha
         printf("DEFVAR GF@$expr%d\n", expr_var_count);
     }
 
-    char* var1 = "";
-    char* varscope1 = "";
-    char* var2 = "";
-    char* varscope2 = "";
-    char number[12];
-    char number2[12];
+    // Print operace a výstupní proměnné
+    printf("%s %s$expr%d ", operation, scope, expr_var_count);
 
-    // ------- Nastavení scopu a typu u proměnných --------------
-    if(sym1->type == VARIABLE_ID) 
-    {
-        varscope1 = scope;
-        var1 = "$";
-    }
-    else if(sym1->type == NUMBER)
-    {
-        varscope1 = "int@";
-        sprintf(number, "%d ", sym1->extra_data.value);
-        var1 = number;
-    }
+    // Print prvního symbolu
+    print_single_symbol(sym1, scope);
 
-    if(sym2->type == VARIABLE_ID) 
-    {
-        varscope2 = scope;
-        var2 = "$";
-    }
-    else if(sym2->type == NUMBER)
-    {
-        varscope2 = "int@";
-        sprintf(number2, "%d ", sym2->extra_data.value);
-        var2 = number2;
-    }
-    // ---------------------------------------------------------
-
-
-
-
-    if(sym1->type == EQUAL) 
-    {
-        varscope1 = scope;
-        var1 = "$expr";
-    }
-
-    if(sym2->type == EQUAL) 
-    {
-        varscope2 = scope;
-        var2 = "$expr";
-    }
-
-    printf("%s %s$expr%d %s%s", operation, scope, expr_var_count, varscope1, var1);
-    if(sym1->type == EQUAL)
-    {
-        printf("%d ", sym1->extra_data.value);
-    }
-    else if(sym1->type == VARIABLE_ID)
-    {
-        printf("%s ", sym1->extra_data.string);
-    }
-    printf("%s%s", varscope2, var2);
-    if(sym2->type == EQUAL)
-    {
-        printf("%d", sym2->extra_data.value);
-    }
-    else if(sym2->type == VARIABLE_ID)
-    {
-        printf("%s", sym2->extra_data.string);
-    }
+    // Print druhého symbolu
+    print_single_symbol(sym2, scope);
     printf("\n");
+}
+
+void print_single_symbol(Lexeme* lexeme, char* scope)
+{
+    switch (lexeme->type)
+    {
+    case EQUAL: // Enum symbolizující expression (ve value je uloženo číslo compiler proměnné)
+        printf("%s$expr%d ", scope, lexeme->extra_data.value);
+        break;
+    case VARIABLE_ID:
+        printf("%s$%s ", scope, lexeme->extra_data.string);
+        break;
+    case NUMBER:
+        printf("int@%d ", lexeme->extra_data.value);
+        break;
+    case DECIMAL_NUMBER:
+        printf("float@%a ", lexeme->extra_data.decimal);
+        break;
+    case EXPONENT_NUMBER:
+        printf("float@%a ", lexeme->extra_data.exponent);
+        break;
+    case STRING_LITERAL:
+        evaluateEscapeSequencies(lexeme);
+        printf("string@%s ", lexeme->extra_data.string);
+        break;
+    default:
+        break;
+    }
 }
