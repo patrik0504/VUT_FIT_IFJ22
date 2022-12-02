@@ -123,6 +123,70 @@ void printBuiltInFunctions()
     printf("WRITE LF@returnvar\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
+    /*****************FUNCTION FLOATVAL******************/
+    printf("LABEL floatval\n");
+    printf("PUSHFRAME\n");
+    printf("DEFVAR LF@returnvar\n");
+    printf("DEFVAR LF@typ\n");
+    printf("TYPE LF@typ LF@param1\n");
+    printf("JUMPIFEQ floatvalint LF@typ string@int\n");
+    printf("JUMPIFEQ floatvalend LF@typ string@float\n");
+    printf("JUMPIFEQ floatvalnil LF@typ string@nil\n");
+
+    printf("LABEL floatvalnil\n");
+    printf("MOVE LF@param1 float@%a\n", 0.0);
+    printf("JUMP floatvalend\n");
+
+    printf("LABEL floatvalint\n");
+    printf("INT2FLOAT LF@param1 LF@param1\n");
+
+    printf("LABEL floatvalend\n");
+    printf("MOVE LF@returnvar LF@param1\n");
+    printf("WRITE LF@returnvar\n");
+    printf("POPFRAME\n");
+    printf("RETURN\n");
+
+    /*****************FUNCTION INTVAL******************/
+    printf("LABEL intval\n");
+    printf("PUSHFRAME\n");
+    printf("DEFVAR LF@returnvar\n");
+    printf("DEFVAR LF@typ\n");
+    printf("TYPE LF@typ LF@param1\n");
+    printf("JUMPIFEQ intvalfloat LF@typ string@float\n");
+    printf("JUMPIFEQ intvalend LF@typ string@int\n");
+    printf("JUMPIFEQ intvalnil LF@typ string@nil\n");
+
+    printf("LABEL intvalnil\n");
+    printf("MOVE LF@param1 int@0\n");
+    printf("JUMP intvalend\n");
+
+    printf("LABEL intvalfloat\n");
+    printf("FLOAT2INT LF@param1 LF@param1\n");
+
+    printf("LABEL intvalend\n");
+    printf("MOVE LF@returnvar LF@param1\n");
+    printf("WRITE LF@returnvar\n");
+    printf("POPFRAME\n");
+    printf("RETURN\n");
+
+    /*****************FUNCTION STRVAL******************/
+    printf("LABEL strval\n");
+    printf("PUSHFRAME\n");
+    printf("DEFVAR LF@returnvar\n");
+    printf("DEFVAR LF@typ\n");
+    printf("TYPE LF@typ LF@param1\n");
+    printf("JUMPIFEQ strvalend LF@typ string@string\n");
+    printf("JUMPIFEQ strvalnil LF@typ string@nil\n");
+
+    printf("LABEL strvalnil\n");
+    printf("MOVE LF@param1 string@\n");
+    printf("LABEL strvalend\n");
+    printf("MOVE LF@returnvar LF@param1\n");
+    printf("WRITE LF@returnvar\n");
+    printf("POPFRAME\n");
+    printf("RETURN\n");
+
+
 
     /*****************FUNCTION CHR******************/
     printf("LABEL chr\n");

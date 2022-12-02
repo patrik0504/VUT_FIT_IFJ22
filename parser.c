@@ -1053,7 +1053,7 @@ void set_params_in_builtin_functions(p_node binaryTree)
     function->data->params = param1;
     function->data->param_count = 1;
 
-    /*************FUNCTION SUBSTRING**********************/
+    /*************FUNCTION SUBSTRING*******************/
     function = tree_search(binaryTree, "substring");
     data = data_init_type(KW_STRING);
      param1 = node_init(data, "$c");
@@ -1066,7 +1066,7 @@ void set_params_in_builtin_functions(p_node binaryTree)
     insert_node(function->data->params, param3);
     function->data->param_count = 3;
 
-    /*************FUNCTION ORD****************************/
+    /*************FUNCTION ORD*************************/
     function = tree_search(binaryTree, "ord");
     data = data_init_type(KW_STRING);
     param1 = node_init(data, "$s");
@@ -1077,6 +1077,27 @@ void set_params_in_builtin_functions(p_node binaryTree)
     function = tree_search(binaryTree, "chr");
     data = data_init_type(KW_INT);
     param1 = node_init(data, "$i");
+    function->data->params = param1;
+    function->data->param_count = 1;
+
+    /*************FUNCTION FLOATVAL********************/
+    function = tree_search(binaryTree, "floatval");
+    data = data_init_type(KW_FLOAT);
+    param1 = node_init(data, "$s");
+    function->data->params = param1;
+    function->data->param_count = 1;
+
+    /*************FUNCTION INTVAL**********************/
+    function = tree_search(binaryTree, "intval");
+    data = data_init_type(KW_INT);
+    param1 = node_init(data, "$s");
+    function->data->params = param1;
+    function->data->param_count = 1;
+
+    /*************FUNCTION STRVAL**********************/
+    function = tree_search(binaryTree, "strval");
+    data = data_init_type(KW_STRING);
+    param1 = node_init(data, "$s");
     function->data->params = param1;
     function->data->param_count = 1;
 
@@ -1124,6 +1145,16 @@ p_node init_global_function()
     p_data datachr = data_init_KW();
     p_node node18 = node_init(datachr, "chr");
     insert_node(root, node18);
+    p_data datafloatval = data_init_KW();
+    p_node node19 = node_init(datafloatval, "floatval");
+    insert_node(root, node19);
+    p_data dataintval = data_init_KW();
+    p_node node20 = node_init(dataintval, "intval");
+    insert_node(root, node20);
+    p_data datastrval = data_init_KW();
+    p_node node21 = node_init(datastrval, "strval");
+    insert_node(root, node21);
+
 
     set_params_in_builtin_functions(root);
     return root;
