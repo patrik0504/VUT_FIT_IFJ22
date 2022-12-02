@@ -172,6 +172,9 @@ int decl_param(Lexeme *l, p_node binaryTree, p_node globalFunctions)
             node->data->param_count++;
             declareParams(node->data->param_count, l->extra_data.string);
             result = decl_param2(l, binaryTree, globalFunctions, node);
+        } else
+        {
+            error(l->row, "Spatna deklarace parametru funkce", SYNTAX_ERROR);
         }
     }
     else if(l->type == RBRACKET)
@@ -188,6 +191,9 @@ int decl_param(Lexeme *l, p_node binaryTree, p_node globalFunctions)
         {
             result = 1;
         }
+    } else
+    {
+        error(l->row, "Chybny nebo spatny typ parametru v deklaraci funkce", SYNTAX_ERROR);
     }
     return result;
 }
@@ -235,6 +241,9 @@ int decl_param2(Lexeme *l, p_node binaryTree, p_node globalFunctions, p_node fun
         {
             result = 1;
         }
+    } else
+    {
+        error(l->row, "Chybny nebo spatny typ parametru v deklaraci funkce", SYNTAX_ERROR);
     }
     return result;
 }
@@ -774,6 +783,11 @@ int function_check(Lexeme *l, p_node binaryTree, p_node globalFunctions)
                             }
                         }
                     }
+                }
+                else
+                {
+                    error(l->row, "Nespravny navratový typ funkcie", SYNTAX_ERROR);
+                    return 0;
                 }
             }
         }
