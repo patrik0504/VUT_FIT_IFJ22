@@ -86,7 +86,7 @@ int expr(context context, p_node symtable, Lexeme *target, char * variable_name,
         {
             stack->lpar_count -= 1;
         }
-        if(check_operation(symtable, stack, lex_stack, &l, context, comesFromFunction) == 0)
+        if(check_operation(symtable, stack, lex_stack, &l, context, comesFromFunction, functionPtr, globalFunctions) == 0)
         {
             //printf("\n");
             stack_destroy(stack);
@@ -101,7 +101,7 @@ int expr(context context, p_node symtable, Lexeme *target, char * variable_name,
 
     while (stack->top != 1)
     {
-        if(check_operation(symtable, stack, lex_stack, &l, context, comesFromFunction) == 0)
+        if(check_operation(symtable, stack, lex_stack, &l, context, comesFromFunction, functionPtr, globalFunctions) == 0)
         {
             //printf("\n");
             stack_destroy(stack);
@@ -116,10 +116,26 @@ int expr(context context, p_node symtable, Lexeme *target, char * variable_name,
     return 1;
 }
 
-int check_operation (p_node symtable, p_stack stack, p_lex_stack lex_stack, Lexeme *l, context context, bool comesFromFunction){
+int check_operation (p_node symtable, p_stack stack, p_lex_stack lex_stack, Lexeme *l, context context, bool comesFromFunction, p_node functionPtr, p_node globalFunctions){
     if (l->type == VARIABLE_ID || l->type == STRING_LITERAL || l->type == NUMBER ||
         l->type == DECIMAL_NUMBER || l->type == EXPONENT_NUMBER)
     {
+        if(l->type == VARIABLE_ID)
+        {
+            int check_defined = 0;
+            if(comesFromFunction)
+            {
+                check_defined = check_if_variable_is_defined(functionPtr, l->extra_data.string);
+            }
+            else
+            {
+                check_defined = check_if_variable_is_defined(globalFunctions, l->extra_data.string);
+            }
+            if(!check_defined)
+            {
+                error(l->row, "Premmená vo výraze nie je definovaná", SEM_UNDEFINED_VAR_ERROR);
+            }
+        }
         lexStack_push(lex_stack, l);
         //printf("%d\n", lexStack_pop(lex_stack)->type);
     }
