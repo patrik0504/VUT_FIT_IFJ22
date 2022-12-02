@@ -568,6 +568,7 @@ int param(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node functionP
         {
             if(param_count == count_tree(callFunction->data->params))
             {
+                createFrame();
                 result = 1;
             }
             else
@@ -678,10 +679,14 @@ int while_check(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comes
 {
     
     int result = 0;
+    static int while_count = 0;
+    while_count++;
+    int while_id = while_count;
     *l = get_token(binaryTree);
     if(l->type == LBRACKET)
     {
         //Call expression
+        codeGenWhileStart(while_id);
         result = expr(CALL_CONTROL, binaryTree, l, NULL, globalFunctions, comesFromFunction, functionPtr);
         if(!result)
         {
@@ -696,6 +701,7 @@ int while_check(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comes
             if (result)
             {
                 if(l->type == RBRACKET_S_KUDRLINKOU){
+                    codeGenWhileEnd(while_id);
                     Dputs("While je v poriadku\n");
                     result = 1;
                 }
@@ -759,6 +765,7 @@ int function_check(Lexeme *l, p_node binaryTree, p_node globalFunctions)
                         {
                             if(l->type == RBRACKET_S_KUDRLINKOU)
                             {
+                                codeGenFunctionEnd(func_name);
                                 node->data->declared = true;
                                 node->data->defined = true;
                                 Dputs("Funkcia je v poriadku\n");
@@ -835,6 +842,10 @@ int if_check(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFro
 {
     int result = 0;
     *l = get_token(binaryTree);
+    static int if_counter = 0;
+    if_counter++;
+    const int if_label = if_counter;
+    codeGenIfStart(if_label);
     if (l->type == LBRACKET)
     {
         //Call expression
@@ -857,6 +868,7 @@ int if_check(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFro
                     *l = get_token(binaryTree);
                     if(l->type == KW_ELSE)
                     {
+                        codeGenIfElse(if_label);
                         *l = get_token(binaryTree);
                         if(l->type == LBRACKET_S_KUDRLINKOU)
                         {
@@ -866,6 +878,7 @@ int if_check(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFro
                             {
                                 if(l->type == RBRACKET_S_KUDRLINKOU)
                                 {
+                                    codeGenIfEnd(if_label);
                                     Dputs("If je v poriadku\n");
                                     result = 1;
                                 }
@@ -1040,7 +1053,7 @@ void set_params_in_builtin_functions(p_node binaryTree)
     function->data->params = param1;
     function->data->param_count = 1;
 
-    /*************FUNCTION SUBSTRING**********************/
+    /*************FUNCTION SUBSTRING*******************/
     function = tree_search(binaryTree, "substring");
     data = data_init_type(KW_STRING);
      param1 = node_init(data, "$c");
@@ -1053,7 +1066,7 @@ void set_params_in_builtin_functions(p_node binaryTree)
     insert_node(function->data->params, param3);
     function->data->param_count = 3;
 
-    /*************FUNCTION ORD****************************/
+    /*************FUNCTION ORD*************************/
     function = tree_search(binaryTree, "ord");
     data = data_init_type(KW_STRING);
     param1 = node_init(data, "$s");
@@ -1064,6 +1077,27 @@ void set_params_in_builtin_functions(p_node binaryTree)
     function = tree_search(binaryTree, "chr");
     data = data_init_type(KW_INT);
     param1 = node_init(data, "$i");
+    function->data->params = param1;
+    function->data->param_count = 1;
+
+    /*************FUNCTION FLOATVAL********************/
+    function = tree_search(binaryTree, "floatval");
+    data = data_init_type(KW_FLOAT);
+    param1 = node_init(data, "$s");
+    function->data->params = param1;
+    function->data->param_count = 1;
+
+    /*************FUNCTION INTVAL**********************/
+    function = tree_search(binaryTree, "intval");
+    data = data_init_type(KW_INT);
+    param1 = node_init(data, "$s");
+    function->data->params = param1;
+    function->data->param_count = 1;
+
+    /*************FUNCTION STRVAL**********************/
+    function = tree_search(binaryTree, "strval");
+    data = data_init_type(KW_STRING);
+    param1 = node_init(data, "$s");
     function->data->params = param1;
     function->data->param_count = 1;
 
@@ -1111,6 +1145,16 @@ p_node init_global_function()
     p_data datachr = data_init_KW();
     p_node node18 = node_init(datachr, "chr");
     insert_node(root, node18);
+    p_data datafloatval = data_init_KW();
+    p_node node19 = node_init(datafloatval, "floatval");
+    insert_node(root, node19);
+    p_data dataintval = data_init_KW();
+    p_node node20 = node_init(dataintval, "intval");
+    insert_node(root, node20);
+    p_data datastrval = data_init_KW();
+    p_node node21 = node_init(datastrval, "strval");
+    insert_node(root, node21);
+
 
     set_params_in_builtin_functions(root);
     return root;

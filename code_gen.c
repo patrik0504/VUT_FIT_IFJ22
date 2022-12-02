@@ -1,6 +1,5 @@
 #include "code_gen.h"
 
-int navestiCount = 0;
 
 void printProlog()
 {
@@ -8,7 +7,7 @@ void printProlog()
     return;
 }
 
-void codeGenWrite(Lexeme l)
+void codeGenWrite(Lexeme l, bool comesFromFunction)
 {
     switch(l.type)
     {
@@ -25,8 +24,16 @@ void codeGenWrite(Lexeme l)
             printf("WRITE float@%a\n", l.extra_data.exponent);
             break;
         case VARIABLE_ID:
+        if(comesFromFunction)
+        {
             printf("WRITE LF@$%s\n", l.extra_data.string);
             break;
+        }else
+        {
+            printf("WRITE GF@$%s\n", l.extra_data.string);
+            break;
+        }
+            
     }
 }
 
@@ -116,6 +123,70 @@ void printBuiltInFunctions()
     printf("WRITE LF@returnvar\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
+    /*****************FUNCTION FLOATVAL******************/
+    printf("LABEL floatval\n");
+    printf("PUSHFRAME\n");
+    printf("DEFVAR LF@returnvar\n");
+    printf("DEFVAR LF@typ\n");
+    printf("TYPE LF@typ LF@param1\n");
+    printf("JUMPIFEQ floatvalint LF@typ string@int\n");
+    printf("JUMPIFEQ floatvalend LF@typ string@float\n");
+    printf("JUMPIFEQ floatvalnil LF@typ string@nil\n");
+
+    printf("LABEL floatvalnil\n");
+    printf("MOVE LF@param1 float@%a\n", 0.0);
+    printf("JUMP floatvalend\n");
+
+    printf("LABEL floatvalint\n");
+    printf("INT2FLOAT LF@param1 LF@param1\n");
+
+    printf("LABEL floatvalend\n");
+    printf("MOVE LF@returnvar LF@param1\n");
+    printf("WRITE LF@returnvar\n");
+    printf("POPFRAME\n");
+    printf("RETURN\n");
+
+    /*****************FUNCTION INTVAL******************/
+    printf("LABEL intval\n");
+    printf("PUSHFRAME\n");
+    printf("DEFVAR LF@returnvar\n");
+    printf("DEFVAR LF@typ\n");
+    printf("TYPE LF@typ LF@param1\n");
+    printf("JUMPIFEQ intvalfloat LF@typ string@float\n");
+    printf("JUMPIFEQ intvalend LF@typ string@int\n");
+    printf("JUMPIFEQ intvalnil LF@typ string@nil\n");
+
+    printf("LABEL intvalnil\n");
+    printf("MOVE LF@param1 int@0\n");
+    printf("JUMP intvalend\n");
+
+    printf("LABEL intvalfloat\n");
+    printf("FLOAT2INT LF@param1 LF@param1\n");
+
+    printf("LABEL intvalend\n");
+    printf("MOVE LF@returnvar LF@param1\n");
+    printf("WRITE LF@returnvar\n");
+    printf("POPFRAME\n");
+    printf("RETURN\n");
+
+    /*****************FUNCTION STRVAL******************/
+    printf("LABEL strval\n");
+    printf("PUSHFRAME\n");
+    printf("DEFVAR LF@returnvar\n");
+    printf("DEFVAR LF@typ\n");
+    printf("TYPE LF@typ LF@param1\n");
+    printf("JUMPIFEQ strvalend LF@typ string@string\n");
+    printf("JUMPIFEQ strvalnil LF@typ string@nil\n");
+
+    printf("LABEL strvalnil\n");
+    printf("MOVE LF@param1 string@\n");
+    printf("LABEL strvalend\n");
+    printf("MOVE LF@returnvar LF@param1\n");
+    printf("WRITE LF@returnvar\n");
+    printf("POPFRAME\n");
+    printf("RETURN\n");
+
+
 
     /*****************FUNCTION CHR******************/
     printf("LABEL chr\n");
@@ -229,10 +300,37 @@ void declareParams(int number, char *varName)
 void codeGenReturn(bool comesFromFunction, char *functionName)
 {
     printf("RETURN\n");
-    if (comesFromFunction)
-    {
-        printf("LABEL %sEND\n\n", functionName);
-    }
+}
+
+void codeGenFunctionEnd(char *functionName)
+{
+    printf("RETURN\n");
+    printf("LABEL %sEND\n\n", functionName);
+
+}
+
+void codeGenIfStart(int c)
+{
+    printf("LABEL IFSTART%d\n", c);
+}
+void codeGenIfElse(int c)
+{
+    printf("JUMP IFEND%d\n", c);
+    printf("LABEL IFELSE%d\n", c);
+}
+void codeGenIfEnd(int c)
+{
+    printf("LABEL IFEND%d\n", c);
+}
+
+void codeGenWhileStart(int c)
+{
+    printf("LABEL WHILESTART%d\n", c);
+}
+void codeGenWhileEnd(int c)
+{
+    printf("JUMP WHILESTART%d\n", c);
+    printf("LABEL WHILEEND%d\n", c);
 }
 
 void expr_move(char* target, int source_var_count, bool comesFromFunction)
