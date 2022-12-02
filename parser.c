@@ -525,6 +525,7 @@ int param(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node functionP
             if(tree_search(globalFunctions->data->elements, l->extra_data.string) != NULL)
             {
                 param_count++;
+                createFrame();
                 generateParam(param_count, l, comesFromFunction);
                 *l = get_token(binaryTree);
                 result = param2(l, binaryTree, comesFromFunction, functionPtr, param_count, callFunction, globalFunctions);

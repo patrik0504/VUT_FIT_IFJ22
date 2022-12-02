@@ -66,7 +66,6 @@ void printBuiltInFunctions()
     printf("PUSHFRAME\n");
     printf("DEFVAR LF@returnvar\n");
     printf("STRLEN LF@returnvar LF@param1\n");
-    printf("WRITE LF@returnvar\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
     /*****************FUNCTION SUBSTRING******************/
@@ -105,7 +104,6 @@ void printBuiltInFunctions()
     printf("WRITE string@chyba\n");
 
     printf("LABEL endsubstring\n");
-    printf("WRITE LF@returnvar\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
 
@@ -120,7 +118,6 @@ void printBuiltInFunctions()
     printf("MOVE LF@returnvar int@0\n");
     printf("JUMP returnord\n");
     printf("LABEL returnord\n");
-    printf("WRITE LF@returnvar\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
     /*****************FUNCTION FLOATVAL******************/
@@ -142,7 +139,6 @@ void printBuiltInFunctions()
 
     printf("LABEL floatvalend\n");
     printf("MOVE LF@returnvar LF@param1\n");
-    printf("WRITE LF@returnvar\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
 
@@ -165,7 +161,6 @@ void printBuiltInFunctions()
 
     printf("LABEL intvalend\n");
     printf("MOVE LF@returnvar LF@param1\n");
-    printf("WRITE LF@returnvar\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
 
@@ -182,7 +177,6 @@ void printBuiltInFunctions()
     printf("MOVE LF@param1 string@\n");
     printf("LABEL strvalend\n");
     printf("MOVE LF@returnvar LF@param1\n");
-    printf("WRITE LF@returnvar\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
 
