@@ -6,21 +6,21 @@ declare(strict_types=1);
 // $ccc = $bbb + 6;
 // write($ccc);
 
+// $a = 5*(9+1);
+// write($a);
 
 
-
-
-
-// $b = 3;
-// $c = 2;
-function foo(?int $a) : void {
-    $bbb = ($a + 2 * (3 + 7))/3;
-    $error = 6 + 2;
-    $concat = "IFJ "."swag";
-    write($bbb, "\n", $concat, "\n");
+function foo(int $a, int $b) : void {
+    $bbb = $a/$b;
+    // $bbb = ($a + 2 * (3 + 7))/2;
+    // $bbb = $a/($a + 2 * (3 + 7));
+    // $bbb = ($a + 2 * (3 + 7))/$a;
+    //$error = 6 + 2;
+    //$concat = "IFJ "."swag";
+    write($bbb, "\n");
     return;
 }
-foo(1);
+foo(2, 1);
 
 
 

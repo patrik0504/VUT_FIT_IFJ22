@@ -108,8 +108,32 @@ int expr(context context, p_node symtable, Lexeme *target, char * variable_name,
             return 0;
         }
     }
+    char* scope = "GF@";
+    if(comesFromFunction)
+    {
+        scope = "LF@";
+    }
 
-    expr_move(variable_name, lexStack_pop(lex_stack)->extra_data.value, comesFromFunction);
+    //Řešení typu u assigmentu
+    Lexeme * last = lexStack_pop(lex_stack);
+    switch (last->type)
+    {
+    case EXPR:
+        expr_move(variable_name, last->extra_data.value, comesFromFunction);
+        break;
+    case NUMBER:
+        printf("MOVE %s$%s int@%d\n", scope, variable_name, last->extra_data.value);
+        break;
+    case STRING_LITERAL:
+        break;
+    case DECIMAL_NUMBER:
+    case EXPONENT_NUMBER:
+        break;
+    
+    default:
+        break;
+    }
+
     //printf("\n");
     stack_destroy(stack);
     lexStack_stack_destroy(lex_stack);
@@ -175,7 +199,7 @@ int check_operation (p_node symtable, p_stack stack, p_lex_stack lex_stack, Lexe
 
     //VALID:     2-(-2),
     //NOT VALID: 2--2, 
-    
+
     switch (precedence)
     {
         // REDUKCE ( > )
@@ -192,7 +216,7 @@ int check_operation (p_node symtable, p_stack stack, p_lex_stack lex_stack, Lexe
             error(l->row, "Ve výrazu chybí některý z operandů!", SYNTAX_ERROR);
             return 0;
         }
-        reduction_rule result = check_rule(op1, op2, op3, stack, lex_stack, comesFromFunction);
+        reduction_rule result = check_rule(op1, op2, op3, stack, lex_stack, comesFromFunction, functionPtr, globalFunctions);
         if (result != 0)
         {
             pop(stack); // Pop handle
@@ -240,7 +264,8 @@ int check_operation (p_node symtable, p_stack stack, p_lex_stack lex_stack, Lexe
     }
 }
 
-reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_stack stack, p_lex_stack lex_stack, bool comesFromFunction)
+reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_stack stack, p_lex_stack lex_stack, 
+    bool comesFromFunction, p_node functionPtr, p_node globalFunctions)
 {
     // Pravidla s jedním operandem
     if (op1 == -1 && op2 == -1)
@@ -284,7 +309,6 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
 
         Lexeme *sym2 = lexStack_pop(lex_stack);
         Lexeme *sym1 = lexStack_pop(lex_stack);
-        Lexeme expr_lex = {.type = EQUAL};
 
         //Switch, který rozhodne o pravidlu redukce na základě operandu v op2
         switch (op2)
@@ -348,7 +372,8 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
             return 0;
         }
 
-        // Používáme equal, který se jinak na stack nedostane, jako lexém pro compiler proměnnou
+        Lexeme expr_lex = {.type = EXPR};
+
         expr_lex.extra_data.value = expr_var_counter;
         expr_var_counter++;
         lexStack_push(lex_stack, &expr_lex);
@@ -382,7 +407,7 @@ int type_check(Lexeme *sym1, Lexeme *sym2)
         //TODO: Zkontrolovat kompatibilitu datových typů u proměnných
         return 1;
     }
-    else if (sym1->type == EQUAL || sym2->type == EQUAL)
+    else if (sym1->type == EXPR || sym2->type == EXPR)
     {
         //TODO: Vkládání redukovaných expressions buď jako VARIABLE_ID včetně typu do stromu
         //      nebo přímo do kódu jako konstanty.
