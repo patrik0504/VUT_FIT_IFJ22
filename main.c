@@ -148,7 +148,5 @@ int main() {
 
 
     
-    error_eval();
-    
-    //exit(error_eval());
+    exit(error_eval());
 }
