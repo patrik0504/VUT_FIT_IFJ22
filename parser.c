@@ -2,18 +2,21 @@
 
 int parse(){
     int result = 0;
+    //Incializácia stromu pre lexer s KW
     p_node binaryTree = init_binary_treeKW();
     Lexeme * l = token_init(); 
     p_node globalFunctions = init_global_function();
 
+    //Výpis do code genu
     printProlog();
     printBuiltInFunctions();
+    //Kontrola hlavného tela programu
     result = prog(l, binaryTree, globalFunctions);
     int err = 0;
+    //Kontrola že či boli všetky funkcie definované
     check_func(globalFunctions, &err);
-
     if(err == 1){
-        //error(-1, "Funkcia bola zavolaná, ale nebola deklarovaná", SEM_UNDEFINED_FUNC_ERROR);
+        error(-1, "Funkcia bola zavolaná, ale nebola deklarovaná", SEM_UNDEFINED_FUNC_ERROR);
         return 0;
     }
     tree_destroy(binaryTree);
@@ -102,7 +105,7 @@ int type(Lexeme *l)
 
 int check_minus(Lexeme *l, p_node binaryTree)
 {
-    int result = 0;
+    int result = 1;
     if(l->type == MINUS)
     {
         *l = get_token(binaryTree);
@@ -110,22 +113,17 @@ int check_minus(Lexeme *l, p_node binaryTree)
         {
             case NUMBER:
                 l->extra_data.value = -l->extra_data.value;
-                result = 1;
                 break;
             case EXPONENT_NUMBER:
                 l->extra_data.exponent = -l->extra_data.exponent;
-                result = 1;
                 break;
             case DECIMAL_NUMBER:
                 l->extra_data.decimal = -l->extra_data.decimal;
-                result = 1;
                 break;
             default:
-                error(l->row, "Neočekávaný znak '-'", SYNTAX_ERROR);
+                error(l->row, "Neočekávaný token za '-'", SYNTAX_ERROR);
+                result = 0;
         }
-    } else
-    {
-        result = 1;
     }
     return result;
 }
@@ -138,15 +136,16 @@ int decl_param(Lexeme *l, p_node binaryTree, p_node globalFunctions)
     if(type(l))
     {
         int type = l->type;
-       *l = get_token(binaryTree);
+        *l = get_token(binaryTree);
         if(l->type == VARIABLE_ID)
         {
             p_node node = tree_search(globalFunctions, function_name);
             p_data data = data_init_type(type);
+            //Vloženie nového parametra do stromu
             p_node param = node_init(data, l->extra_data.string);
             node->data->params = param;
             node->data->param_count++;
-            declareParams(node->data->param_count, l->extra_data.string);
+            declareParams(node->data->param_count, l->extra_data.string);   //generování kódu pro deklaraci parametrů
             result = decl_param2(l, binaryTree, globalFunctions, node);
         } else
         {
@@ -156,14 +155,14 @@ int decl_param(Lexeme *l, p_node binaryTree, p_node globalFunctions)
     else if(l->type == RBRACKET)
     {
         p_node func = tree_search(globalFunctions, function_name);
+        //Ak bola funkcia definovaná, tak sa kontroluje počet parametrov pri deklarácii
         if (func->data->defined)
         {
             if(func->data->param_count == count_tree(func->data->params))
             {
                 result = 1;
             }
-        }
-        else
+        } else
         {
             result = 1;
         }
@@ -194,6 +193,7 @@ int decl_param2(Lexeme *l, p_node binaryTree, p_node globalFunctions, p_node fun
                     error(l->row, "Premenná bola deklarovaná viackrát", SEM_OTHER_ERROR);
                     return 0;
                 }
+                //Vloženie nového parametra do stromu
                 p_node param = node_init(data, l->extra_data.string);
                 insert_node(function_node->data->params, param);
                 function_node->data->param_count++;
@@ -202,8 +202,7 @@ int decl_param2(Lexeme *l, p_node binaryTree, p_node globalFunctions, p_node fun
 
             }
         }
-    }
-    else if(l->type == RBRACKET)
+    } else if(l->type == RBRACKET)
     {
         p_node func = function_node;
         if (func->data->defined)
@@ -212,8 +211,7 @@ int decl_param2(Lexeme *l, p_node binaryTree, p_node globalFunctions, p_node fun
             {
                 result = 1;
             }
-        }
-        else
+        } else
         {
             result = 1;
         }
@@ -228,8 +226,10 @@ int check_if_variable_is_defined(p_node functionPtr, char * variable)
 {
     int result = 0;
     
+    //Kontrola že či je variable ako parameter funkcie
     if (((functionPtr->data->params != NULL) && (tree_search(functionPtr->data->params, variable) == NULL)) || (functionPtr->data->params == NULL))
     {
+        //Kontrola že či je variable ako lokálna premmená
         if(((functionPtr->data->elements != NULL) && (tree_search(functionPtr->data->elements, variable) == NULL)) || (functionPtr->data->elements == NULL))
         {
             //Promena nie je vo funkcii definovana
@@ -239,8 +239,7 @@ int check_if_variable_is_defined(p_node functionPtr, char * variable)
             //Promena je vo funkcii definovana   
             result = 1;
         }
-    }
-    else
+    } else
     {
         //Promena je vo funkcii definovana    
         result = 1;
@@ -256,10 +255,14 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
         char * variable = l->extra_data.string;
         if(!comesFromFunction)
         {
+            //Kontrola že či je už variable deklarovaná
             if (((globalFunctions->data->elements != NULL) && (tree_search(globalFunctions->data->elements, l->extra_data.string) == NULL)) || (globalFunctions->data->elements == NULL))
             {
+                //Premmená nie je deklarovaná
+                //Vytvorenie novej premmenj
                 p_data data = data_init();
                 p_node local_var = node_init(data, l->extra_data.string);
+                //Kontrola že či je strom premmených inicializovaný
                 if (globalFunctions->data->elements == NULL)
                 {
                     globalFunctions->data->elements = local_var;
@@ -267,7 +270,7 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
                 {
                     insert_node(globalFunctions->data->elements, local_var);
                 }
-                defineNewVar(l->extra_data.string, false);
+                defineNewVar(l->extra_data.string, false); // Generovanie kódu pre deklaráciu novej premmenj
             }
         }
         *l = get_token(binaryTree);
@@ -283,6 +286,7 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
         p_node node = tree_search(globalFunctions, function_name);
         if(node == NULL)
         {
+            //funkce nebyla deklarovaná ani předtím zavolaná
             if(comesFromFunction)
             {
                 p_data data = data_init();
@@ -344,7 +348,6 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
         }
     } else if(l->type == KW_RETURN)
     {
-        //printf("Vstupujem do expression\n");
         result = ret_expr(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
         if(result)
         {
@@ -381,7 +384,6 @@ int st_list(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFrom
     int result = 0;
     if(l->type == VARIABLE_ID)
     {
-        
         if(comesFromFunction)
         { 
                 if(((functionPtr->data->params != NULL) && (tree_search(functionPtr->data->params, l->extra_data.string) == NULL)) || (functionPtr->data->params == NULL))
@@ -404,8 +406,7 @@ int st_list(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFrom
                 {
                     Dprintf("promenna %s je parametrem funkce\n", l->extra_data.string);
                 }
-        }
-        else
+        } else
         {
             if (((globalFunctions->data->elements != NULL) && (tree_search(globalFunctions->data->elements, l->extra_data.string) == NULL)) || (globalFunctions->data->elements == NULL))
             {
@@ -434,8 +435,7 @@ int st_list(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFrom
                 result = st_list(l, binaryTree, globalFunctions, 0, NULL);
             }
         }
-    }
-    else if (l->type == FUNCTION_ID)
+    } else if (l->type == FUNCTION_ID)
     {
         result = statement(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
         if(result)
@@ -444,7 +444,7 @@ int st_list(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFrom
             Dputs("Nacital som spravne volanie funkcie\n");
             result = st_list(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
         }
-    }else if(l->type == KW_IF){
+    } else if(l->type == KW_IF){
         Dputs("Nasiel som if v st_list\n");
         result = control(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
         if (result)
@@ -452,14 +452,14 @@ int st_list(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFrom
             *l = get_token(binaryTree);
             result = st_list(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
         }
-    }else if(l->type == KW_WHILE){
+    } else if(l->type == KW_WHILE){
         result = control(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
         if (result)
         {
             *l = get_token(binaryTree);
             result = st_list(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
         }
-    }else if(l->type == KW_RETURN)
+    } else if(l->type == KW_RETURN)
     {
         result = statement(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
         if(result)
@@ -516,8 +516,7 @@ int param(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node functionP
                 generateParam(param_count, l, comesFromFunction);
                 *l = get_token(binaryTree);
                 result = param2(l, binaryTree, comesFromFunction, functionPtr, param_count, callFunction, globalFunctions);
-            }
-            else
+            } else
             {
                 Dprintf("Promenna %s neni definovana\n", l->extra_data.string);
                 error(l->row, "Promenna neni definovana", SEM_UNDEFINED_VAR_ERROR);
@@ -558,8 +557,7 @@ int param(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node functionP
             {
                 createFrame();
                 result = 1;
-            }
-            else
+            } else
             {
                 Dprintf("Zlý počet parametrov, očakávalo se %d, ale bylo zadáno %d\n", count_tree(callFunction->data->params), param_count);
                 error(l->row, "Zlý počet parametrov", SEM_INVALID_CALL_ERROR);
@@ -600,8 +598,7 @@ int param2(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node function
                     error(l->row, "Promenna neni definovana", SEM_UNDEFINED_VAR_ERROR);
                     return 0;
                 }
-            }
-            else
+            } else
             {
                 if(tree_search(globalFunctions->data->elements, l->extra_data.string) != NULL)
                 {
@@ -609,8 +606,7 @@ int param2(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node function
                     generateParam(paramCount, l, comesFromFunction);
                     *l = get_token(binaryTree);
                     result = param2(l, binaryTree, comesFromFunction, functionPtr, paramCount, callFunction, globalFunctions);
-                }
-                else
+                } else
                 {
                     error(l->row, "Promenna neni definovana", SEM_UNDEFINED_VAR_ERROR);
                     return 0;
@@ -638,24 +634,20 @@ int param2(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node function
             *l = get_token(binaryTree);
             result = param2(l, binaryTree, comesFromFunction, functionPtr, paramCount, callFunction, globalFunctions);
     }
-    }
-    else if(l->type == RBRACKET)
+    } else if(l->type == RBRACKET)
     {
         if(callFunction->data->defined && callFunction->data->declared)
         {
-            //debug_tree(callFunction->data->params);
-            printf("\n");
             if(paramCount == count_tree(callFunction->data->params))
             {
                 Dprintf("Nasiel som %d parametrov\n", paramCount);
                 result = 1;
-            }
-            else
+            } else
             {
                 error(l->row, "Zlý počet parametrov", SEM_INVALID_CALL_ERROR);
                 result = 0;
             }
-        }else
+        } else
         {
             result = 1;
         }
@@ -673,7 +665,6 @@ int while_check(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comes
     *l = get_token(binaryTree);
     if(l->type == LBRACKET)
     {
-        //Call expression
         codeGenWhileStart(while_id);
         result = expr(CALL_CONTROL, binaryTree, l, NULL, globalFunctions, comesFromFunction, functionPtr);
         if(!result)
@@ -779,6 +770,7 @@ int function_check(Lexeme *l, p_node binaryTree, p_node globalFunctions)
             {
                 //TODO error ale opacne pozor na ze program hadze chybu pri deklaracii, ale je to chyba pri volani lebo bola zavolana s inym poctom argumentom ako v definicii
                 Dputs("Chyba pri deklaracii parametrov\n");
+                error(l->row, "Zlý počet parametrov", SEM_INVALID_CALL_ERROR);
                 return 0;
             }
             
@@ -929,9 +921,7 @@ int body(Lexeme *l, p_node binaryTree, p_node globalFunctions){
         case VARIABLE_ID:
         case FUNCTION_ID:
         case KW_RETURN:
-            //printf("Vstupujem do expression\n");
             result = statement(l, binaryTree, globalFunctions, 0, NULL);
-            //printf("Vstupujem do expression\n");
             if(result == -1)
             {
                 return 0;
@@ -959,15 +949,13 @@ void token_free(Lexeme * token)
     }
 }
 
-
-//Insert new function to globalFunctions
 void insert_function(p_node globalFunctions, Lexeme *l)
 {
     p_node node = node_init(data_init(), l->extra_data.string);
     insert_node(globalFunctions, node);
 }
 
-//Incializacia data pre globalFunctions
+
 p_data data_init()
 {
     p_data data = (p_data)malloc(sizeof(struct data));
@@ -1146,7 +1134,6 @@ p_node init_global_function()
     p_data datastrval = data_init_KW();
     p_node node21 = node_init(datastrval, "strval");
     insert_node(root, node21);
-
 
     set_params_in_builtin_functions(root);
     return root;
