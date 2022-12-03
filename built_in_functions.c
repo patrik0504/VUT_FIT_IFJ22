@@ -11,10 +11,18 @@ int writeString(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comes
         *l = get_token(binaryTree);
         if (l->type == VARIABLE_ID)
         {
-            ok = declaredCheck(binaryTree, globalFunctions, comesFromFunction, functionPtr, *l);
-            if (!ok)
+            int oke = 0;
+            if(comesFromFunction)
             {
-                error(l->row, "Proměnná ve volání WRITE není definovaná", SEM_UNDEFINED_VAR_ERROR);
+                oke = check_if_variable_is_defined(functionPtr, l->extra_data.string);
+            } else
+            {
+                oke = check_if_variable_is_defined(globalFunctions, l->extra_data.string);
+            }
+            if(!oke)
+            {
+                error(l->row, "Proměnná ve volání WRITE nebyla deklarovaná", SEM_UNDEFINED_VAR_ERROR);
+                ok = false;
             }
         }  else if (l->type == MINUS)
         {
@@ -37,7 +45,10 @@ int writeString(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comes
         }else if (l->type == STRING_LITERAL)
         {
             evaluateEscapeSequencies(l);
-        } 
+        } else
+        {
+            error(l->row, "Neočekávaný znak ve volání WRITE", SYNTAX_ERROR);
+        }
         if (ok)
         {
             codeGenWrite(*l, comesFromFunction);
@@ -61,10 +72,18 @@ int writeString2(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool come
         *l = get_token(binaryTree);
         if (l->type == VARIABLE_ID)
         {
-            ok = declaredCheck(binaryTree, globalFunctions, comesFromFunction, functionPtr, *l);    
-            if (!ok)
+            int oke = 0;
+            if(comesFromFunction)
             {
-                error(l->row, "Promenna ve volani WRITE neni definovana", SEM_UNDEFINED_VAR_ERROR);
+                oke = check_if_variable_is_defined(functionPtr, l->extra_data.string);
+            } else
+            {
+                oke = check_if_variable_is_defined(globalFunctions, l->extra_data.string);
+            }
+            if(!oke)
+            {
+                error(l->row, "Proměnná ve volání WRITE nebyla deklarovaná", SEM_UNDEFINED_VAR_ERROR);
+                ok = false;
             }
        
         }  else if (l->type == MINUS)
@@ -97,33 +116,11 @@ int writeString2(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool come
     }else if (l->type == RBRACKET)
     {
         result = 1;
+    } else 
+    {
+        error(l->row, "Neočekávaný znak ve volání WRITE", SYNTAX_ERROR);
     }
     return result;
-}
-
-bool declaredCheck(p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr, Lexeme l)
-{
-    if (comesFromFunction)
-    {
-        if(((functionPtr->data->params != NULL) && (tree_search(functionPtr->data->params, l.extra_data.string) == NULL)) || (functionPtr->data->params == NULL))
-        {
-                    if (((functionPtr->data->elements != NULL) && (tree_search(functionPtr->data->elements, l.extra_data.string) == NULL)) || (functionPtr->data->elements == NULL))
-                    {
-                        return false;
-                    }
-        }
-        return true;
-    } else
-    {
-        if(((globalFunctions->data->params != NULL) && (tree_search(globalFunctions->data->params, l.extra_data.string) == NULL)) || (globalFunctions->data->params == NULL))
-        {
-                    if (((globalFunctions->data->elements != NULL) && (tree_search(globalFunctions->data->elements, l.extra_data.string) == NULL)) || (globalFunctions->data->elements == NULL))
-                    {
-                        return false;
-                    }
-        }
-        return true;
-    }
 }
 
 void shiftRight(char* buffer, int shift, int stringlength) 
@@ -138,13 +135,12 @@ void shiftRight(char* buffer, int shift, int stringlength)
 void replaceEscapeSequenceByNumber(char *buffer, char c)
 {
     int asciivalue = (int)c;
-    buffer[3] = asciivalue%10 + 48;
+    buffer[3] = asciivalue%10 + '0';
     asciivalue = (asciivalue - asciivalue%10)/10;
-    buffer[2] = asciivalue%10 + 48;
+    buffer[2] = asciivalue%10 + '0';
     asciivalue = (asciivalue - asciivalue%10)/10;
-    buffer[1] = asciivalue%10 + 48;
-    //92 == '\'
-    buffer[0] = 92;
+    buffer[1] = asciivalue%10 + '0';
+    buffer[0] = '\\';
     return;
 }
 
@@ -162,7 +158,7 @@ void evaluateEscapeSequencies(Lexeme *l)
             case '\0'...' ':
             case '#':
             case '\\':
-                l->extra_data.string = realloc(l->extra_data.string, stringlength+3);
+                l->extra_data.string = realloc(l->extra_data.string, stringlength+3);   //potreba nachystat misto pro 3 znaky escape sekvence
                 shiftRight(&l->extra_data.string[i], 3, stringlength-i+3);
                 replaceEscapeSequenceByNumber(&l->extra_data.string[i], c);
                 stringlength +=3;
@@ -184,10 +180,17 @@ int builtInReads(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool come
         {
             codeGenReads();
             result = 1;
+        } else
+        {
+            error(l->row, "Neočekávaný znak ve volání READS", SYNTAX_ERROR);
         }
+    } else
+    {
+        error(l->row, "Neočekávaný znak ve volání READS", SYNTAX_ERROR);
     }
     if (get_token(binaryTree).type != SEMICOLON)
     {
+        error(l->row, "Chybí středník u volání funkce READS", SYNTAX_ERROR);
         result = 0;
     }
     return result;
@@ -204,10 +207,17 @@ int builtInReadi(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool come
         {
             codeGenReadi();
             result = 1;
+        } else
+        {
+            error(l->row, "Neočekávaný znak ve volání READI", SYNTAX_ERROR);
         }
+    } else
+    {
+        error(l->row, "Neočekávaný znak ve volání READI", SYNTAX_ERROR);
     }
     if (get_token(binaryTree).type != SEMICOLON)
     {
+        error(l->row, "Chybí středník u volání funkce READI", SYNTAX_ERROR);
         result = 0;
     }
     return result;
@@ -224,10 +234,17 @@ int builtInReadf(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool come
         {
             codeGenReadf();
             result = 1;
+        } else
+        {
+            error(l->row, "Neočekávaný znak ve volání READF", SYNTAX_ERROR);
         }
+    } else
+    {
+        error(l->row, "Neočekávaný znak ve volání READF", SYNTAX_ERROR);
     }
     if (get_token(binaryTree).type != SEMICOLON)
     {
+        error(l->row, "Chybí středník u volání funkce READF", SYNTAX_ERROR);
         result = 0;
     }
     return result;

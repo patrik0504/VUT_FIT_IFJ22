@@ -8,38 +8,14 @@ int parse(){
 
     printProlog();
     printBuiltInFunctions();
-    prog(l, binaryTree, globalFunctions);
+    result = prog(l, binaryTree, globalFunctions);
     int err = 0;
     check_func(globalFunctions, &err);
+
     if(err == 1){
-        error(-1, "Funkcia bola zavolaná, ale nebola deklarovaná", SEM_UNDEFINED_FUNC_ERROR);
+        //error(-1, "Funkcia bola zavolaná, ale nebola deklarovaná", SEM_UNDEFINED_FUNC_ERROR);
         return 0;
     }
-    //debug_tree(globalFunctions);
-    /*
-    //Len pre testovanie
-        p_node found = tree_search(globalFunctions, "test2");
-        if(found != NULL){
-            debug_tree(found->data->params);
-            printf("\n");
-            Dprintf("Number of leaves: %d\n", count_tree(found->data->params));
-            if(found->data->elements != NULL){
-                debug_tree(found->data->elements);
-                printf("\n");
-                Dprintf("Number of leaves: %d\n", count_tree(found->data->elements));
-            }
-        }
-        else{
-            Dputs("Not found test2\n");
-        }
-        //debug tree elements globalono/lokalne
-        if(globalFunctions->data->elements != NULL){
-            debug_tree(globalFunctions->data->elements);
-            printf("\n");
-            Dprintf("Number of leaves: %d\n", count_tree(globalFunctions->data->elements));
-        }
-    //--------------------------------
-    */
     tree_destroy(binaryTree);
     //Doplit funkciu na znicenie vnutra stromu globalFunctions. Resp. pozriet ze ci to robi tree_destroy
     tree_destroy(globalFunctions);
@@ -492,8 +468,10 @@ int st_list(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFrom
             *l = get_token(binaryTree);
             result = st_list(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
         }
+    } else
+    {
+        result = 1;
     }
-    result = 1;
     return result;
 }
 
@@ -929,10 +907,9 @@ int body(Lexeme *l, p_node binaryTree, p_node globalFunctions){
             break;
         case KW_FUNCTION:
             result = function_check(l, binaryTree, globalFunctions);
-            if(result == -1)
+            if(result == 0)
             {
-                //TODO ERROR
-                return PARSER_ERROR;
+                return 0;
             }
             result = body(l, binaryTree, globalFunctions);
             break;

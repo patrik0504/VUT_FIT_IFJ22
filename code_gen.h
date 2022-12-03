@@ -1,8 +1,6 @@
 #ifndef CODE_GEN_FILE
 #define CODE_GEN_FILE
 
-
-
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -12,7 +10,6 @@
 #include "functions.h"
 #include "symtable.h"
 #include "scanner.h"
-//#include "expr_parser.h"
 #include "error.h"
 #include "built_in_functions.h"
 
@@ -34,25 +31,132 @@ typedef enum {
     CG_ID,         // 13: <term>  -> i
 } operation;
 
+/**
+ * Funkce na vytisknutí prologu v IFJcode22
+ */
 void printProlog();
+
+/**
+ * Funkce generující kód pro funkci write
+ * Funkce vypisuje proměnné nebo konstanty
+ * @param l Lexém, který se má vypsat
+ * @param comesFromFunction True pokud byl write volán ve funkci, false pokud v hlavním těle programu
+ */
 void codeGenWrite(Lexeme l, bool comesFromFunction);
+
+/**
+ * Funkce na výpis kódu vestavěných funkcí kromě write
+ * Funkce vypisuje kód pro funkce reads, readi, readf, strlen, substring, ord, floatval, intval, strval, chr
+ * Vypisuje se vždy na začátku generování kódu
+ */
 void printBuiltInFunctions();
+
+/**
+ * Funkce na generování kódu pro zavolání funkce reads
+ */
 void codeGenReads();
+
+/**
+ * Funkce na generování kódu pro zavolání funkce readi
+ */
 void codeGenReadi();
+
+/**
+ * Funkce na generování kódu pro zavolání funkce readf
+ */
 void codeGenReadf();
+
+/**
+ * Funkce na generování kódu pro vytvoření rámce před voláním funkce
+ */
 void createFrame();
+
+/**
+ * Funkce generující kód přesun parametrů při volání funkce do dočasného rámce
+ * @param number Číslo parametru
+ * @param l Ukazatel na lexém, který je parametrem
+ * @param comesFromFunction True pokud byl write volán ve funkci, false pokud v hlavním těle programu
+ */
 void generateParam(int number, Lexeme *l, bool comesFromFunction);
+
+/**
+ * Funkce generující příkaz pro zavolání funkce
+ * @param functionName Název funkce
+ */
 void callFunction(char *functionName);
+
+/**
+ * Funkce generující kód pro přesun návratové hodnoty z dočasného rámce do lokálního/globálního
+ * @param destination Název proměnné v lokálním/globálním rámci
+ * @param comesFromFunction True pokud byl write volán ve funkci, false pokud v hlavním těle programu
+ */
 void returnVariable(char *destination, bool comesFromFunction);
+
+/**
+ * Funkce generující kód pro vztvoření nové proměnné v lokálním/globálním rámci
+ * @param varName Název proměnné
+ * @param comesFromFunction True pokud byl write volán ve funkci, false pokud v hlavním těle programu
+ */
 void defineNewVar(char *varName, bool comesFromFunction);
+
+/**
+ * Funkce generující kód pro začátek deklarace funkce
+ * @param functionName Název funkce
+ */
 void declareFunction(char *functionName);
+
+/**
+ * Funkcia generújuca kód pre parameter v deklarácii funkcie
+ * @param number číslo parametru
+ * @param varName názov parametru
+ */
 void declareParams(int number, char *varName);
-void codeGenReturn(bool comesFromFunction, char *functionName);
+
+/**
+ * Funkcia pre generovanie kódu return
+ */
+void codeGenReturn();
+
+/**
+ * Funckia pre generovanie začiatku ifu
+ * 
+ * @param c číslo ifu
+ */
 void codeGenIfStart(int c);
+
+/**
+ * Funckia pre generovanie konca ifu
+ * 
+ * @param c číslo ifu
+ */
 void codeGenIfEnd(int c);
+
+/**
+ * Funckia pre generovanie else
+ * 
+ * @param c číslo ifu
+ */
 void codeGenIfElse(int c);
+
+/**
+ * Funkcia pre generovanie koncu funkcie
+ * 
+ * @param functionName názov funkcie
+ */
 void codeGenFunctionEnd(char *functionName);
+
+/**
+ * Funkcia pre generovania kódu pre začiatok while cyklu
+ * 
+ * @param c číslo whilu
+ */
 void codeGenWhileStart(int c);
+
+/**
+ * Funkce generující kód pro while
+ * 
+ * @param c číslo whilu
+ */
 void codeGenWhileEnd(int c);
 
 /** Funkce pro generaci operací řešených v PSA
@@ -62,7 +166,7 @@ void codeGenWhileEnd(int c);
  *  @param operation Číslo redukčního pravidla - operace mezi dvěma lexemy
  *  @param comesFromFunction Bool hodnota určující globální / lokální rámec
 */
-void generate_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, operation operation,bool comesFromFunction);
+void generate_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, operation operation, bool comesFromFunction);
 
 /** Funkce pro výpis instrukcí pro operace řešené v PSA
  *  @param expr_var_count Count pro generaci unikátních ID pro dočasné proměnné
