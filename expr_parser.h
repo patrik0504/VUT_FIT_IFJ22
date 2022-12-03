@@ -86,18 +86,22 @@ int precedence_lookup(symbol_type stack_symbol, symbol_type input);
     @param op2 2. operand pravidla
     @param op3  3. operand pravidla
     @param stack stack nad kterým je funkce prováděna
-    @return Číslo pravidla pro redukci
     @param comesFromFunction Bool hodnota určující globální / lokální rámec
+    @param functionPtr Proměnné v lokálním rámci
+    @param globalFunctions Proměnné v globálním rámci
+    @return Číslo pravidla pro redukci
 */
-reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_stack stack, p_lex_stack lex_stack, bool comesFromFunction);
+reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_stack stack, p_lex_stack lex_stack, bool comesFromFunction, p_node functionPtr, p_node globalFunctions);
 
 /** Funkce hledající další operaci dle tabulky
     @param symtable  Tabulka symbolů
     @param stack     Předávaný stack
     @param l         Předávaný lexém    
     @param context   Předávaný kontext (jestli jde o přiřazení nebo rozhodování např. v ifu)    
-    @return (true = 1 / false) dle úspěšnosti
     @param comesFromFunction Bool hodnota určující globální / lokální rámec
+    @param functionPtr Proměnné v lokálním rámci
+    @param globalFunctions Proměnné v globálním rámci
+    @return (true = 1 / false) dle úspěšnosti
 */
 int check_operation (p_node symtable, p_stack stack, p_lex_stack lex_stack, Lexeme *l,context context, bool comesFromFunction, p_node functionPtr, p_node globalFunctions);
 
