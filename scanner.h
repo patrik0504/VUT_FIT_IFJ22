@@ -109,7 +109,8 @@ typedef struct {
         
         PROLOG,
         FILE_END_SIGN,
-        SCANERROR
+        SCANERROR,
+        EXPR,
     } type;
     union {
         char* string;

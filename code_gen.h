@@ -86,4 +86,12 @@ void print_single_symbol(Lexeme* lexeme, char* scope);
 */
 void expr_move(char* target, int source_var_count, bool comesFromFunction);
 
+/** Pomocná funkce pro generování dělení
+ *  @param sym1 Rozhodující symbol
+ *  @param sym2 Rozhodující symbol
+ *  @param comesFromFunction Bool hodnota určující globální / lokální rámec
+ *  @param expr_var_count Count pro generaci unikátních ID pro dočasné proměnné
+*/
+void div_decider(Lexeme* sym1, Lexeme* sym2, bool comesFromFunction, int expr_var_count);
+
 #endif
