@@ -99,6 +99,6 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
     @return (true = 1 / false) dle úspěšnosti
     @param comesFromFunction Bool hodnota určující globální / lokální rámec
 */
-int check_operation (p_node symtable, p_stack stack, p_lex_stack lex_stack, Lexeme *l,context context, bool comesFromFunction);
+int check_operation (p_node symtable, p_stack stack, p_lex_stack lex_stack, Lexeme *l,context context, bool comesFromFunction, p_node functionPtr, p_node globalFunctions);
 
 #endif

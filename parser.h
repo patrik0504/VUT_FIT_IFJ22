@@ -46,6 +46,7 @@ int lexeme_type_to_type(Lexeme *l);
 p_node init_global_function();
 void set_params_in_builtin_functions(p_node binaryTree);
 int check_minus(Lexeme *l, p_node binaryTree);
+int check_if_variable_is_defined(p_node functionPtr, char * variable);
 
 
 #endif
