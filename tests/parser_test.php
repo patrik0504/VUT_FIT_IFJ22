@@ -8,15 +8,16 @@ declare(strict_types=1);
 
 // $a = 5*(9+1);
 // write($a);
-if ("ahoj" === "ahoj")
-{
-    write("true\n");
-}
-else
-{
-    write("false\n");
-}
-
+// if ("ahoj" === "ahoj")
+// {
+//     write("true\n");
+// }
+// else
+// {
+//     write("false\n");
+// }
+$a = 6*-(2+3)*-(6+2);
+write($a, "\n");
 // function foo(int $a, int $b) : void {
 //     $bbb = $a/$b;
 //     // $bbb = ($a + 2 * (3 + 7))/2;
