@@ -128,6 +128,11 @@ void declareParams(int number, char *varName);
 void codeGenReturn();
 
 /**
+ * Funkce pre generování kódu pro deklaraci návratové proměnné
+ */
+void codeGenReturnVar();
+
+/**
  * Funckia pre generovanie začiatku ifu
  * 
  * @param c číslo ifu

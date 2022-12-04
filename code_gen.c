@@ -42,36 +42,36 @@ void printBuiltInFunctions()
     /***************FUNCTION READS***************/
     printf("LABEL READS\n");
     printf("PUSHFRAME\n");
-    printf("DEFVAR LF@returnvar\n");
-    printf("READ LF@returnvar string\n");
+    printf("DEFVAR LF@**returnvar\n");
+    printf("READ LF@**returnvar string\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
     /*****************FUNCTION READI******************/
     printf("LABEL READI\n");
     printf("PUSHFRAME\n");
-    printf("DEFVAR LF@returnvar\n");
-    printf("READ LF@returnvar int\n");
+    printf("DEFVAR LF@**returnvar\n");
+    printf("READ LF@**returnvar int\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
     /*****************FUNCTION READF******************/
     printf("LABEL READF\n");
     printf("PUSHFRAME\n");
-    printf("DEFVAR LF@returnvar\n");
-    printf("READ LF@returnvar float\n");
+    printf("DEFVAR LF@**returnvar\n");
+    printf("READ LF@**returnvar float\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
     /*****************FUNCTION STRLEN******************/
     printf("LABEL strlen\n");
     printf("PUSHFRAME\n");
-    printf("DEFVAR LF@returnvar\n");
-    printf("STRLEN LF@returnvar LF@param1\n");
+    printf("DEFVAR LF@**returnvar\n");
+    printf("STRLEN LF@**returnvar LF@param1\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
     /*****************FUNCTION SUBSTRING******************/
     printf("LABEL substring\n");
     printf("PUSHFRAME\n");
-    printf("DEFVAR LF@returnvar\n");                        //string returnvar;
-    printf("MOVE LF@returnvar string@\n");
+    printf("DEFVAR LF@**returnvar\n");                        //string returnvar;
+    printf("MOVE LF@**returnvar string@\n");
     printf("DEFVAR LF@indexcount\n");                       //int indexcount;
     printf("MOVE LF@indexcount LF@param2\n");
     printf("DEFVAR LF@greaterthen\n");                      //bool greaterthen;
@@ -94,12 +94,12 @@ void printBuiltInFunctions()
     printf("EQ LF@greaterthen LF@indexcount LF@param3\n");
     printf("JUMPIFEQ endsubstring LF@greaterthen bool@true\n");
     printf("GETCHAR LF@char LF@param1 LF@indexcount\n");
-    printf("CONCAT LF@returnvar LF@returnvar LF@char\n");
+    printf("CONCAT LF@**returnvar LF@**returnvar LF@char\n");
     printf("ADD LF@indexcount LF@indexcount int@1\n");
     printf("JUMP whilesubstring\n");
 
     printf("LABEL errorsubstring\n");
-    printf("MOVE LF@returnvar nil@nil\n");
+    printf("MOVE LF@**returnvar nil@nil\n");
 
     printf("LABEL endsubstring\n");
     printf("POPFRAME\n");
@@ -108,12 +108,12 @@ void printBuiltInFunctions()
     /*****************FUNCTION ORD******************/
     printf("LABEL ord\n");
     printf("PUSHFRAME\n");
-    printf("DEFVAR LF@returnvar\n");
+    printf("DEFVAR LF@**returnvar\n");
     printf("JUMPIFEQ errorord LF@param1 string@\n");
-    printf("STRI2INT LF@returnvar LF@param1 int@0\n");
+    printf("STRI2INT LF@**returnvar LF@param1 int@0\n");
     printf("JUMP returnord\n");
     printf("LABEL errorord\n");
-    printf("MOVE LF@returnvar int@0\n");
+    printf("MOVE LF@**returnvar int@0\n");
     printf("JUMP returnord\n");
     printf("LABEL returnord\n");
     printf("POPFRAME\n");
@@ -121,7 +121,7 @@ void printBuiltInFunctions()
     /*****************FUNCTION FLOATVAL******************/
     printf("LABEL floatval\n");
     printf("PUSHFRAME\n");
-    printf("DEFVAR LF@returnvar\n");
+    printf("DEFVAR LF@**returnvar\n");
     printf("DEFVAR LF@typ\n");
     printf("TYPE LF@typ LF@param1\n");
     printf("JUMPIFEQ floatvalint LF@typ string@int\n");
@@ -136,14 +136,14 @@ void printBuiltInFunctions()
     printf("INT2FLOAT LF@param1 LF@param1\n");
 
     printf("LABEL floatvalend\n");
-    printf("MOVE LF@returnvar LF@param1\n");
+    printf("MOVE LF@**returnvar LF@param1\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
 
     /*****************FUNCTION INTVAL******************/
     printf("LABEL intval\n");
     printf("PUSHFRAME\n");
-    printf("DEFVAR LF@returnvar\n");
+    printf("DEFVAR LF@**returnvar\n");
     printf("DEFVAR LF@typ\n");
     printf("TYPE LF@typ LF@param1\n");
     printf("JUMPIFEQ intvalfloat LF@typ string@float\n");
@@ -158,14 +158,14 @@ void printBuiltInFunctions()
     printf("FLOAT2INT LF@param1 LF@param1\n");
 
     printf("LABEL intvalend\n");
-    printf("MOVE LF@returnvar LF@param1\n");
+    printf("MOVE LF@**returnvar LF@param1\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
 
     /*****************FUNCTION STRVAL******************/
     printf("LABEL strval\n");
     printf("PUSHFRAME\n");
-    printf("DEFVAR LF@returnvar\n");
+    printf("DEFVAR LF@**returnvar\n");
     printf("DEFVAR LF@typ\n");
     printf("TYPE LF@typ LF@param1\n");
     printf("JUMPIFEQ strvalend LF@typ string@string\n");
@@ -174,7 +174,7 @@ void printBuiltInFunctions()
     printf("LABEL strvalnil\n");
     printf("MOVE LF@param1 string@\n");
     printf("LABEL strvalend\n");
-    printf("MOVE LF@returnvar LF@param1\n");
+    printf("MOVE LF@**returnvar LF@param1\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
 
@@ -183,8 +183,8 @@ void printBuiltInFunctions()
     /*****************FUNCTION CHR******************/
     printf("LABEL chr\n");
     printf("PUSHFRAME\n");
-    printf("DEFVAR LF@returnvar\n");
-    printf("INT2CHAR LF@returnvar LF@param1\n");
+    printf("DEFVAR LF@**returnvar\n");
+    printf("INT2CHAR LF@**returnvar LF@param1\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
 
@@ -255,10 +255,10 @@ void returnVariable(char *destination, bool comesFromFunction)
 {
     if(comesFromFunction)
     {
-        printf("MOVE LF@$%s TF@returnvar\n",destination);
+        printf("MOVE LF@$%s TF@**returnvar\n",destination);
     } else
     {
-        printf("MOVE GF@$%s TF@returnvar\n",destination);
+        printf("MOVE GF@$%s TF@**returnvar\n",destination);
     }
 }
 
@@ -289,7 +289,13 @@ void declareParams(int number, char *varName)
 
 void codeGenReturn()
 {
+    printf("POPFRAME\n");
     printf("RETURN\n");
+}
+
+void codeGenReturnVar()
+{
+    printf("DEFVAR LF@**returnvar\n");
 }
 
 void codeGenFunctionEnd(char *functionName)
@@ -327,11 +333,23 @@ void expr_move(char* target, int source_var_count, bool comesFromFunction)
 {
     if (comesFromFunction)
     {
-        printf("MOVE LF@$%s LF@$*%d\n", target, source_var_count);
+        if (strcmp(target, "**returnvar") == 0)
+        {
+            printf("MOVE LF@%s LF@$*%d\n", target, source_var_count);
+        } else
+        {
+            printf("MOVE LF@$%s LF@$*%d\n", target, source_var_count);
+        }
     }
     else
     {
-        printf("MOVE GF@$%s GF@$*%d\n", target, source_var_count);
+        if (strcmp(target, "**returnvar") == 0)
+        {
+            printf("MOVE GF@%s GF@$*%d\n", target, source_var_count);
+        } else
+        {
+            printf("MOVE GF@$%s GF@$*%d\n", target, source_var_count);
+        }
     }
     
 }

@@ -730,6 +730,10 @@ int function_check(Lexeme *l, p_node binaryTree, p_node globalFunctions)
                 int type = check_type(l);
                 if(type != 0)
                 {
+                    if(type != KW_VOID)
+                    {
+                        codeGenReturnVar();
+                    }
                     p_node node = tree_search(globalFunctions, func_name);
                     if(node != NULL)
                     {

@@ -57,6 +57,7 @@ int expr(context context, int jump_label, p_node symtable, Lexeme *target, char 
 
     if(l.type == FUNCTION_ID)
     {
+        
         int res_func = statement(&l, symtable, globalFunctions, comesFromFunction, functionPtr);
         if(!res_func)
         {
@@ -73,6 +74,11 @@ int expr(context context, int jump_label, p_node symtable, Lexeme *target, char 
     {
         stack_destroy(stack);
         return 1;
+    }
+    if (context == RETURN)
+    {
+        context = ASSIGNMENT;
+        variable_name = "**returnvar";
     }
 
     //printf("Pravý rozbor: ");
