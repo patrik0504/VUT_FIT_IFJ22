@@ -264,8 +264,6 @@ void returnVariable(char *destination, bool comesFromFunction)
     }
 }
 
-
-
 void declareFunction(char *functionName)
 {
     printf("\n#FUNCTION %s\n", functionName);
@@ -392,77 +390,54 @@ void expr_move(char* target, int source_var_count, bool comesFromFunction)
     
 }
 
-void generate_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, operation operation, bool comesFromFunction, gen_context context, int jump_label)
+void generate_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, operation operation, 
+bool comesFromFunction, gen_context context, int jump_label, p_node functionPtr, p_node globalFunctions)
 {
-    
+
     //Switch pro generaci jednotlivých operací
     switch (operation)
     {
     case RR_PLUS: //  +
-        operation_print_symbols(expr_var_count, sym1, sym2, "ADD", comesFromFunction);
+        operation_print_symbols(expr_var_count, sym1, sym2, "ADD", comesFromFunction, functionPtr, globalFunctions);
         break;
         
     case RR_MINUS: //  -
-        operation_print_symbols(expr_var_count, sym1, sym2, "SUB", comesFromFunction);
+        operation_print_symbols(expr_var_count, sym1, sym2, "SUB", comesFromFunction, functionPtr, globalFunctions);
         break;
 
     case RR_MUL: //  *
-        operation_print_symbols(expr_var_count, sym1, sym2, "MUL", comesFromFunction);
+        operation_print_symbols(expr_var_count, sym1, sym2, "MUL", comesFromFunction, functionPtr, globalFunctions);
         break;
         
     case RR_DIV: //  /
-        if(sym1->type == NUMBER && sym2->type == NUMBER)
-        {
-            operation_print_symbols(expr_var_count, sym1, sym2, "IDIV", comesFromFunction);
-        }
-        else if ((sym1->type == DECIMAL_NUMBER && (sym2->type == DECIMAL_NUMBER || sym2->type == EXPONENT_NUMBER || sym2->type == EXPR || sym2->type == VARIABLE_ID)) ||
-                (sym2->type == DECIMAL_NUMBER && (sym1->type == DECIMAL_NUMBER || sym1->type == EXPONENT_NUMBER|| sym1->type == EXPR || sym1->type == VARIABLE_ID)))
-        {
-            operation_print_symbols(expr_var_count, sym1, sym2, "DIV", comesFromFunction);
-        }
-        else if ((sym1->type == EXPR && sym2->type == NUMBER) || (sym1->type == NUMBER && sym2->type == EXPR) ){
-            operation_print_symbols(expr_var_count, sym1, sym2, "IDIV", comesFromFunction);
-        }
-        else
-        {
-            // Volání disasteru (Proměnný :D)
-            div_decider(sym1, sym2, comesFromFunction, expr_var_count);
-            printf("LABEL idiv%d\n", expr_var_count);
-            operation_print_symbols(expr_var_count, sym1, sym2, "IDIV", comesFromFunction);
-            printf("JUMP divEnd%d\n", expr_var_count);
-            printf("LABEL div%d\n", expr_var_count);
-            operation_print_symbols(-1, sym1, sym2, "DIV", comesFromFunction);
-            printf("LABEL divEnd%d\n", expr_var_count);
-        }
-
-        
+        print_div(expr_var_count, sym1, sym2, comesFromFunction, functionPtr, globalFunctions);
         break;
         
     case RR_CONCAT: //  .
-        operation_print_symbols(expr_var_count, sym1, sym2, "CONCAT", comesFromFunction);
+        operation_print_symbols(expr_var_count, sym1, sym2, "CONCAT", comesFromFunction, functionPtr, globalFunctions);
         break;
     case RR_LESSER: //  <
-        operation_print_symbols(expr_var_count, sym1, sym2, "LT", comesFromFunction);
+        operation_print_symbols(expr_var_count, sym1, sym2, "LT", comesFromFunction, functionPtr, globalFunctions);
         print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
         break;
     case RR_LESOREQ: //  <=
-        mixed_jump_print_symbols(expr_var_count, sym1, sym2, "LT", comesFromFunction);
+        mixed_jump_print_symbols(expr_var_count, sym1, sym2, "LT", comesFromFunction, functionPtr, globalFunctions);
         print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
         break;
     case RR_GREATER: //  >
-        operation_print_symbols(expr_var_count, sym1, sym2, "GT", comesFromFunction);
+        operation_print_symbols(expr_var_count, sym1, sym2, "GT", comesFromFunction, functionPtr, globalFunctions);
         print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
         break;
     case RR_GREOREQ: //  >=
-        mixed_jump_print_symbols(expr_var_count, sym1, sym2, "GT", comesFromFunction);
+        mixed_jump_print_symbols(expr_var_count, sym1, sym2, "GT", comesFromFunction, functionPtr, globalFunctions);
         print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
         break;
     case RR_EQ: //  ===
-        operation_print_symbols(expr_var_count, sym1, sym2, "EQ", comesFromFunction);
+        operation_print_symbols(expr_var_count, sym1, sym2, "EQ", comesFromFunction, functionPtr, globalFunctions);
         print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
         break;
     case RR_NOTEQ: //  !==
-        operation_print_symbols(expr_var_count, sym1, sym2, "EQ", comesFromFunction);
+        operation_print_symbols(expr_var_count, sym1, sym2, "EQ", comesFromFunction, functionPtr, globalFunctions);
         print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "true");
         break;
 
@@ -471,7 +446,80 @@ void generate_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, operatio
     }
 }
 
-void operation_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* operation, bool comesFromFunction){
+void print_div(int expr_var_count, Lexeme* sym1, Lexeme* sym2, bool comesFromFunction, p_node functionPtr, p_node globalFunctions)
+{
+    p_data data = data_init();
+    p_data data_fl1 = data_init();
+    p_data data_fl2 = data_init();
+
+    char* var_name = malloc(sizeof(char)*20);
+    sprintf(var_name, "*%d", expr_var_count);
+    p_node comp_var = node_init(data, var_name);
+    char* fl1_var_name = malloc(sizeof(char)*20);
+    sprintf(fl1_var_name, "*%d_fl1", expr_var_count);
+    p_node fl_var_1 = node_init(data_fl1, fl1_var_name);
+    char* fl2_var_name = malloc(sizeof(char)*20);
+    sprintf(fl2_var_name, "*%d_fl2", expr_var_count);
+    p_node fl_var_2 = node_init(data_fl2, fl2_var_name);
+
+    char* scope = "GF@";
+    if(comesFromFunction)
+    {
+        scope = "LF@";
+        if (functionPtr->data->elements == NULL)
+        {
+            functionPtr->data->elements = comp_var;
+            insert_node(functionPtr->data->elements, fl_var_1);
+            insert_node(functionPtr->data->elements, fl_var_2);
+        }
+        else 
+        {
+            insert_node(functionPtr->data->elements, comp_var);
+            insert_node(functionPtr->data->elements, fl_var_1);
+            insert_node(functionPtr->data->elements, fl_var_2);
+        }
+    }
+    else 
+    {
+        if (globalFunctions->data->elements == NULL)
+        {
+            globalFunctions->data->elements = comp_var;
+            insert_node(globalFunctions->data->elements, fl_var_1);
+            insert_node(globalFunctions->data->elements, fl_var_2);
+        }
+        else 
+        {
+            insert_node(globalFunctions->data->elements, comp_var);
+            insert_node(globalFunctions->data->elements, fl_var_1);
+            insert_node(globalFunctions->data->elements, fl_var_2);
+        }
+    }
+
+    // printf("DEFVAR %s$*%d\n", scope, expr_var_count);
+    // printf("DEFVAR %s$*%d_fl1\n", scope, expr_var_count);
+    // printf("DEFVAR %s$*%d_fl2\n", scope, expr_var_count);
+
+    createFrame();
+    generateParam(1, sym1, comesFromFunction);
+    callFunction("floatval");
+    printf("MOVE %s$*%d_fl1 TF@**returnvar\n", scope, expr_var_count);
+
+    createFrame();
+    generateParam(1, sym2, comesFromFunction);
+    callFunction("floatval");
+    printf("MOVE %s$*%d_fl2 TF@**returnvar\n", scope, expr_var_count);
+
+    printf("DIV %s$*%d %s$*%d_fl1 %s$*%d_fl2\n", scope, expr_var_count, scope, expr_var_count, scope, expr_var_count);
+}
+
+void operation_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* operation, bool comesFromFunction,
+    p_node functionPtr, p_node globalFunctions){
+
+    p_data data = data_init();
+    char* var_name = malloc(sizeof(char)*20);
+    snprintf(var_name, 20, "*%d", expr_var_count);
+    p_node comp_var = node_init(data, var_name);
+
     char* scope;
     if (expr_var_count != -1)
     {
@@ -480,12 +528,29 @@ void operation_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, cha
             // Nastavení kontextu
             scope = "LF@";
             // Definování překladačové proměnné pro uložení dočasného výsledku
-            printf("DEFVAR LF@$*%d\n", expr_var_count);
+            if (functionPtr->data->elements == NULL)
+            {
+                functionPtr->data->elements = comp_var;
+            }
+            else 
+            {
+                insert_node(functionPtr->data->elements, comp_var);
+            }
+            //printf("DEFVAR LF@$*%d\n", expr_var_count);
         }
         else
         {
             scope = "GF@";
-            printf("DEFVAR GF@$*%d\n", expr_var_count);
+            if (globalFunctions->data->elements == NULL)
+            {
+                globalFunctions->data->elements = comp_var;
+            }
+            else 
+            {
+                insert_node(globalFunctions->data->elements, comp_var);
+            }
+
+            //printf("DEFVAR GF@$*%d\n", expr_var_count);
         }
     }
 
@@ -513,27 +578,74 @@ void operation_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, cha
     printf("\n");
 }
 
-void mixed_jump_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* operation, bool comesFromFunction)
+void mixed_jump_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* operation, 
+    bool comesFromFunction, p_node functionPtr, p_node globalFunctions)
 {
     char* scope;
     if (expr_var_count != -1)
     {
-        if (comesFromFunction)
+        p_data data = data_init();
+        p_data data_fl1 = data_init();
+        p_data data_fl2 = data_init();
+
+        char* var_name = malloc(sizeof(char)*20);
+        sprintf(var_name, "*%d", expr_var_count);
+        p_node comp_var = node_init(data, var_name);
+        char* fl1_var_name = malloc(sizeof(char)*20);
+        sprintf(fl1_var_name, "*%d_1", expr_var_count);
+        p_node fl_var_1 = node_init(data_fl1, fl1_var_name);
+        char* fl2_var_name = malloc(sizeof(char)*20);
+        sprintf(fl2_var_name, "*%d_2", expr_var_count);
+        p_node fl_var_2 = node_init(data_fl2, fl2_var_name);
+
+        if(comesFromFunction)
         {
-            // Nastavení kontextu
             scope = "LF@";
-            // Definování překladačové proměnné pro uložení dočasného výsledku
-            printf("DEFVAR LF@$*%d\n", expr_var_count);
-            printf("DEFVAR LF@$*%d_1\n", expr_var_count);
-            printf("DEFVAR LF@$*%d_2\n", expr_var_count);
+            if (functionPtr->data->elements == NULL)
+            {
+                functionPtr->data->elements = comp_var;
+                insert_node(functionPtr->data->elements, fl_var_1);
+                insert_node(functionPtr->data->elements, fl_var_2);
+            }
+            else 
+            {
+                insert_node(functionPtr->data->elements, comp_var);
+                insert_node(functionPtr->data->elements, fl_var_1);
+                insert_node(functionPtr->data->elements, fl_var_2);
+            }
         }
-        else
+        else 
         {
             scope = "GF@";
-            printf("DEFVAR GF@$*%d\n", expr_var_count);
-            printf("DEFVAR GF@$*%d_1\n", expr_var_count);
-            printf("DEFVAR GF@$*%d_2\n", expr_var_count);
+            if (globalFunctions->data->elements == NULL)
+            {
+                globalFunctions->data->elements = comp_var;
+                insert_node(globalFunctions->data->elements, fl_var_1);
+                insert_node(globalFunctions->data->elements, fl_var_2);
+            }
+            else 
+            {
+                insert_node(globalFunctions->data->elements, comp_var);
+                insert_node(globalFunctions->data->elements, fl_var_1);
+                insert_node(globalFunctions->data->elements, fl_var_2);
+            }
         }
+        //     if (comesFromFunction)
+        //     {
+        //         // Nastavení kontextu
+        //         scope = "LF@";
+        //         // Definování překladačové proměnné pro uložení dočasného výsledku
+        //         printf("DEFVAR LF@$*%d\n", expr_var_count);
+        //         printf("DEFVAR LF@$*%d_1\n", expr_var_count);
+        //         printf("DEFVAR LF@$*%d_2\n", expr_var_count);
+        //     }
+        //     else
+        //     {
+        //         scope = "GF@";
+        //         printf("DEFVAR GF@$*%d\n", expr_var_count);
+        //         printf("DEFVAR GF@$*%d_1\n", expr_var_count);
+        //         printf("DEFVAR GF@$*%d_2\n", expr_var_count);
+        //     }
     }
 
     // Print relační operace
@@ -593,62 +705,6 @@ void print_single_symbol(Lexeme* lexeme, char* scope)
     default:
         break;
     }
-}
-
-void div_decider(Lexeme* sym1, Lexeme* sym2, bool comesFromFunction, int expr_var_count)
-{
-    // DISASTER
-
-    char* scope = "GF@";
-    if (comesFromFunction) scope = "LF@";
-
-    printf("DEFVAR %s*type%d_1\n", scope, expr_var_count);
-    printf("DEFVAR %s*type%d_2\n", scope, expr_var_count);
-
-    if(sym1->type == VARIABLE_ID)
-    {
-        printf("TYPE %s*type%d_1 %s$%s\n", scope, expr_var_count, scope, sym1->extra_data.string);
-    }
-    else if(sym1->type == EXPR)
-    {
-        printf("TYPE %s*type%d_1 %s$*%d\n", scope, expr_var_count, scope, sym1->extra_data.value);
-    }
-    else
-    {
-        printf("MOVE %s*type%d_1 string@none\n", scope, expr_var_count);
-    }
-
-    if(sym2->type == VARIABLE_ID)
-    {
-        printf("TYPE %s*type%d_2 %s$%s\n", scope, expr_var_count, scope, sym2->extra_data.string);
-    }
-    else if(sym2->type == EXPR)
-    {
-        printf("TYPE %s*type%d_2 %s$*%d\n", scope, expr_var_count, scope, sym2->extra_data.value);
-    }
-    else
-    {
-        printf("MOVE %s*type%d_2 string@none\n", scope, expr_var_count);
-    }
-
-    // je 1 int?
-    printf("DEFVAR %s*decide%d_1\n", scope, expr_var_count);
-    printf("EQ %s*decide%d_1 %s*type%d_1 string@int\n", scope, expr_var_count, scope, expr_var_count);
-
-    // je 2 int?
-    printf("DEFVAR %s*decide%d_2\n", scope, expr_var_count);
-    printf("EQ %s*decide%d_2 %s*type%d_2 string@int\n", scope, expr_var_count, scope, expr_var_count);
-
-    // je oboje int?
-    printf("DEFVAR %s*decide%d_int\n", scope, expr_var_count);
-    printf("AND %s*decide%d_int %s*decide%d_1 %s*decide%d_2\n", scope, expr_var_count, scope, expr_var_count, scope, expr_var_count);
-    printf("JUMPIFEQ idiv%d %s*decide%d_int bool@true\n", expr_var_count, scope, expr_var_count);
-    printf("NOT %s*decide%d_1 %s*decide%d_1\n", scope, expr_var_count, scope, expr_var_count);
-    printf("NOT %s*decide%d_2 %s*decide%d_2\n", scope, expr_var_count, scope, expr_var_count);
-    printf("JUMPIFEQ div%d %s*decide%d_int bool@true\n", expr_var_count, scope, expr_var_count);
-    printf("JUMP divEnd%d\n", expr_var_count);
-    // TODO: chyba
-
 }
 
 void print_expr_jump(gen_context context, int jump_label, int expr_var_count, bool comesFromFunction, char* skip_on)
