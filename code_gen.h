@@ -34,6 +34,14 @@ typedef enum {
     CG_ID,         // 13: <term>  -> i
 } operation;
 
+// !! MUSÍ ZŮSTAT 1:1 S ENUMEM CONTEXT !!
+typedef enum {
+    CG_ASSIGNMENT,
+    CG_IF,
+    CG_WHILE,
+    CG_RETURN
+} gen_context;
+
 void printProlog();
 void codeGenWrite(Lexeme l, bool comesFromFunction);
 void printBuiltInFunctions();
@@ -61,8 +69,11 @@ void codeGenWhileEnd(int c);
  *  @param sym2 Druhý operand operace 
  *  @param operation Číslo redukčního pravidla - operace mezi dvěma lexemy
  *  @param comesFromFunction Bool hodnota určující globální / lokální rámec
+ *  @param context Kontext volání PSA
+ *  @param jump_label Číslo ifu/whilu pro generování instrukce skoku
 */
-void generate_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, operation operation,bool comesFromFunction);
+void generate_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, operation operation, 
+    bool comesFromFunction, gen_context context, int jump_label);
 
 /** Funkce pro výpis instrukcí pro operace řešené v PSA
  *  @param expr_var_count Count pro generaci unikátních ID pro dočasné proměnné
@@ -72,6 +83,15 @@ void generate_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, operatio
  *  @param comesFromFunction Bool hodnota určující globální / lokální rámec
 */
 void operation_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* operation, bool comesFromFunction);
+
+/** Funkce pro výpis instrukcí pro operace >=, <=, apod.
+ *  @param expr_var_count Count pro generaci unikátních ID pro dočasné proměnné
+ *  @param sym1 První operand operace
+ *  @param sym2 Druhý operand operace 
+ *  @param operation Číslo redukčního pravidla - operace mezi dvěma lexemy
+ *  @param comesFromFunction Bool hodnota určující globální / lokální rámec
+*/
+void mixed_jump_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* operation, bool comesFromFunction);
 
 /** Pomocná funkce pro výpis jednotlivých symbolů u operací
  *  @param lexeme Lexém pro korespondující symbol
@@ -93,5 +113,14 @@ void expr_move(char* target, int source_var_count, bool comesFromFunction);
  *  @param expr_var_count Count pro generaci unikátních ID pro dočasné proměnné
 */
 void div_decider(Lexeme* sym1, Lexeme* sym2, bool comesFromFunction, int expr_var_count);
+
+/** Pomocná funkce pro generování skoku pro if/while
+ *  @param context Kontext generování
+ *  @param jump_label Číslo ifu/whilu
+ *  @param comesFromFunction Bool hodnota určující globální / lokální rámec
+ *  @param expr_var_count Count pro generaci unikátních ID pro dočasné proměnné
+ *  @param skip_on String nastavený na "true" pro operaci !==, jinak "false"
+*/
+void print_expr_jump(gen_context context, int jump_label, int expr_var_count, bool comesFromFunction, char* skip_on);
 
 #endif

@@ -8,19 +8,24 @@ declare(strict_types=1);
 
 // $a = 5*(9+1);
 // write($a);
-
-
-function foo(int $a, int $b) : void {
-    $bbb = $a/$b;
-    // $bbb = ($a + 2 * (3 + 7))/2;
-    // $bbb = $a/($a + 2 * (3 + 7));
-    // $bbb = ($a + 2 * (3 + 7))/$a;
-    //$error = 6 + 2;
-    //$concat = "IFJ "."swag";
-    write($bbb, "\n");
-    return;
+$a = 5;
+while ($a !== 0)
+{
+    write($a);
+    $a = $a - 1;
 }
-foo(2, 1);
+
+// function foo(int $a, int $b) : void {
+//     $bbb = $a/$b;
+//     // $bbb = ($a + 2 * (3 + 7))/2;
+//     // $bbb = $a/($a + 2 * (3 + 7));
+//     // $bbb = ($a + 2 * (3 + 7))/$a;
+//     //$error = 6 + 2;
+//     //$concat = "IFJ "."swag";
+//     write($bbb, "\n");
+//     return;
+// }
+// foo(2, 1);
 
 
 
