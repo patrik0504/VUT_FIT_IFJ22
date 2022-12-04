@@ -1,7 +1,5 @@
 #include "expr_parser.h"
 
-
-int negative_num = 0;
 int negative_par = 0;
 static int expr_var_counter = 0;
 
@@ -126,11 +124,15 @@ int expr(context context, int jump_label, p_node symtable, Lexeme *target, char 
         {
             scope = "LF@";
         }
-
+        // stack_print(stack);
         //Řešení typu u assigmentu
         Lexeme * last = lexStack_pop(lex_stack);
+        // printf("last: %d\n", last->type);
         switch (last->type)
         {
+        case VARIABLE_ID:
+            printf("MOVE %s$%s %s$%s\n", scope, variable_name, scope, last->extra_data.string);
+            break;
         case EXPR:
             expr_move(variable_name, last->extra_data.value, comesFromFunction);
             break;
@@ -199,7 +201,7 @@ bool comesFromFunction, p_node functionPtr, p_node globalFunctions)
             //Mínus před hodnotou   2+-3
             else 
             {
-                negative_num = 1;
+                l->negative_num = true;
             }
             
             return 1;
@@ -291,12 +293,9 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
         // <term>  -> i
         if (op3 == SYM_ID || op3 == SYM_NULL)
         {
-            if(negative_num == 1){
-                //printf("NEG_NUM ");
-                negative_num = 0;
-            }
             // TODO: semantická akce
             return RR_ID;
+
         }
     }
 
@@ -305,6 +304,7 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
     {
         if(negative_par == 1){
                 //printf("NEG_PAR ");
+                lexStack_peek(lex_stack)->negative_num = true;
                 negative_par = 0;
         }
 

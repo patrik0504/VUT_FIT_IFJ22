@@ -267,6 +267,7 @@ Lexeme generateLexeme(AutomatState state, char* buffer, int stringlength, int ro
     Lexeme final_lexeme;
     //Dprintf("Row: %d Buffer: %s \n", row, buffer);
     final_lexeme.row = row;
+    final_lexeme.negative_num = 0;
     switch(state)
     {
         case LexEOF:

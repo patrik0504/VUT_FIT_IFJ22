@@ -121,6 +121,7 @@ typedef struct {
         //int symtab_index;
     } extra_data;
     int row;
+    bool negative_num;
 }Lexeme;
 
 /**

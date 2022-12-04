@@ -451,6 +451,19 @@ void operation_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, cha
         }
     }
 
+    //Řešení - před závorkou
+    //TODO: Type konverze pro konstantu (int/float)
+    if(sym1->type == EXPR && sym1->negative_num == true)
+    {
+        printf("SUB %s$*%d int@0 %s$*%d\n", scope, sym1->extra_data.value, scope, sym1->extra_data.value);
+        sym1->negative_num = false;
+    }
+    if(sym2->type == EXPR && sym2->negative_num == true)
+    {
+        printf("SUB %s$*%d int@0 %s$*%d\n", scope, sym2->extra_data.value, scope, sym2->extra_data.value);
+        sym2->negative_num = false;
+    }
+
     // Print operace a výstupní proměnné
     printf("%s %s$*%d ", operation, scope, expr_var_count);
 
@@ -508,6 +521,12 @@ void mixed_jump_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, ch
 
 void print_single_symbol(Lexeme* lexeme, char* scope)
 {
+    char* minus = "";
+    if(lexeme->negative_num == true)
+    {
+        minus = "-";
+    }
+
     switch (lexeme->type)
     {
     case EXPR: // Enum symbolizující expression (ve value je uloženo číslo compiler proměnné)
@@ -517,13 +536,14 @@ void print_single_symbol(Lexeme* lexeme, char* scope)
         printf("%s$%s ", scope, lexeme->extra_data.string);
         break;
     case NUMBER:
-        printf("int@%d ", lexeme->extra_data.value);
+        printf("int@%s%d ", minus, lexeme->extra_data.value);
+        // printf("negative flag: %d\n", lexeme->negative_num);
         break;
     case DECIMAL_NUMBER:
-        printf("float@%a ", lexeme->extra_data.decimal);
+        printf("float@%s%a ", minus, lexeme->extra_data.decimal);
         break;
     case EXPONENT_NUMBER:
-        printf("float@%a ", lexeme->extra_data.exponent);
+        printf("float@%s%a ", minus, lexeme->extra_data.exponent);
         break;
     case STRING_LITERAL:
         evaluateEscapeSequencies(lexeme);
