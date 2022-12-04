@@ -4,7 +4,6 @@
 void printProlog()
 {
     printf(".IFJcode22\n");
-    return;
 }
 
 void codeGenWrite(Lexeme l, bool comesFromFunction)
@@ -101,7 +100,6 @@ void printBuiltInFunctions()
 
     printf("LABEL errorsubstring\n");
     printf("MOVE LF@returnvar nil@nil\n");
-    //printf("WRITE string@chyba\n");
 
     printf("LABEL endsubstring\n");
     printf("POPFRAME\n");
@@ -139,7 +137,6 @@ void printBuiltInFunctions()
 
     printf("LABEL floatvalend\n");
     printf("MOVE LF@returnvar LF@param1\n");
-    //printf("WRITE LF@returnvar\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
 
@@ -162,7 +159,6 @@ void printBuiltInFunctions()
 
     printf("LABEL intvalend\n");
     printf("MOVE LF@returnvar LF@param1\n");
-    //printf("WRITE LF@returnvar\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
 
@@ -189,7 +185,6 @@ void printBuiltInFunctions()
     printf("PUSHFRAME\n");
     printf("DEFVAR LF@returnvar\n");
     printf("INT2CHAR LF@returnvar LF@param1\n");
-    //printf("WRITE LF@returnvar\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
 
@@ -202,27 +197,18 @@ void codeGenReads()
 {
     printf("CREATEFRAME\n");
     printf("CALL READS\n");
-
-    //DEBUG PRINT
-    printf("WRITE TF@returnvar\n");
 }
 
 void codeGenReadi()
 {
     printf("CREATEFRAME\n");
     printf("CALL READI\n");
-
-    //DEBUG PRINT
-    printf("WRITE TF@returnvar\n");
 }
 
 void codeGenReadf()
 {
     printf("CREATEFRAME\n");
     printf("CALL READF\n");
-
-    //DEBUG PRINT
-    printf("WRITE TF@returnvar\n");
 }
 
 void createFrame()
@@ -249,7 +235,6 @@ void generateParam(int number, Lexeme *l, bool comesFromFunction)
         case EXPONENT_NUMBER:
             printf("MOVE TF@param%d float@%a\n", number, l->extra_data.exponent);
             break;
-            //TODO udelat volani s promennyma, ne jen s konstantama
         case VARIABLE_ID:
             if (comesFromFunction)
             {
@@ -282,18 +267,16 @@ void defineNewVar(char *varName, bool comesFromFunction)
     if (!comesFromFunction)
     {
         printf("DEFVAR GF@$%s\n", varName);
-        //TODO PRIRADIT HODNOTY
     } else
     {
         printf("DEFVAR LF@$%s\n", varName);
-        //TODO PRIRADIT HODNOTY
     }
 }
 
 void declareFunction(char *functionName)
 {
     printf("\n#FUNCTION %s\n", functionName);
-    printf("JUMP %sEND\n", functionName);
+    printf("JUMP %sEND\n", functionName);       //potreba preskocit deklaraci funkce pri vykonavaci hlavniho tela programu
     printf("LABEL %s\n", functionName);
     printf("PUSHFRAME\n");
 }
@@ -304,7 +287,7 @@ void declareParams(int number, char *varName)
     printf("MOVE LF@$%s LF@param%d\n", varName, number);
 }
 
-void codeGenReturn(bool comesFromFunction, char *functionName)
+void codeGenReturn()
 {
     printf("RETURN\n");
 }

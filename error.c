@@ -59,6 +59,7 @@ void error(int line, char* message, error_code error_code)
         return;
     }
     new_node->data = data;
+    new_node->next = NULL;
     
     if(errors->next == NULL)
     {
@@ -96,7 +97,7 @@ int error_eval()
     fprintf(stderr, "Překladač se ukončil s chybovou návratovou hodnotou %d\n\n", return_code);
 
     error_out(errors->data);
-
+    
     while (errors->next != NULL)
     {
         p_error_list deleted = errors;
@@ -105,7 +106,6 @@ int error_eval()
         free(deleted);
         error_out(errors->data);
     }
-
     free(errors->data);
     free(errors);
     
