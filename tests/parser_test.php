@@ -30,7 +30,7 @@ declare(strict_types=1);
 // }
 // foo(2, 1);
 
-$a = 3;
+$a = 3.0/2;
 $b = $a;
 write($b);
 

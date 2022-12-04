@@ -343,10 +343,7 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
             }
             break;
         case SYM_DIV:
-            if (type_check(sym1, sym2) == 1)
-            {
-                generate_operation(expr_var_counter, sym1, sym2, RR_DIV, comesFromFunction, context, jump_label);
-            }
+            generate_operation(expr_var_counter, sym1, sym2, RR_DIV, comesFromFunction, context, jump_label);
             break;
         case SYM_PLUS:
             if (type_check(sym1, sym2) == 1)

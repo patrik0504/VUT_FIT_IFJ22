@@ -392,7 +392,7 @@ void expr_move(char* target, int source_var_count, bool comesFromFunction)
 
 void generate_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, operation operation, bool comesFromFunction, gen_context context, int jump_label)
 {
-    
+
     //Switch pro generaci jednotlivých operací
     switch (operation)
     {
@@ -409,31 +409,7 @@ void generate_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, operatio
         break;
         
     case RR_DIV: //  /
-        if(sym1->type == NUMBER && sym2->type == NUMBER)
-        {
-            operation_print_symbols(expr_var_count, sym1, sym2, "IDIV", comesFromFunction);
-        }
-        else if ((sym1->type == DECIMAL_NUMBER && (sym2->type == DECIMAL_NUMBER || sym2->type == EXPONENT_NUMBER || sym2->type == EXPR || sym2->type == VARIABLE_ID)) ||
-                (sym2->type == DECIMAL_NUMBER && (sym1->type == DECIMAL_NUMBER || sym1->type == EXPONENT_NUMBER|| sym1->type == EXPR || sym1->type == VARIABLE_ID)))
-        {
-            operation_print_symbols(expr_var_count, sym1, sym2, "DIV", comesFromFunction);
-        }
-        else if ((sym1->type == EXPR && sym2->type == NUMBER) || (sym1->type == NUMBER && sym2->type == EXPR) ){
-            operation_print_symbols(expr_var_count, sym1, sym2, "IDIV", comesFromFunction);
-        }
-        else
-        {
-            // Volání disasteru (Proměnný :D)
-            div_decider(sym1, sym2, comesFromFunction, expr_var_count);
-            printf("LABEL idiv%d\n", expr_var_count);
-            operation_print_symbols(expr_var_count, sym1, sym2, "IDIV", comesFromFunction);
-            printf("JUMP divEnd%d\n", expr_var_count);
-            printf("LABEL div%d\n", expr_var_count);
-            operation_print_symbols(-1, sym1, sym2, "DIV", comesFromFunction);
-            printf("LABEL divEnd%d\n", expr_var_count);
-        }
-
-        
+        print_div(expr_var_count, sym1, sym2, comesFromFunction);
         break;
         
     case RR_CONCAT: //  .
@@ -467,6 +443,31 @@ void generate_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, operatio
     default:
         break;
     }
+}
+
+void print_div(int expr_var_count, Lexeme* sym1, Lexeme* sym2, bool comesFromFunction)
+{
+    char* scope = "GF@";
+    if(comesFromFunction)
+    {
+        scope = "LF@";
+    }
+
+    printf("DEFVAR %s$*%d\n", scope, expr_var_count);
+    printf("DEFVAR %s$*%d_fl1\n", scope, expr_var_count);
+    printf("DEFVAR %s$*%d_fl2\n", scope, expr_var_count);
+
+    createFrame();
+    generateParam(1, sym1, comesFromFunction);
+    callFunction("floatval");
+    printf("MOVE %s$*%d_fl1 TF@**returnvar\n", scope, expr_var_count);
+
+    createFrame();
+    generateParam(1, sym2, comesFromFunction);
+    callFunction("floatval");
+    printf("MOVE %s$*%d_fl2 TF@**returnvar\n", scope, expr_var_count);
+
+    printf("DIV %s$*%d %s$*%d_fl1 %s$*%d_fl2\n", scope, expr_var_count, scope, expr_var_count, scope, expr_var_count);
 }
 
 void operation_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* operation, bool comesFromFunction){
@@ -591,62 +592,6 @@ void print_single_symbol(Lexeme* lexeme, char* scope)
     default:
         break;
     }
-}
-
-void div_decider(Lexeme* sym1, Lexeme* sym2, bool comesFromFunction, int expr_var_count)
-{
-    // DISASTER
-
-    char* scope = "GF@";
-    if (comesFromFunction) scope = "LF@";
-
-    printf("DEFVAR %s*type%d_1\n", scope, expr_var_count);
-    printf("DEFVAR %s*type%d_2\n", scope, expr_var_count);
-
-    if(sym1->type == VARIABLE_ID)
-    {
-        printf("TYPE %s*type%d_1 %s$%s\n", scope, expr_var_count, scope, sym1->extra_data.string);
-    }
-    else if(sym1->type == EXPR)
-    {
-        printf("TYPE %s*type%d_1 %s$*%d\n", scope, expr_var_count, scope, sym1->extra_data.value);
-    }
-    else
-    {
-        printf("MOVE %s*type%d_1 string@none\n", scope, expr_var_count);
-    }
-
-    if(sym2->type == VARIABLE_ID)
-    {
-        printf("TYPE %s*type%d_2 %s$%s\n", scope, expr_var_count, scope, sym2->extra_data.string);
-    }
-    else if(sym2->type == EXPR)
-    {
-        printf("TYPE %s*type%d_2 %s$*%d\n", scope, expr_var_count, scope, sym2->extra_data.value);
-    }
-    else
-    {
-        printf("MOVE %s*type%d_2 string@none\n", scope, expr_var_count);
-    }
-
-    // je 1 int?
-    printf("DEFVAR %s*decide%d_1\n", scope, expr_var_count);
-    printf("EQ %s*decide%d_1 %s*type%d_1 string@int\n", scope, expr_var_count, scope, expr_var_count);
-
-    // je 2 int?
-    printf("DEFVAR %s*decide%d_2\n", scope, expr_var_count);
-    printf("EQ %s*decide%d_2 %s*type%d_2 string@int\n", scope, expr_var_count, scope, expr_var_count);
-
-    // je oboje int?
-    printf("DEFVAR %s*decide%d_int\n", scope, expr_var_count);
-    printf("AND %s*decide%d_int %s*decide%d_1 %s*decide%d_2\n", scope, expr_var_count, scope, expr_var_count, scope, expr_var_count);
-    printf("JUMPIFEQ idiv%d %s*decide%d_int bool@true\n", expr_var_count, scope, expr_var_count);
-    printf("NOT %s*decide%d_1 %s*decide%d_1\n", scope, expr_var_count, scope, expr_var_count);
-    printf("NOT %s*decide%d_2 %s*decide%d_2\n", scope, expr_var_count, scope, expr_var_count);
-    printf("JUMPIFEQ div%d %s*decide%d_int bool@true\n", expr_var_count, scope, expr_var_count);
-    printf("JUMP divEnd%d\n", expr_var_count);
-    // TODO: chyba
-
 }
 
 void print_expr_jump(gen_context context, int jump_label, int expr_var_count, bool comesFromFunction, char* skip_on)
