@@ -528,6 +528,9 @@ void print_single_symbol(Lexeme* lexeme, char* scope)
         evaluateEscapeSequencies(lexeme);
         printf("string@%s ", lexeme->extra_data.string);
         break;
+    case KW_NULL:
+        printf("nil@nil ");
+        break;
     default:
         break;
     }

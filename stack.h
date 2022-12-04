@@ -26,11 +26,13 @@ typedef enum
     SYM_RPAR,
     SYM_ID,
     SYM_STACK_TAG,
+    SYM_NULL,
     SYM_HANDLE_TAG,
     SYM_NONTERMINAL
 } symbol_type;
 
-static const char *symbol_type_err[] = {"*","/","+","-",".","<",">","<=",">=","===","!==","(",")","identifikátor","$","HANDLE<", "výraz"};
+//Řetězce korespondující k enumu symbol_type
+static const char *symbol_type_err[] = {"*","/","+","-",".","<",">","<=",">=","===","!==","(",")","identifikátor","$","null","HANDLE<", "výraz"};
 
 /** Struktura stacku */
 typedef struct stack

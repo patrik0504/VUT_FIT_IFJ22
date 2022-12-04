@@ -8,34 +8,37 @@ static int expr_var_counter = 0;
 int precedence_lookup(symbol_type stack_symbol, symbol_type input)
 {
     // Zabraňujeme přístupu do tabulky mimo její rozsah
-    if (stack_symbol >= 15 || input >= 15 || stack_symbol < 0 || input < 0)
+    if (stack_symbol >= 16 || input >= 16 || stack_symbol < 0 || input < 0)
     {
         return -1;
     }
-
+    // printf("Stack: %d Input: %d\n", stack_symbol, input);
     /** Precedenční tabulka jako dvojrozměrný array (viz. dokumentace).
      *  @return  2: '>'
      *  @return  1: '='
      *  @return  0: '<'
      *  @return -1: chybový stav
     */
-    static const int precedence[15][15] = {
-        //  *   /   +   -   .   <   >   <=  >=  === !== (   )   i   $
-        {   2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  0,  2,  0,  2 }, //  *
-        {   2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  0,  2,  0,  2 }, //  /
-        {   0,  0,  2,  2,  2,  2,  2,  2,  2,  2,  2,  0,  2,  0,  2 }, //  +
-        {   0,  0,  2,  2,  2,  2,  2,  2,  2,  2,  2,  0,  2,  0,  2 }, //  -
-        {   0,  0,  2,  2,  2,  2,  2,  2,  2,  2,  2,  0,  2,  0,  2 }, //  .
-        {   0,  0,  0,  0,  0,  2,  2,  2,  2,  2,  2,  0,  2,  0,  2 }, //  <
-        {   0,  0,  0,  0,  0,  2,  2,  2,  2,  2,  2,  0,  2,  0,  2 }, //  >
-        {   0,  0,  0,  0,  0,  2,  2,  2,  2,  2,  2,  0,  2,  0,  2 }, //  <=
-        {   0,  0,  0,  0,  0,  2,  2,  2,  2,  2,  2,  0,  2,  0,  2 }, //  >=
-        {   0,  0,  0,  0,  0,  0,  0,  0,  0,  2,  2,  0,  2,  0,  2 }, //  ===
-        {   0,  0,  0,  0,  0,  0,  0,  0,  0,  2,  2,  0,  2,  0,  2 }, //  !==
-        {   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0, -1 }, //  (
-        {   2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2, -1,  2, -1,  2 }, //  )
-        {   2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2, -1,  2, -1,  2 }, //  i
-        {   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, -1,  0, -1 }  //  $
+    static const int precedence[16][16] = {
+        //  *   /   +   -   .   <   >   <=  >=  === !==  (   )   i   $  NULL
+        {   2,  2,  2,  2,  2,  2,  2,  2,  2,   2,  2,  0,  2,  0,  2,  0   }, //  *
+        {   2,  2,  2,  2,  2,  2,  2,  2,  2,   2,  2,  0,  2,  0,  2,  0   }, //  /
+        {   0,  0,  2,  2,  2,  2,  2,  2,  2,   2,  2,  0,  2,  0,  2,  0   }, //  +
+        {   0,  0,  2,  2,  2,  2,  2,  2,  2,   2,  2,  0,  2,  0,  2,  0   }, //  -
+        {   0,  0,  2,  2,  2,  2,  2,  2,  2,   2,  2,  0,  2,  0,  2,  0   }, //  .
+        {   0,  0,  0,  0,  0,  2,  2,  2,  2,   2,  2,  0,  2,  0,  2,  0   }, //  <
+        {   0,  0,  0,  0,  0,  2,  2,  2,  2,   2,  2,  0,  2,  0,  2,  0   }, //  >
+        {   0,  0,  0,  0,  0,  2,  2,  2,  2,   2,  2,  0,  2,  0,  2,  0   }, //  <=
+        {   0,  0,  0,  0,  0,  2,  2,  2,  2,   2,  2,  0,  2,  0,  2,  0   }, //  >=
+        {   0,  0,  0,  0,  0,  0,  0,  0,  0,   2,  2,  0,  2,  0,  2,  0   }, //  ===
+        {   0,  0,  0,  0,  0,  0,  0,  0,  0,   2,  2,  0,  2,  0,  2,  0   }, //  !==
+        {   0,  0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  1,  0, -1,  0   }, //  (
+        {   2,  2,  2,  2,  2,  2,  2,  2,  2,   2,  2, -1,  2, -1,  2, -1   }, //  )
+        {   2,  2,  2,  2,  2,  2,  2,  2,  2,   2,  2, -1,  2, -1,  2, -1   }, //  i
+        {   0,  0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0, -1,  0, -1,  0   }, //  $
+        {   2,  2,  2,  2,  2,  2,  2,  2,  2,   2,  2, -1,  2, -1,  2, -1   }  //  NULL
+
+
     };
 
     return precedence[stack_symbol][input];
@@ -129,9 +132,11 @@ int expr(context context, int jump_label, p_node symtable, Lexeme *target, char 
             printf("MOVE %s$%s int@%d\n", scope, variable_name, last->extra_data.value);
             break;
         case STRING_LITERAL:
+            printf("MOVE %s$%s string@%s\n", scope, variable_name, last->extra_data.string);
             break;
         case DECIMAL_NUMBER:
         case EXPONENT_NUMBER:
+            printf("MOVE %s$%s float@%a\n", scope, variable_name, last->extra_data.decimal);
             break;
         
         default:
@@ -149,7 +154,7 @@ int check_operation (p_node symtable, p_stack stack, p_lex_stack lex_stack, Lexe
 bool comesFromFunction, p_node functionPtr, p_node globalFunctions)
 {
     if (l->type == VARIABLE_ID || l->type == STRING_LITERAL || l->type == NUMBER ||
-        l->type == DECIMAL_NUMBER || l->type == EXPONENT_NUMBER)
+        l->type == DECIMAL_NUMBER || l->type == EXPONENT_NUMBER || l->type == KW_NULL)
     {
         if(l->type == VARIABLE_ID)
         {
@@ -258,7 +263,7 @@ bool comesFromFunction, p_node functionPtr, p_node globalFunctions)
             
     default:
             // Zabraňujeme přístupu do tabulky mimo její rozsah
-        if (input_symbol >= 17 || input_symbol < 0)
+        if (input_symbol >= 18 || input_symbol < 0)
         {
             error(l->row, "Výraz nebyl správně ukončen, nebo se ve výrazu nachází neznámý symbol!", SYNTAX_ERROR);
             return 0;
@@ -266,7 +271,7 @@ bool comesFromFunction, p_node functionPtr, p_node globalFunctions)
 
         error(l->row, "Chyba v posloupnosti symbolů v rámci výrazu!", SYNTAX_ERROR);
         // debug 
-        // //printf("Stack: %s Input: %s\n",symbol_type_err[non_terminal_check(stack)], symbol_type_err[input_symbol]);
+        // printf("Stack: %s Input: %s\n",symbol_type_err[non_terminal_check(stack)], symbol_type_err[input_symbol]);
         return 0;
     }
 }
@@ -277,10 +282,8 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
     // Pravidla s jedním operandem
     if (op1 == -1 && op2 == -1)
     {
-
-        // 2*-(3+6)
         // <term>  -> i
-        if (op3 == SYM_ID )
+        if (op3 == SYM_ID || op3 == SYM_NULL)
         {
             if(negative_num == 1){
                 //printf("NEG_NUM ");
@@ -456,6 +459,10 @@ int type_check(Lexeme *sym1, Lexeme *sym2)
         //      nebo přímo do kódu jako konstanty.
         return 1;
     }
+    else if (sym1->type == KW_NULL || sym2->type == KW_NULL)
+    {
+        return 1;
+    }
     // POTUD DOČASNÝ KÓD
     else 
     {
@@ -531,6 +538,8 @@ symbol_type lex_type_to_psa(Lexeme *lexeme)
     case DECIMAL_NUMBER:
     case EXPONENT_NUMBER:
         return SYM_ID;
+    case KW_NULL:
+        return SYM_NULL;
     case SEMICOLON:
         return SYM_STACK_TAG;
     default:

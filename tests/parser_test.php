@@ -8,11 +8,13 @@ declare(strict_types=1);
 
 // $a = 5*(9+1);
 // write($a);
-$a = 5;
-while ($a !== 0)
+if ("ahoj" === "ahoj")
 {
-    write($a);
-    $a = $a - 1;
+    write("true\n");
+}
+else
+{
+    write("false\n");
 }
 
 // function foo(int $a, int $b) : void {
