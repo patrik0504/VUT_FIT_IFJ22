@@ -16,8 +16,8 @@ declare(strict_types=1);
 // {
 //     write("false\n");
 // }
-$a = 6*-(2+3)*-(6+2);
-write($a, "\n");
+// $a = 6*-(2+3)*-(6+2);
+// write($a, "\n");
 // function foo(int $a, int $b) : void {
 //     $bbb = $a/$b;
 //     // $bbb = ($a + 2 * (3 + 7))/2;
@@ -30,7 +30,9 @@ write($a, "\n");
 // }
 // foo(2, 1);
 
-
+$a = 3;
+$b = $a;
+write($b);
 
 //$a = 2 + 3;
 

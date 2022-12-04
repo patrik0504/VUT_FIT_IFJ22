@@ -118,11 +118,15 @@ int expr(context context, int jump_label, p_node symtable, Lexeme *target, char 
         {
             scope = "LF@";
         }
-
+        // stack_print(stack);
         //Řešení typu u assigmentu
         Lexeme * last = lexStack_pop(lex_stack);
+        // printf("last: %d\n", last->type);
         switch (last->type)
         {
+        case VARIABLE_ID:
+            printf("MOVE %s$%s %s$%s\n", scope, variable_name, scope, last->extra_data.string);
+            break;
         case EXPR:
             expr_move(variable_name, last->extra_data.value, comesFromFunction);
             break;
