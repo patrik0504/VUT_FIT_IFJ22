@@ -190,6 +190,8 @@ void printBuiltInFunctions()
 
     printf("\n#HLAVNI TELO\n");
     printf("LABEL MAIN\n");
+    printf("JUMP MAINVARDECLARE\n");
+    printf("LABEL MAINAFTERVARDECLARE\n");
 }
 
 
@@ -262,28 +264,19 @@ void returnVariable(char *destination, bool comesFromFunction)
     }
 }
 
-void defineNewVar(char *varName, bool comesFromFunction)
-{
-    if (!comesFromFunction)
-    {
-        printf("DEFVAR GF@$%s\n", varName);
-    } else
-    {
-        printf("DEFVAR LF@$%s\n", varName);
-    }
-}
-
 void declareFunction(char *functionName)
 {
     printf("\n#FUNCTION %s\n", functionName);
     printf("JUMP %sEND\n", functionName);       //potreba preskocit deklaraci funkce pri vykonavaci hlavniho tela programu
     printf("LABEL %s\n", functionName);
     printf("PUSHFRAME\n");
+    printf("JUMP %sVARDECLARE\n", functionName);
+    printf("LABEL %sAFTERVARDECLARE\n", functionName);
 }
 
 void declareParams(int number, char *varName)
 {
-    printf("DEFVAR LF@$%s\n", varName);
+    //printf("DEFVAR LF@$%s\n", varName);
     printf("MOVE LF@$%s LF@param%d\n", varName, number);
 }
 
@@ -298,9 +291,52 @@ void codeGenReturnVar()
     printf("DEFVAR LF@**returnvar\n");
 }
 
-void codeGenFunctionEnd(char *functionName)
+void codeGenDeclareVars(char *func_name, p_node globalFunctions, bool comesFromFunction)
+{
+    p_node functionPtr;
+
+    if (!comesFromFunction)
+    {
+        printf("JUMP MAINEND\n");
+        printf("LABEL MAINVARDECLARE\n");
+        functionPtr = globalFunctions;
+    } else
+    {
+        printf("LABEL %sVARDECLARE\n", func_name);
+        functionPtr = tree_search(globalFunctions, func_name);
+    }
+    declare_variables(functionPtr->data->elements, comesFromFunction);
+    declare_variables(functionPtr->data->params, comesFromFunction);
+    if (!comesFromFunction)
+    {
+        printf("JUMP MAINAFTERVARDECLARE\n");
+        printf("LABEL MAINEND\n");
+    } else
+    {
+        printf("JUMP %sAFTERVARDECLARE\n", func_name);
+    }
+}
+
+void declare_variables(p_node root, bool comesFromFunctions) 
+{
+    if (root != NULL) 
+    {
+        declare_variables(root->left, comesFromFunctions);
+        if(comesFromFunctions)
+        {
+            printf("DEFVAR LF@$%s\n", root->key);
+        } else
+        {
+            printf("DEFVAR GF@$%s\n", root->key);
+        }
+        declare_variables(root->right, comesFromFunctions);
+    } 
+}
+
+void codeGenFunctionEnd(char *functionName, p_node globalFunctions)
 {
     printf("RETURN\n");
+    codeGenDeclareVars(functionName, globalFunctions, true);
     printf("LABEL %sEND\n\n", functionName);
 
 }

@@ -6,12 +6,13 @@ int parse(){
     p_node binaryTree = init_binary_treeKW();
     Lexeme * l = token_init(); 
     p_node globalFunctions = init_global_function();
-
+    
     //Výpis do code genu
     printProlog();
     printBuiltInFunctions();
     //Kontrola hlavného tela programu
     result = prog(l, binaryTree, globalFunctions);
+    codeGenDeclareVars("main", globalFunctions, false);
     int err = 0;
     //Kontrola že či boli všetky funkcie definované
     check_func(globalFunctions, &err);
@@ -270,7 +271,6 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
                 {
                     insert_node(globalFunctions->data->elements, local_var);
                 }
-                defineNewVar(l->extra_data.string, false); // Generovanie kódu pre deklaráciu novej premmenj
             }
         }
         *l = get_token(binaryTree);
@@ -400,7 +400,6 @@ int st_list(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFrom
                             insert_node(functionPtr->data->elements, local_var);
                         }
                         Dprintf("nasel jsem lokalni promennou %s\n", l->extra_data.string);
-                        defineNewVar(l->extra_data.string, comesFromFunction);
                     }
                 } else
                 {
@@ -748,7 +747,8 @@ int function_check(Lexeme *l, p_node binaryTree, p_node globalFunctions)
                         {
                             if(l->type == RBRACKET_S_KUDRLINKOU)
                             {
-                                codeGenFunctionEnd(func_name);
+                                codeGenFunctionEnd(func_name, globalFunctions);
+                                //codeGenDeclareVars(func_name, globalFunctions, true);
                                 node->data->declared = true;
                                 node->data->defined = true;
                                 Dputs("Funkcia je v poriadku\n");

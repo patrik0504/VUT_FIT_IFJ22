@@ -102,12 +102,6 @@ void callFunction(char *functionName);
  */
 void returnVariable(char *destination, bool comesFromFunction);
 
-/**
- * Funkce generující kód pro vztvoření nové proměnné v lokálním/globálním rámci
- * @param varName Název proměnné
- * @param comesFromFunction True pokud byl write volán ve funkci, false pokud v hlavním těle programu
- */
-void defineNewVar(char *varName, bool comesFromFunction);
 
 /**
  * Funkce generující kód pro začátek deklarace funkce
@@ -131,6 +125,16 @@ void codeGenReturn();
  * Funkce pre generování kódu pro deklaraci návratové proměnné
  */
 void codeGenReturnVar();
+
+/**
+ * Funkce pro deklaraci všech proměnných funkce
+ * @param functionName Název funkce
+ * @param globalFunction Binární strom obsahující data celého programu (built-in funkce, deklarované funkce, všechny proměnné apod)
+ * @param comesFromFunction True pokud byl write volán ve funkci, false pokud v hlavním těle programu
+ */
+void codeGenDeclareVars(char *func_name, p_node globalFunctions, bool comesFromFunction);
+
+void declare_variables(p_node root, bool comesFromFunctions);
 
 /**
  * Funckia pre generovanie začiatku ifu
@@ -157,8 +161,9 @@ void codeGenIfElse(int c);
  * Funkcia pre generovanie koncu funkcie
  * 
  * @param functionName názov funkcie
+ * @param globalFunction binárny strom obsahujúci dáta celého programu (built-in funkcie, deklarované funkcie, všetky premenne atď)
  */
-void codeGenFunctionEnd(char *functionName);
+void codeGenFunctionEnd(char *functionName, p_node globalFunctions);
 
 /**
  * Funkcia pre generovania kódu pre začiatok while cyklu

@@ -131,7 +131,14 @@ int expr(context context, int jump_label, p_node symtable, Lexeme *target, char 
         switch (last->type)
         {
         case VARIABLE_ID:
-            printf("MOVE %s$%s %s$%s\n", scope, variable_name, scope, last->extra_data.string);
+            if (strcmp(variable_name, "**returnvar") == 0)
+            {
+                printf("MOVE %s%s %s$%s\n", scope, variable_name, scope, last->extra_data.string);
+            }
+            else
+            {
+                printf("MOVE %s$%s %s$%s\n", scope, variable_name, scope, last->extra_data.string);
+            }
             break;
         case EXPR:
             expr_move(variable_name, last->extra_data.value, comesFromFunction);
