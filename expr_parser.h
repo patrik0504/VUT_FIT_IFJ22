@@ -12,7 +12,8 @@
 
 typedef enum {
     ASSIGNMENT,
-    CALL_CONTROL,
+    IF,
+    WHILE,
     RETURN
 } context;
 
@@ -37,6 +38,7 @@ typedef enum {
  * Funkce pro předání řízení syntaktické analýzy.
  * Slouží k vyhodnocení výrazů pomocí precedenční syntaktické analýzy.
  * @param context Kontext, ve kterém je PSA zavolána (přiřazení, volání funkce/vyhodnocení podmínky)
+ * @param jump_label Číslo ifu/whilu pro generování instrukce skoku
  * @param symtable Globální tabulka symbolů
  * @param target Lexém cílové proměnné pro přiřazení (může být NULL)
  * @param varable_name Názov premmenej pri vaiable
@@ -45,7 +47,8 @@ typedef enum {
  * @param functionPtr ukazatel na funkci, ve které je PSA zavolána (může být NULL)
  * @return 1 (true) pokud nedošlo k chybě, jinak 0
 */
-int expr(context context, p_node symtable, Lexeme *target, char * variable_name, p_node globalFunctions, bool comesFromFunction, p_node functionPtr);
+int expr(context context, int jump_label, p_node symtable, Lexeme *target, char * variable_name, 
+    p_node globalFunctions, bool comesFromFunction, p_node functionPtr);
 
 /**
  * Funkce kontrolující kompatibilitu datových typů.
@@ -82,27 +85,30 @@ symbol_type lex_type_to_psa(Lexeme *lexeme);
 int precedence_lookup(symbol_type stack_symbol, symbol_type input);
 
 /** Funkce hledající vhodné pravidlo pro redukci
-    @param op1 1. operand pravidla 
-    @param op2 2. operand pravidla
-    @param op3  3. operand pravidla
-    @param stack stack nad kterým je funkce prováděna
-    @param comesFromFunction Bool hodnota určující globální / lokální rámec
-    @param functionPtr Proměnné v lokálním rámci
-    @param globalFunctions Proměnné v globálním rámci
-    @return Číslo pravidla pro redukci
+ *  @param op1 1. operand pravidla 
+ *  @param op2 2. operand pravidla
+ *  @param op3  3. operand pravidla
+ *  @param stack stack nad kterým je funkce prováděna
+ *  @param comesFromFunction Bool hodnota určující globální / lokální rámec
+ *  @param context Kontext volání PSA
+ *  @param jump_label Číslo ifu/whilu pro generování instrukce skoku
+ *  @return Číslo pravidla pro redukci
 */
-reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_stack stack, p_lex_stack lex_stack, bool comesFromFunction, p_node functionPtr, p_node globalFunctions);
+reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_stack stack, p_lex_stack lex_stack, 
+    bool comesFromFunction, context context, int jump_label);
 
 /** Funkce hledající další operaci dle tabulky
     @param symtable  Tabulka symbolů
     @param stack     Předávaný stack
     @param l         Předávaný lexém    
-    @param context   Předávaný kontext (jestli jde o přiřazení nebo rozhodování např. v ifu)    
+    @param context   Předávaný kontext (jestli jde o přiřazení nebo rozhodování např. v ifu)
+    @param jump_label Číslo ifu/whilu pro generování instrukce skoku
     @param comesFromFunction Bool hodnota určující globální / lokální rámec
     @param functionPtr Proměnné v lokálním rámci
     @param globalFunctions Proměnné v globálním rámci
     @return (true = 1 / false) dle úspěšnosti
 */
-int check_operation (p_node symtable, p_stack stack, p_lex_stack lex_stack, Lexeme *l,context context, bool comesFromFunction, p_node functionPtr, p_node globalFunctions);
+int check_operation (p_node symtable, p_stack stack, p_lex_stack lex_stack, Lexeme *l, context context, int jump_label,
+bool comesFromFunction, p_node functionPtr, p_node globalFunctions);
 
 #endif

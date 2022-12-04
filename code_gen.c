@@ -336,7 +336,7 @@ void expr_move(char* target, int source_var_count, bool comesFromFunction)
     
 }
 
-void generate_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, operation operation, bool comesFromFunction)
+void generate_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, operation operation, bool comesFromFunction, gen_context context, int jump_label)
 {
     
     //Switch pro generaci jednotlivých operací
@@ -385,24 +385,30 @@ void generate_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, operatio
     case RR_CONCAT: //  .
         operation_print_symbols(expr_var_count, sym1, sym2, "CONCAT", comesFromFunction);
         break;
-    // case RR_LESSER: //  <
-        // operation_print_symbols(expr_var_count, sym1, sym2, "LT", comesFromFunction);
-        // break;
-    // case RR_LESOREQ: //  <=
-        // operation_print_symbols(expr_var_count, sym1, sym2, "LT", comesFromFunction); // EQ !!!!!!!!
-        // break;
-    // case RR_GREATER: //  >
-        // operation_print_symbols(expr_var_count, sym1, sym2, "GT", comesFromFunction);
-        // break;
-    // case RR_GREOREQ: //  >=
-        // operation_print_symbols(expr_var_count, sym1, sym2, "GT", comesFromFunction); // EQ !!!!!!!!
-        // break;
-    // case RR_EQ: //  ===
-        // operation_print_symbols(expr_var_count, sym1, sym2, "EQ", comesFromFunction);
-        // break;
-    // case RR_NOTEQ: //  !==
-        // operation_print_symbols(expr_var_count, sym1, sym2, "EQ", comesFromFunction);  // NOT EQ !!!!!!!!!!!!
-        // break;
+    case RR_LESSER: //  <
+        operation_print_symbols(expr_var_count, sym1, sym2, "LT", comesFromFunction);
+        print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
+        break;
+    case RR_LESOREQ: //  <=
+        mixed_jump_print_symbols(expr_var_count, sym1, sym2, "LT", comesFromFunction);
+        print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
+        break;
+    case RR_GREATER: //  >
+        operation_print_symbols(expr_var_count, sym1, sym2, "GT", comesFromFunction);
+        print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
+        break;
+    case RR_GREOREQ: //  >=
+        mixed_jump_print_symbols(expr_var_count, sym1, sym2, "GT", comesFromFunction);
+        print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
+        break;
+    case RR_EQ: //  ===
+        operation_print_symbols(expr_var_count, sym1, sym2, "EQ", comesFromFunction);
+        print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
+        break;
+    case RR_NOTEQ: //  !==
+        operation_print_symbols(expr_var_count, sym1, sym2, "EQ", comesFromFunction);
+        print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "true");
+        break;
 
     default:
         break;
@@ -438,6 +444,50 @@ void operation_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, cha
     printf("\n");
 }
 
+void mixed_jump_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* operation, bool comesFromFunction)
+{
+    char* scope;
+    if (expr_var_count != -1)
+    {
+        if (comesFromFunction)
+        {
+            // Nastavení kontextu
+            scope = "LF@";
+            // Definování překladačové proměnné pro uložení dočasného výsledku
+            printf("DEFVAR LF@$*%d\n", expr_var_count);
+            printf("DEFVAR LF@$*%d_1\n", expr_var_count);
+            printf("DEFVAR LF@$*%d_2\n", expr_var_count);
+        }
+        else
+        {
+            scope = "GF@";
+            printf("DEFVAR GF@$*%d\n", expr_var_count);
+            printf("DEFVAR GF@$*%d_1\n", expr_var_count);
+            printf("DEFVAR GF@$*%d_2\n", expr_var_count);
+        }
+    }
+
+    // Print relační operace
+    printf("%s %s$*%d_1 ", operation, scope, expr_var_count);
+
+    // Print prvního symbolu
+    print_single_symbol(sym1, scope);
+
+    // Print druhého symbolu
+    print_single_symbol(sym2, scope);
+    printf("\n");
+
+    // Print operace rovnosti
+    printf("EQ %s$*%d_2 ", scope, expr_var_count);
+    print_single_symbol(sym1, scope);
+    print_single_symbol(sym2, scope);
+    printf("\n");
+
+    // Print OR jednotlivých výsledků do dočasné výstupní proměnné
+    printf("OR %s$*%d %s$*%d_1 %s$*%d_2", scope, expr_var_count, scope, expr_var_count, scope, expr_var_count);
+    printf("\n");
+}
+
 void print_single_symbol(Lexeme* lexeme, char* scope)
 {
     switch (lexeme->type)
@@ -460,6 +510,9 @@ void print_single_symbol(Lexeme* lexeme, char* scope)
     case STRING_LITERAL:
         evaluateEscapeSequencies(lexeme);
         printf("string@%s ", lexeme->extra_data.string);
+        break;
+    case KW_NULL:
+        printf("nil@nil ");
         break;
     default:
         break;
@@ -520,4 +573,21 @@ void div_decider(Lexeme* sym1, Lexeme* sym2, bool comesFromFunction, int expr_va
     printf("JUMP divEnd%d\n", expr_var_count);
     // TODO: chyba
 
+}
+
+void print_expr_jump(gen_context context, int jump_label, int expr_var_count, bool comesFromFunction, char* skip_on)
+{
+    char* scope = "GF@";
+    if(comesFromFunction)
+    {
+        scope = "LF@";
+    }
+    if (context == CG_IF)
+    {
+        printf("JUMPIFEQ IFELSE%d %s$*%d bool@%s\n", jump_label, scope, expr_var_count, skip_on);
+    }
+    else if (context == CG_WHILE)
+    {
+        printf("JUMPIFEQ WHILEEND%d %s$*%d bool@%s\n", jump_label, scope, expr_var_count, skip_on);
+    }
 }

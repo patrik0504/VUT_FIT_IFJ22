@@ -274,7 +274,7 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
             }
         }
         *l = get_token(binaryTree);
-        result = expr(ASSIGNMENT, binaryTree, l, variable, globalFunctions, comesFromFunction, functionPtr);
+        result = expr(ASSIGNMENT, -1, binaryTree, l, variable, globalFunctions, comesFromFunction, functionPtr);
         if(result != 1)
         {
             return result;
@@ -370,7 +370,7 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
 int ret_expr(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr)
 {
     int result = 0;
-    result = expr(RETURN, binaryTree, l, NULL, globalFunctions, comesFromFunction, functionPtr);
+    result = expr(RETURN, -1, binaryTree, l, NULL, globalFunctions, comesFromFunction, functionPtr);
     if(!result)
     {
         return result;
@@ -666,7 +666,7 @@ int while_check(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comes
     if(l->type == LBRACKET)
     {
         codeGenWhileStart(while_id);
-        result = expr(CALL_CONTROL, binaryTree, l, NULL, globalFunctions, comesFromFunction, functionPtr);
+        result = expr(WHILE, while_id, binaryTree, l, NULL, globalFunctions, comesFromFunction, functionPtr);
         if(!result)
         {
             return result;
@@ -834,7 +834,7 @@ int if_check(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFro
     if (l->type == LBRACKET)
     {
         //Call expression
-        int result_expr = expr(CALL_CONTROL, binaryTree, l, NULL, globalFunctions, comesFromFunction, functionPtr);
+        int result_expr = expr(IF, if_label, binaryTree, l, NULL, globalFunctions, comesFromFunction, functionPtr);
         if(!result_expr)
         {
             Dputs("Chyba pri vyrazoch v ife\n");
