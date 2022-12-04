@@ -128,30 +128,28 @@ int expr(context context, int jump_label, p_node symtable, Lexeme *target, char 
         //Řešení typu u assigmentu
         Lexeme * last = lexStack_pop(lex_stack);
         // printf("last: %d\n", last->type);
+        char* identifier = "";
+        if (strcmp(variable_name, "**returnvar") != 0)
+        {
+            identifier = "$";
+        }
         switch (last->type)
         {
         case VARIABLE_ID:
-            if (strcmp(variable_name, "**returnvar") == 0)
-            {
-                printf("MOVE %s%s %s$%s\n", scope, variable_name, scope, last->extra_data.string);
-            }
-            else
-            {
-                printf("MOVE %s$%s %s$%s\n", scope, variable_name, scope, last->extra_data.string);
-            }
+            printf("MOVE %s%s%s %s$%s\n", scope, identifier, variable_name, scope, last->extra_data.string);
             break;
         case EXPR:
             expr_move(variable_name, last->extra_data.value, comesFromFunction);
             break;
         case NUMBER:
-            printf("MOVE %s$%s int@%d\n", scope, variable_name, last->extra_data.value);
+            printf("MOVE %s%s%s int@%d\n", scope, identifier, variable_name, last->extra_data.value);
             break;
         case STRING_LITERAL:
-            printf("MOVE %s$%s string@%s\n", scope, variable_name, last->extra_data.string);
+            printf("MOVE %s%s%s string@%s\n", scope, identifier, variable_name, last->extra_data.string);
             break;
         case DECIMAL_NUMBER:
         case EXPONENT_NUMBER:
-            printf("MOVE %s$%s float@%a\n", scope, variable_name, last->extra_data.decimal);
+            printf("MOVE %s%s%s float@%a\n", scope, identifier, variable_name, last->extra_data.decimal);
             break;
         
         default:
@@ -243,7 +241,7 @@ bool comesFromFunction, p_node functionPtr, p_node globalFunctions)
             error(l->row, "Ve výrazu chybí některý z operandů!", SYNTAX_ERROR);
             return 0;
         }
-        reduction_rule result = check_rule(op1, op2, op3, stack, lex_stack, comesFromFunction, context, jump_label);
+        reduction_rule result = check_rule(op1, op2, op3, stack, lex_stack, comesFromFunction, context, jump_label, functionPtr, globalFunctions);
         if (result != 0)
         {
             pop(stack); // Pop handle
@@ -292,7 +290,7 @@ bool comesFromFunction, p_node functionPtr, p_node globalFunctions)
 }
 
 reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_stack stack, p_lex_stack lex_stack, 
-    bool comesFromFunction, context context, int jump_label)
+    bool comesFromFunction, context context, int jump_label, p_node functionPtr, p_node globalFunctions)
 {
     // Pravidla s jedním operandem
     if (op1 == -1 && op2 == -1)
@@ -339,29 +337,29 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
         case SYM_MUL:
             if (type_check(sym1, sym2) == 1)
             {
-                generate_operation(expr_var_counter, sym1, sym2, RR_MUL, comesFromFunction, context, jump_label);
+                generate_operation(expr_var_counter, sym1, sym2, RR_MUL, comesFromFunction, context, jump_label, functionPtr, globalFunctions);
             }
             break;
         case SYM_DIV:
-            generate_operation(expr_var_counter, sym1, sym2, RR_DIV, comesFromFunction, context, jump_label);
+            generate_operation(expr_var_counter, sym1, sym2, RR_DIV, comesFromFunction, context, jump_label, functionPtr, globalFunctions);
             break;
         case SYM_PLUS:
             if (type_check(sym1, sym2) == 1)
             {
-                generate_operation(expr_var_counter, sym1, sym2, RR_PLUS, comesFromFunction, context, jump_label);
+                generate_operation(expr_var_counter, sym1, sym2, RR_PLUS, comesFromFunction, context, jump_label, functionPtr, globalFunctions);
             }
             break;
         case SYM_MINUS:
             if (type_check(sym1, sym2) == 1)
             {
-                generate_operation(expr_var_counter, sym1, sym2, RR_MINUS, comesFromFunction, context, jump_label);
+                generate_operation(expr_var_counter, sym1, sym2, RR_MINUS, comesFromFunction, context, jump_label, functionPtr, globalFunctions);
             }
             break;
         case SYM_CONCAT:
             //TODO: Zkontrolovat kompatibilitu datových typů u proměnných
             if (sym1->type == STRING_LITERAL && sym2->type == STRING_LITERAL)
             {
-                generate_operation(expr_var_counter, sym1, sym2, RR_CONCAT, comesFromFunction, context, jump_label);
+                generate_operation(expr_var_counter, sym1, sym2, RR_CONCAT, comesFromFunction, context, jump_label, functionPtr, globalFunctions);
             }
             else
             {
@@ -375,7 +373,7 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
                 "Logické operátory nemohou být použity v rámci přiřazení do proměnné!", SEM_INVALID_TYPE_ERROR);
                 break;
             }
-            generate_operation(expr_var_counter, sym1, sym2, RR_LESSER, comesFromFunction, context, jump_label);
+            generate_operation(expr_var_counter, sym1, sym2, RR_LESSER, comesFromFunction, context, jump_label, functionPtr, globalFunctions);
             break;
         case SYM_GREATER:
             if (context == ASSIGNMENT || context == RETURN)
@@ -384,7 +382,7 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
                 "Logické operátory nemohou být použity v rámci přiřazení do proměnné!", SEM_INVALID_TYPE_ERROR);
                 break;
             }
-            generate_operation(expr_var_counter, sym1, sym2, RR_GREATER, comesFromFunction, context, jump_label);
+            generate_operation(expr_var_counter, sym1, sym2, RR_GREATER, comesFromFunction, context, jump_label, functionPtr, globalFunctions);
             break;
         case SYM_LESOREQ:
             if (context == ASSIGNMENT || context == RETURN)
@@ -393,7 +391,7 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
                 "Logické operátory nemohou být použity v rámci přiřazení do proměnné!", SEM_INVALID_TYPE_ERROR);
                 break;
             }
-            generate_operation(expr_var_counter, sym1, sym2, RR_LESOREQ, comesFromFunction, context, jump_label);
+            generate_operation(expr_var_counter, sym1, sym2, RR_LESOREQ, comesFromFunction, context, jump_label, functionPtr, globalFunctions);
             break;
         case SYM_GREOREQ:
             if (context == ASSIGNMENT || context == RETURN)
@@ -402,7 +400,7 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
                 "Logické operátory nemohou být použity v rámci přiřazení do proměnné!", SEM_INVALID_TYPE_ERROR);
                 break;
             }
-            generate_operation(expr_var_counter, sym1, sym2, RR_GREOREQ, comesFromFunction, context, jump_label);
+            generate_operation(expr_var_counter, sym1, sym2, RR_GREOREQ, comesFromFunction, context, jump_label, functionPtr, globalFunctions);
             break;
         case SYM_EQ:
             if (context == ASSIGNMENT || context == RETURN)
@@ -411,7 +409,7 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
                 "Logické operátory nemohou být použity v rámci přiřazení do proměnné!", SEM_INVALID_TYPE_ERROR);
                 break;
             }
-            generate_operation(expr_var_counter, sym1, sym2, RR_EQ, comesFromFunction, context, jump_label);
+            generate_operation(expr_var_counter, sym1, sym2, RR_EQ, comesFromFunction, context, jump_label, functionPtr, globalFunctions);
             break;
         case SYM_NOTEQ:
             if (context == ASSIGNMENT || context == RETURN)
@@ -420,7 +418,7 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
                 "Logické operátory nemohou být použity v rámci přiřazení do proměnné!", SEM_INVALID_TYPE_ERROR);
                 break;
             }
-            generate_operation(expr_var_counter, sym1, sym2, RR_NOTEQ, comesFromFunction, context, jump_label);
+            generate_operation(expr_var_counter, sym1, sym2, RR_NOTEQ, comesFromFunction, context, jump_label, functionPtr, globalFunctions);
             break;
 
         //Pokud se nenajde vhodné pravidlo, neexistuje.

@@ -6,6 +6,19 @@ declare(strict_types=1);
 // $ccc = $bbb + 6;
 // write($ccc);
 
+function countdown (int $a) : int 
+{
+    while ($a !== 0)
+    {
+        write($a, "\n");
+        $a = $a - 1;
+    }
+    return 1;
+}
+
+$returned = countdown(5);
+write("returned: ",$returned, "\n");
+
 // $a = 5*(9+1);
 // write($a);
 // if ("ahoj" === "ahoj")
@@ -30,9 +43,6 @@ declare(strict_types=1);
 // }
 // foo(2, 1);
 
-$a = 3.0/2;
-$b = $a;
-write($b);
 
 //$a = 2 + 3;
 

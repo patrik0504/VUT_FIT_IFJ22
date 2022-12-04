@@ -95,7 +95,7 @@ int precedence_lookup(symbol_type stack_symbol, symbol_type input);
  *  @return Číslo pravidla pro redukci
 */
 reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_stack stack, p_lex_stack lex_stack, 
-    bool comesFromFunction, context context, int jump_label);
+    bool comesFromFunction, context context, int jump_label, p_node functionPtr, p_node globalFunctions);
 
 /** Funkce hledající další operaci dle tabulky
     @param symtable  Tabulka symbolů

@@ -187,10 +187,12 @@ void codeGenWhileEnd(int c);
  *  @param comesFromFunction Bool hodnota určující globální / lokální rámec
  *  @param context Kontext volání PSA
  *  @param jump_label Číslo ifu/whilu pro generování instrukce skoku
+ *  @param functionPtr Strom funkce
+ *  @param globalFunctions Globální strom
 */
 
 void generate_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, operation operation, 
-    bool comesFromFunction, gen_context context, int jump_label);
+    bool comesFromFunction, gen_context context, int jump_label, p_node functionPtr, p_node globalFunctions);
 
 /** Funkce pro výpis instrukcí pro operace řešené v PSA
  *  @param expr_var_count Count pro generaci unikátních ID pro dočasné proměnné
@@ -198,8 +200,11 @@ void generate_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, operatio
  *  @param sym2 Druhý operand operace 
  *  @param operation Číslo redukčního pravidla - operace mezi dvěma lexemy
  *  @param comesFromFunction Bool hodnota určující globální / lokální rámec
+ *  @param functionPtr Strom funkce
+ *  @param globalFunctions Globální strom
 */
-void operation_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* operation, bool comesFromFunction);
+void operation_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* operation, 
+    bool comesFromFunction, p_node functionPtr, p_node globalFunctions);
 
 /** Funkce pro výpis instrukcí pro operace >=, <=, apod.
  *  @param expr_var_count Count pro generaci unikátních ID pro dočasné proměnné
@@ -207,8 +212,11 @@ void operation_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, cha
  *  @param sym2 Druhý operand operace 
  *  @param operation Číslo redukčního pravidla - operace mezi dvěma lexemy
  *  @param comesFromFunction Bool hodnota určující globální / lokální rámec
+ *  @param functionPtr Strom funkce
+ *  @param globalFunctions Globální strom
 */
-void mixed_jump_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* operation, bool comesFromFunction);
+void mixed_jump_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* operation, 
+    bool comesFromFunction, p_node functionPtr, p_node globalFunctions);
 
 /** Pomocná funkce pro výpis jednotlivých symbolů u operací
  *  @param lexeme Lexém pro korespondující symbol
@@ -228,8 +236,11 @@ void expr_move(char* target, int source_var_count, bool comesFromFunction);
  *  @param sym1 Rozhodující symbol
  *  @param sym2 Rozhodující symbol
  *  @param comesFromFunction Bool hodnota určující globální / lokální rámec
+ *  @param functionPtr Strom funkce
+ *  @param globalFunctions Globální strom
 */
-void print_div(int expr_var_count, Lexeme* sym1, Lexeme* sym2, bool comesFromFunction);
+void print_div(int expr_var_count, Lexeme* sym1, Lexeme* sym2, 
+    bool comesFromFunction, p_node functionPtr, p_node globalFunctions);
 
 /** Pomocná funkce pro generování skoku pro if/while
  *  @param context Kontext generování
