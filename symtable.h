@@ -8,6 +8,9 @@ typedef enum{
     INT,
     FLOAT,
     STRING,
+    OPTIONALINT,
+    OPTIONALFLOAT,
+    OPTIONALSTRING,
     VOID
 }st_type;
 

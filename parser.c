@@ -85,6 +85,9 @@ int check_type(Lexeme *l)
         case KW_INT:
         case KW_FLOAT:
         case KW_STRING:
+        case KW_OPTIONALINT:
+        case KW_OPTIONALFLOAT:
+        case KW_OPTIONALSTRING:
         case KW_VOID:
             result = l->type;
             break;
@@ -983,6 +986,15 @@ p_data data_init_type(int type)
         case KW_STRING:
             type = STRING;
             break;
+        case KW_OPTIONALINT:
+            type = OPTIONALINT;
+            break;
+        case KW_OPTIONALFLOAT:
+            type = OPTIONALFLOAT;
+            break;
+        case KW_OPTIONALSTRING:
+            type = OPTIONALSTRING;
+            break;
         default:
             type = -1;
             break;
@@ -1018,6 +1030,15 @@ int lexeme_type_to_type(Lexeme *l)
             break;
         case KW_STRING:
             return STRING;
+            break;
+        case KW_OPTIONALINT:
+            return OPTIONALINT;
+            break;
+        case KW_OPTIONALFLOAT:
+            return OPTIONALFLOAT;
+            break;
+        case KW_OPTIONALSTRING:
+            return OPTIONALSTRING;
             break;
         case KW_VOID:
             return VOID;

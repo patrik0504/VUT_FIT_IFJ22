@@ -24,6 +24,12 @@ p_node init_binary_treeKW()
     insert_node(root, node9);
     p_node node10 = node_init(NULL, "function");
     insert_node(root, node10);
+    p_node node11 = node_init(NULL, "?int");
+    insert_node(root, node11);
+    p_node node12 = node_init(NULL, "?float");
+    insert_node(root, node12);
+    p_node node13 = node_init(NULL, "?string");
+    insert_node(root, node13);
     return root;
 }
 
@@ -599,10 +605,11 @@ char * str_lexeme(Lexeme in)
 
 void check_forKW(p_node root, Lexeme *l) 
 {
-    if(strcmp(l->extra_data.string, "?float") == 0 || strcmp(l->extra_data.string, "?int") == 0 || strcmp(l->extra_data.string, "?string") == 0)
+    /*if(strcmp(l->extra_data.string, "?float") == 0 || strcmp(l->extra_data.string, "?int") == 0 || strcmp(l->extra_data.string, "?string") == 0)
     {
         shiftLeft(l->extra_data.string , 1, strlen(l->extra_data.string));
     }
+    */
     p_node found = tree_search(root, l->extra_data.string);
 
     //Prehodenie typu lexému
@@ -614,36 +621,37 @@ void check_forKW(p_node root, Lexeme *l)
         } else if (strcmp(found->key, "if") == 0)
         {
             l->type = KW_IF;
-        }
-        else if (strcmp(found->key, "else") == 0)
+        } else if (strcmp(found->key, "else") == 0)
         {
             l->type = KW_ELSE;
-        }
-        else if (strcmp(found->key, "null") == 0)
+        } else if (strcmp(found->key, "null") == 0)
         {
             l->type = KW_NULL;
-        }
-        else if (strcmp(found->key, "return") == 0)
+        } else if (strcmp(found->key, "return") == 0)
         {
             l->type = KW_RETURN;
-        }
-        else if (strcmp(found->key, "void") == 0)
+        } else if (strcmp(found->key, "void") == 0)
         {
             l->type = KW_VOID;
-        }
-        else if (strcmp(found->key, "int") == 0)
+        } else if (strcmp(found->key, "int") == 0)
         {
             l->type = KW_INT;
-        }
-        else if (strcmp(found->key, "float") == 0)
+        } else if (strcmp(found->key, "float") == 0)
         {
             l->type = KW_FLOAT;
-        }
-        else if (strcmp(found->key, "string") == 0)
+        } else if (strcmp(found->key, "string") == 0)
         {
             l->type = KW_STRING;
-        }
-        else if (strcmp(found->key, "function") == 0)
+        } else if (strcmp(found->key, "?int") == 0)
+        {
+            l->type = KW_OPTIONALINT;
+        } else if (strcmp(found->key, "?float") == 0)
+        {
+            l->type = KW_OPTIONALFLOAT;
+        } else if (strcmp(found->key, "?string") == 0)
+        {
+            l->type = KW_OPTIONALSTRING;
+        } else if (strcmp(found->key, "function") == 0)
         {
             l->type = KW_FUNCTION;
         }
