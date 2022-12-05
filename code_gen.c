@@ -40,21 +40,21 @@ void printBuiltInFunctions()
 {
     printf("JUMP MAIN\n");
     /***************FUNCTION READS***************/
-    printf("LABEL READS\n");
+    printf("LABEL reads\n");
     printf("PUSHFRAME\n");
     printf("DEFVAR LF@**returnvar\n");
     printf("READ LF@**returnvar string\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
     /*****************FUNCTION READI******************/
-    printf("LABEL READI\n");
+    printf("LABEL readi\n");
     printf("PUSHFRAME\n");
     printf("DEFVAR LF@**returnvar\n");
     printf("READ LF@**returnvar int\n");
     printf("POPFRAME\n");
     printf("RETURN\n");
     /*****************FUNCTION READF******************/
-    printf("LABEL READF\n");
+    printf("LABEL readf\n");
     printf("PUSHFRAME\n");
     printf("DEFVAR LF@**returnvar\n");
     printf("READ LF@**returnvar float\n");
@@ -192,25 +192,6 @@ void printBuiltInFunctions()
     printf("LABEL MAIN\n");
     printf("JUMP MAINVARDECLARE\n");
     printf("LABEL MAINAFTERVARDECLARE\n");
-}
-
-
-void codeGenReads()
-{
-    printf("CREATEFRAME\n");
-    printf("CALL READS\n");
-}
-
-void codeGenReadi()
-{
-    printf("CREATEFRAME\n");
-    printf("CALL READI\n");
-}
-
-void codeGenReadf()
-{
-    printf("CREATEFRAME\n");
-    printf("CALL READF\n");
 }
 
 void createFrame()
