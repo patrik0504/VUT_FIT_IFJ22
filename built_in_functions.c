@@ -45,6 +45,9 @@ int writeString(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comes
         }else if (l->type == STRING_LITERAL)
         {
             evaluateEscapeSequencies(l);
+        } else if(l->type == NUMBER || l->type == DECIMAL_NUMBER || l->type == EXPONENT_NUMBER)
+        {
+            ok = true;
         } else
         {
             ok = false;
@@ -108,6 +111,9 @@ int writeString2(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool come
         } else if (l->type == STRING_LITERAL)
         {
             evaluateEscapeSequencies(l);
+        } else if(l->type == NUMBER || l->type == DECIMAL_NUMBER || l->type == EXPONENT_NUMBER)
+        {
+            ok = true;
         } else
         {
             ok = false;
