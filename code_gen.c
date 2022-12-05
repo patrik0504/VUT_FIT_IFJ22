@@ -374,23 +374,44 @@ void expr_move(char* target, int source_var_count, bool comesFromFunction)
 void generate_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, operation operation, 
 bool comesFromFunction, gen_context context, int jump_label, p_node functionPtr, p_node globalFunctions)
 {
-
+    int check = type_check(sym1, sym2);
     //Switch pro generaci jednotlivých operací
     switch (operation)
     {
     case RR_PLUS: //  +
-        if (type_check(sym1, sym2) == 0) return;
-        operation_print_symbols(expr_var_count, sym1, sym2, "ADD", comesFromFunction, functionPtr, globalFunctions);
+        if (check == 0)
+        {
+            // konverze na float
+            operation_print_symbols(expr_var_count, sym1, sym2, "ADD", comesFromFunction, functionPtr, globalFunctions, true);
+        }
+        else if (check == 1)
+        {
+            operation_print_symbols(expr_var_count, sym1, sym2, "ADD", comesFromFunction, functionPtr, globalFunctions, false);
+        }
         break;
-        
+
     case RR_MINUS: //  -
-        if (type_check(sym1, sym2) == 0) return;
-        operation_print_symbols(expr_var_count, sym1, sym2, "SUB", comesFromFunction, functionPtr, globalFunctions);
+        if (check == 0)
+        {
+            // konverze na float
+            operation_print_symbols(expr_var_count, sym1, sym2, "SUB", comesFromFunction, functionPtr, globalFunctions, true);
+        }
+        else if (check == 1)
+        {
+            operation_print_symbols(expr_var_count, sym1, sym2, "SUB", comesFromFunction, functionPtr, globalFunctions, false);
+        }
         break;
 
     case RR_MUL: //  *
-        if (type_check(sym1, sym2) == 0) return;
-        operation_print_symbols(expr_var_count, sym1, sym2, "MUL", comesFromFunction, functionPtr, globalFunctions);
+        if (check == 0)
+        {
+            // konverze na float
+            operation_print_symbols(expr_var_count, sym1, sym2, "MUL", comesFromFunction, functionPtr, globalFunctions, true);
+        }
+        else if (check == 1)
+        {
+            operation_print_symbols(expr_var_count, sym1, sym2, "MUL", comesFromFunction, functionPtr, globalFunctions, false);
+        }
         break;
         
     case RR_DIV: //  /
@@ -398,10 +419,10 @@ bool comesFromFunction, gen_context context, int jump_label, p_node functionPtr,
         break;
         
     case RR_CONCAT: //  .
-        operation_print_symbols(expr_var_count, sym1, sym2, "CONCAT", comesFromFunction, functionPtr, globalFunctions);
+        operation_print_symbols(expr_var_count, sym1, sym2, "CONCAT", comesFromFunction, functionPtr, globalFunctions, false);
         break;
     case RR_LESSER: //  <
-        operation_print_symbols(expr_var_count, sym1, sym2, "LT", comesFromFunction, functionPtr, globalFunctions);
+        operation_print_symbols(expr_var_count, sym1, sym2, "LT", comesFromFunction, functionPtr, globalFunctions, false);
         print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
         break;
     case RR_LESOREQ: //  <=
@@ -409,7 +430,7 @@ bool comesFromFunction, gen_context context, int jump_label, p_node functionPtr,
         print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
         break;
     case RR_GREATER: //  >
-        operation_print_symbols(expr_var_count, sym1, sym2, "GT", comesFromFunction, functionPtr, globalFunctions);
+        operation_print_symbols(expr_var_count, sym1, sym2, "GT", comesFromFunction, functionPtr, globalFunctions, false);
         print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
         break;
     case RR_GREOREQ: //  >=
@@ -417,11 +438,11 @@ bool comesFromFunction, gen_context context, int jump_label, p_node functionPtr,
         print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
         break;
     case RR_EQ: //  ===
-        operation_print_symbols(expr_var_count, sym1, sym2, "EQ", comesFromFunction, functionPtr, globalFunctions);
+        operation_print_symbols(expr_var_count, sym1, sym2, "EQ", comesFromFunction, functionPtr, globalFunctions, false);
         print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
         break;
     case RR_NOTEQ: //  !==
-        operation_print_symbols(expr_var_count, sym1, sym2, "EQ", comesFromFunction, functionPtr, globalFunctions);
+        operation_print_symbols(expr_var_count, sym1, sym2, "EQ", comesFromFunction, functionPtr, globalFunctions, false);
         print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "true");
         break;
 
@@ -440,23 +461,31 @@ void print_div(int expr_var_count, Lexeme* sym1, Lexeme* sym2, bool comesFromFun
         scope = "LF@";
     }
 
-    createFrame();
-    generateParam(1, sym1, comesFromFunction);
-    callFunction("floatval");
-    printf("MOVE %s$*%d_1 TF@**returnvar\n", scope, expr_var_count);
-
-    createFrame();
-    generateParam(1, sym2, comesFromFunction);
-    callFunction("floatval");
-    printf("MOVE %s$*%d_2 TF@**returnvar\n", scope, expr_var_count);
+    float_conversion(sym1, scope, expr_var_count, 1, comesFromFunction);
+    float_conversion(sym2, scope, expr_var_count, 2, comesFromFunction);
 
     printf("DIV %s$*%d %s$*%d_1 %s$*%d_2\n", scope, expr_var_count, scope, expr_var_count, scope, expr_var_count);
 }
 
-void operation_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* operation, bool comesFromFunction,
-    p_node functionPtr, p_node globalFunctions){
+void float_conversion(Lexeme *sym, char* scope, int expr_var_count, int helper_var_count, bool comesFromFunction)
+{
+    createFrame();
+    generateParam(1, sym, comesFromFunction);
+    callFunction("floatval");
+    printf("MOVE %s$*%d_%d TF@**returnvar\n", scope, expr_var_count, helper_var_count);
+}
 
-    define_comp_var(expr_var_count, comesFromFunction, functionPtr, globalFunctions);
+void operation_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* operation, bool comesFromFunction,
+    p_node functionPtr, p_node globalFunctions, bool float_conversion)
+{
+    if(float_conversion)
+    {
+        define_comp_var_with_helper(expr_var_count, comesFromFunction, functionPtr, globalFunctions);
+    }
+    else 
+    {
+        define_comp_var(expr_var_count, comesFromFunction, functionPtr, globalFunctions);
+    }
 
     char* scope;
     if (expr_var_count != -1)
@@ -473,7 +502,6 @@ void operation_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, cha
     }
 
     //Řešení - před závorkou
-    //TODO: Type konverze pro konstantu (int/float)
     if(sym1->type == EXPR && sym1->negative_num == true)
     {
         printf("SUB %s$*%d int@0 %s$*%d\n", scope, sym1->extra_data.value, scope, sym1->extra_data.value);
@@ -488,11 +516,21 @@ void operation_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, cha
     // Print operace a výstupní proměnné
     printf("%s %s$*%d ", operation, scope, expr_var_count);
 
+    if(float_conversion)
+    {
+            // Print prvního symbolu
+            print_single_symbol(sym1, scope, true, 1);
+
+            // Print druhého symbolu
+            print_single_symbol(sym2, scope, true, 2);
+            printf("\n");
+            return;
+    }
     // Print prvního symbolu
-    print_single_symbol(sym1, scope);
+    print_single_symbol(sym1, scope, false, 0);
 
     // Print druhého symbolu
-    print_single_symbol(sym2, scope);
+    print_single_symbol(sym2, scope, false, 0);
     printf("\n");
 }
 
@@ -597,16 +635,16 @@ void mixed_jump_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, ch
     printf("%s %s$*%d_1 ", operation, scope, expr_var_count);
 
     // Print prvního symbolu
-    print_single_symbol(sym1, scope);
+    print_single_symbol(sym1, scope, false, 0);
 
     // Print druhého symbolu
-    print_single_symbol(sym2, scope);
+    print_single_symbol(sym2, scope, false, 0);
     printf("\n");
 
     // Print operace rovnosti
     printf("EQ %s$*%d_2 ", scope, expr_var_count);
-    print_single_symbol(sym1, scope);
-    print_single_symbol(sym2, scope);
+    print_single_symbol(sym1, scope, false, 0);
+    print_single_symbol(sym2, scope, false, 0);
     printf("\n");
 
     // Print OR jednotlivých výsledků do dočasné výstupní proměnné
@@ -631,7 +669,12 @@ int type_check(Lexeme *sym1, Lexeme *sym2)
     else if ((sym1->type == DECIMAL_NUMBER || sym1->type == EXPONENT_NUMBER) && 
         !(sym2->type == DECIMAL_NUMBER || sym2->type == EXPONENT_NUMBER))
     {
-        
+        return 0;
+    }
+    else if ((sym2->type == DECIMAL_NUMBER || sym2->type == EXPONENT_NUMBER) && 
+        !(sym1->type == DECIMAL_NUMBER || sym1->type == EXPONENT_NUMBER))
+    {
+        return 0;
     }
     // ODTUD DOČASNÝ KÓD
     else if (sym1->type == VARIABLE_ID || sym2->type == VARIABLE_ID)
@@ -653,11 +696,11 @@ int type_check(Lexeme *sym1, Lexeme *sym2)
     else 
     {
         error(sym1->row, "Ve výrazu se nachází nekompatibilní datové typy!", SEM_INVALID_TYPE_ERROR);
-        return 0;
+        return -1;
     }
 }
 
-void print_single_symbol(Lexeme* lexeme, char* scope)
+void print_single_symbol(Lexeme* lexeme, char* scope, bool is_helper, int helper_var_count)
 {
     char* minus = "";
     if(lexeme->negative_num == true)
@@ -668,12 +711,22 @@ void print_single_symbol(Lexeme* lexeme, char* scope)
     switch (lexeme->type)
     {
     case EXPR: // Enum symbolizující expression (ve value je uloženo číslo compiler proměnné)
+        if (is_helper)
+        {
+            printf("%s$*%d_%d ", scope, lexeme->extra_data.value, helper_var_count);
+            break;
+        }
         printf("%s$*%d ", scope, lexeme->extra_data.value);
         break;
     case VARIABLE_ID:
         printf("%s$%s ", scope, lexeme->extra_data.string);
         break;
     case NUMBER:
+        if (is_helper)
+        {
+            printf("float@%s%a ", minus, (double)lexeme->extra_data.value);
+            break;
+        }
         printf("int@%s%d ", minus, lexeme->extra_data.value);
         // printf("negative flag: %d\n", lexeme->negative_num);
         break;

@@ -194,6 +194,8 @@ void codeGenWhileEnd(int c);
 void generate_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, operation operation, 
     bool comesFromFunction, gen_context context, int jump_label, p_node functionPtr, p_node globalFunctions);
 
+void float_conversion(Lexeme *sym, char* scope, int expr_var_count, int helper_var_count, bool comesFromFunction);
+
 /** Funkce pro výpis instrukcí pro operace řešené v PSA
  *  @param expr_var_count Count pro generaci unikátních ID pro dočasné proměnné
  *  @param sym1 První operand operace
@@ -203,8 +205,8 @@ void generate_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, operatio
  *  @param functionPtr Strom funkce
  *  @param globalFunctions Globální strom
 */
-void operation_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* operation, 
-    bool comesFromFunction, p_node functionPtr, p_node globalFunctions);
+void operation_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* operation, bool comesFromFunction,
+    p_node functionPtr, p_node globalFunctions, bool float_conversion);
 
 void define_comp_var(int expr_var_count, bool comesFromFunction, p_node functionPtr, p_node globalFunctions);
 
@@ -226,7 +228,7 @@ void mixed_jump_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, ch
  * Funkce kontrolující kompatibilitu datových typů.
  * @param sym1 Lexém prvního symbolu
  * @param sym2 Lexém druhého symbolu
- * @return 1 (true) pokud jsou symboly kompatibilní, jinak 0
+ * @return 1 pokud jsou symboly kompatibilní, 0 pokud je možná float konverze, -1 při chybě
 */
 int type_check(Lexeme *sym1, Lexeme *sym2);
 
@@ -234,7 +236,7 @@ int type_check(Lexeme *sym1, Lexeme *sym2);
  *  @param lexeme Lexém pro korespondující symbol
  *  @param scope  Buď "LF@" nebo "GF@" v závislosti na kontextu
 */
-void print_single_symbol(Lexeme* lexeme, char* scope);
+void print_single_symbol(Lexeme* lexeme, char* scope, bool is_helper, int helper_var_count);
 
 /** Funkce pro uložení výsledku ze source do target
  *  @param target Název proměnné kam ukládáme
