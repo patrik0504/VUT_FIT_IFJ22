@@ -5,9 +5,10 @@ declare(strict_types=1);
 // $bbb = $a + 20 - 7;
 // $ccc = $bbb + 6;
 // write($ccc);
-$a = 2+3;
-$b = $a+2+6.0;
-write($b);
+$a = 1.5;
+$aa = 1;
+$b = $a * null + "ahoj";
+write($a, "\n", $aa, "\n", $b, "\n");
 // function countdown (float $a) : int 
 // {
 //     while ($a !== 1.0)

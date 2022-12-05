@@ -196,6 +196,9 @@ void generate_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, operatio
 
 void float_conversion(Lexeme *sym, char* scope, int expr_var_count, int helper_var_count, bool comesFromFunction);
 
+void type_checked_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* operation, bool comesFromFunction,
+    p_node functionPtr, p_node globalFunctions);
+
 /** Funkce pro výpis instrukcí pro operace řešené v PSA
  *  @param expr_var_count Count pro generaci unikátních ID pro dočasné proměnné
  *  @param sym1 První operand operace
@@ -211,6 +214,8 @@ void operation_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, cha
 void define_comp_var(int expr_var_count, bool comesFromFunction, p_node functionPtr, p_node globalFunctions);
 
 void define_comp_var_with_helper(int expr_var_count, bool comesFromFunction, p_node functionPtr, p_node globalFunctions);
+
+void define_vars_for_typecheck(int expr_var_count, bool comesFromFunction, p_node functionPtr, p_node globalFunctions);
 
 /** Funkce pro výpis instrukcí pro operace >=, <=, apod.
  *  @param expr_var_count Count pro generaci unikátních ID pro dočasné proměnné
@@ -228,7 +233,8 @@ void mixed_jump_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, ch
  * Funkce kontrolující kompatibilitu datových typů.
  * @param sym1 Lexém prvního symbolu
  * @param sym2 Lexém druhého symbolu
- * @return 1 pokud jsou symboly kompatibilní, 0 pokud je možná float konverze, -1 při chybě
+ * @return 2 pokud je třeba udělat kontrolu proměnných, 1 pokud jsou symboly kompatibilní, 
+ *         0 pokud je možná float konverze, -1 při chybě
 */
 int type_check(Lexeme *sym1, Lexeme *sym2);
 
@@ -244,17 +250,6 @@ void print_single_symbol(Lexeme* lexeme, char* scope, bool is_helper, int helper
  *  @param comesFromFunction Bool hodnota určující globální / lokální rámec
 */
 void expr_move(char* target, int source_var_count, bool comesFromFunction);
-
-/** Pomocná funkce pro generování dělení
- *  @param expr_var_count Count pro generaci unikátních ID pro dočasné proměnné
- *  @param sym1 Rozhodující symbol
- *  @param sym2 Rozhodující symbol
- *  @param comesFromFunction Bool hodnota určující globální / lokální rámec
- *  @param functionPtr Strom funkce
- *  @param globalFunctions Globální strom
-*/
-void print_div(int expr_var_count, Lexeme* sym1, Lexeme* sym2, 
-    bool comesFromFunction, p_node functionPtr, p_node globalFunctions);
 
 /** Pomocná funkce pro generování skoku pro if/while
  *  @param context Kontext generování
