@@ -6,18 +6,24 @@ declare(strict_types=1);
 // $ccc = $bbb + 6;
 // write($ccc);
 
-function countdown (int $a) : int 
+function countdown (float $a) : int 
 {
-    while ($a !== 0)
+    while ($a !== 1.0)
     {
         write($a, "\n");
-        $a = $a - 1;
+        $a = $a / 2;
     }
     return 1;
 }
-
-$returned = countdown(5);
-write("returned: ",$returned, "\n");
+if ( 2 < 0)
+{
+$returned = countdown(4.0);
+}
+else {
+$string = "asdad";
+$concat = $string . "haha" . "brrr";
+write("returned: ",$concat, "\n");
+}
 
 // $a = 5*(9+1);
 // write($a);

@@ -51,14 +51,6 @@ int expr(context context, int jump_label, p_node symtable, Lexeme *target, char 
     p_node globalFunctions, bool comesFromFunction, p_node functionPtr);
 
 /**
- * Funkce kontrolující kompatibilitu datových typů.
- * @param sym1 Lexém prvního symbolu
- * @param sym2 Lexém druhého symbolu
- * @return 1 (true) pokud jsou symboly kompatibilní, jinak 0
-*/
-int type_check(Lexeme *sym1, Lexeme *sym2);
-
-/**
  * Funkce v závislosti na kontextu určí, zda má být PSA ukončena.
  * @param context Kontext, ve kterém je PSA zavolána (přiřazení, volání funkce/vyhodnocení podmínky)
  * @param lexeme Ukazatel na aktuální lexém
