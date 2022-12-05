@@ -5,13 +5,13 @@ declare(strict_types=1);
 // $bbb = $a + 20 - 7;
 // $ccc = $bbb + 6;
 // write($ccc);
-$a = 2+-(1+2.0);
-$aa = 1;
-$b = "asa";
+// $a = 2+-(1+2.0);
+// $aa = 1;
+$b = 1;
 $c = "lss";
-$asd = $b . $c;
+$asd = $b . $c . null;
 //$b = $a * null + "ahoj";
-write($a, "\n", $asd, "\n");
+write($asd, "\n");
 // function countdown (float $a) : int 
 // {
 //     while ($a !== 1.0)

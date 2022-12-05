@@ -196,6 +196,11 @@ void generate_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, operatio
 
 void float_conversion(Lexeme *sym, char* scope, int expr_var_count, int helper_var_count, bool comesFromFunction);
 
+void fill_in_type_vars(Lexeme* sym1, Lexeme* sym2, char* scope, int expr_var_count);
+
+void generate_concat(int expr_var_count, Lexeme* sym1, Lexeme* sym2, bool comesFromFunction,
+    p_node functionPtr, p_node globalFunctions);
+
 void type_checked_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* operation, bool comesFromFunction,
     p_node functionPtr, p_node globalFunctions);
 

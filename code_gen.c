@@ -449,7 +449,8 @@ bool comesFromFunction, gen_context context, int jump_label, p_node functionPtr,
         break;
         
     case RR_CONCAT: //  .
-        operation_print_symbols(expr_var_count, sym1, sym2, "CONCAT", comesFromFunction, functionPtr, globalFunctions, false);
+        generate_concat(expr_var_count, sym1, sym2, comesFromFunction, functionPtr, globalFunctions);
+        // operation_print_symbols(expr_var_count, sym1, sym2, "CONCAT", comesFromFunction, functionPtr, globalFunctions, false);
         break;
     case RR_LESSER: //  <
         operation_print_symbols(expr_var_count, sym1, sym2, "LT", comesFromFunction, functionPtr, globalFunctions, false);
@@ -489,26 +490,8 @@ void float_conversion(Lexeme *sym, char* scope, int expr_var_count, int helper_v
     printf("MOVE %s$*%d_%d TF@**returnvar\n", scope, expr_var_count, helper_var_count);
 }
 
-void type_checked_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* operation, bool comesFromFunction,
-    p_node functionPtr, p_node globalFunctions)
+void fill_in_type_vars(Lexeme* sym1, Lexeme* sym2, char* scope, int expr_var_count)
 {
-    define_comp_var_with_helper(expr_var_count, comesFromFunction, functionPtr, globalFunctions);
-    define_vars_for_typecheck(expr_var_count, comesFromFunction, functionPtr, globalFunctions);
-
-    char* scope;
-    if (expr_var_count != -1)
-    {
-        if (comesFromFunction)
-        {
-            // Nastavení kontextu
-            scope = "LF@";
-        }
-        else
-        {
-            scope = "GF@";
-        }
-    }
-
     switch (sym1->type)
     {
     case EXPR:
@@ -558,6 +541,95 @@ void type_checked_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char
     default:
         break;
     }
+}
+
+void generate_concat(int expr_var_count, Lexeme* sym1, Lexeme* sym2, bool comesFromFunction,
+    p_node functionPtr, p_node globalFunctions)
+{
+    define_comp_var_with_helper(expr_var_count, comesFromFunction, functionPtr, globalFunctions);
+    define_vars_for_typecheck(expr_var_count, comesFromFunction, functionPtr, globalFunctions);
+
+    char* scope;
+    if (expr_var_count != -1)
+    {
+        if (comesFromFunction)
+        {
+            // Nastavení kontextu
+            scope = "LF@";
+        }
+        else
+        {
+            scope = "GF@";
+        }
+    }
+
+    fill_in_type_vars(sym1, sym2, scope, expr_var_count);
+    
+    printf("JUMPIFEQ *typerr %s$*%d_type1 string@int\n", scope, expr_var_count);
+    printf("JUMPIFEQ *typerr %s$*%d_type2 string@int\n", scope, expr_var_count);
+    printf("JUMPIFEQ *typerr %s$*%d_type1 string@float\n", scope, expr_var_count);
+    printf("JUMPIFEQ *typerr %s$*%d_type2 string@float\n", scope, expr_var_count);
+
+    switch (sym1->type)
+    {
+    case KW_NULL:
+        printf("MOVE %s$*%d_1 string@\n", scope, expr_var_count);
+        break;
+    case STRING_LITERAL:
+        printf("MOVE %s$*%d_1 string@%s\n", scope, expr_var_count, sym1->extra_data.string);
+        break;
+    case EXPR:
+        printf("MOVE %s$*%d_1 %s$*%d\n", scope, expr_var_count, scope, sym1->extra_data.value);
+        break;
+    case VARIABLE_ID:
+        printf("MOVE %s$*%d_1 %s$%s\n", scope, expr_var_count, scope, sym1->extra_data.string);
+        break;
+    default:
+        break;
+    }
+    
+    switch (sym2->type)
+    {
+    case KW_NULL:
+        printf("MOVE %s$*%d_2 string@\n", scope, expr_var_count);
+        break;
+    case STRING_LITERAL:
+        printf("MOVE %s$*%d_2 string@%s\n", scope, expr_var_count, sym2->extra_data.string);
+        break;
+    case EXPR:
+        printf("MOVE %s$*%d_2 %s$*%d\n", scope, expr_var_count, scope, sym2->extra_data.value);
+        break;
+    case VARIABLE_ID:
+        printf("MOVE %s$*%d_2 %s$%s\n", scope, expr_var_count, scope, sym2->extra_data.string);
+        break;
+    default:
+        break;
+    }
+
+    printf("CONCAT %s$*%d %s$*%d_1 %s$*%d_2\n", scope, expr_var_count, scope, expr_var_count, scope, expr_var_count);
+}
+
+void type_checked_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* operation, bool comesFromFunction,
+    p_node functionPtr, p_node globalFunctions)
+{
+    define_comp_var_with_helper(expr_var_count, comesFromFunction, functionPtr, globalFunctions);
+    define_vars_for_typecheck(expr_var_count, comesFromFunction, functionPtr, globalFunctions);
+
+    char* scope;
+    if (expr_var_count != -1)
+    {
+        if (comesFromFunction)
+        {
+            // Nastavení kontextu
+            scope = "LF@";
+        }
+        else
+        {
+            scope = "GF@";
+        }
+    }
+
+    fill_in_type_vars(sym1, sym2, scope, expr_var_count);
 
     // Testování na stringy (error)
     printf("JUMPIFEQ *typerr %s$*%d_type1 string@string\n", scope, expr_var_count);
