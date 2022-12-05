@@ -190,19 +190,49 @@ void codeGenWhileEnd(int c);
  *  @param functionPtr Strom funkce
  *  @param globalFunctions Globální strom
 */
-
 void generate_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, operation operation, 
     bool comesFromFunction, gen_context context, int jump_label, p_node functionPtr, p_node globalFunctions);
 
+/** Funkce pro float konverzi
+ *  @param sym Konvertovaný symbol
+ *  @param scope  Buď "LF@" nebo "GF@" v závislosti na local/global framu
+ *  @param expr_var_count Count pro generaci unikátních ID pro dočasné proměnné
+ *  @param helper_var_count Counter pomocných proměnných
+ *  @param comesFromFunction Bool hodnota určující globální / lokální rámec
+*/
 void float_conversion(Lexeme *sym, char* scope, int expr_var_count, int helper_var_count, bool comesFromFunction);
 
+/** Funkce pro naplnění typů pro sym1, sym2
+ *  @param sym1 První operand operace
+ *  @param sym2 Druhý operand operace 
+ *  @param scope  Buď "LF@" nebo "GF@" v závislosti na local/global framu
+ *  @param expr_var_count Count pro generaci unikátních ID pro dočasné proměnné
+*/
 void fill_in_type_vars(Lexeme* sym1, Lexeme* sym2, char* scope, int expr_var_count);
 
+/** Funkce pro generaci konkatenace
+ *  @param expr_var_count Count pro generaci unikátních ID pro dočasné proměnné
+ *  @param sym1 První operand operace
+ *  @param sym2 Druhý operand operace 
+ *  @param comesFromFunction Bool hodnota určující globální / lokální rámec
+ *  @param functionPtr Strom funkce
+ *  @param globalFunctions Globální strom
+*/
 void generate_concat(int expr_var_count, Lexeme* sym1, Lexeme* sym2, bool comesFromFunction,
     p_node functionPtr, p_node globalFunctions);
 
+/** Funkce pro generace operace se zkontrolovanými typy
+ *  @param expr_var_count Count pro generaci unikátních ID pro dočasné proměnné
+ *  @param sym1 První operand operace
+ *  @param sym2 Druhý operand operace
+ *  @param operation  Číslo redukčního pravidla - operace mezi dvěma lexemy
+ *  @param comesFromFunction  Bool hodnota určující globální / lokální rámec
+ *  @param functionPtr  Strom funkce
+ *  @param globalFunctions  Globální strom
+ *  @param or_equals  Bool označující kombinování operací > || = nebo < || =
+*/
 void type_checked_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* operation, bool comesFromFunction,
-    p_node functionPtr, p_node globalFunctions);
+    p_node functionPtr, p_node globalFunctions, bool or_equals);
 
 /** Funkce pro výpis instrukcí pro operace řešené v PSA
  *  @param expr_var_count Count pro generaci unikátních ID pro dočasné proměnné
@@ -212,14 +242,35 @@ void type_checked_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char
  *  @param comesFromFunction Bool hodnota určující globální / lokální rámec
  *  @param functionPtr Strom funkce
  *  @param globalFunctions Globální strom
+ *  @param float_conversion Flag indikující potřebu konverze na typ float
 */
 void operation_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* operation, bool comesFromFunction,
     p_node functionPtr, p_node globalFunctions, bool float_conversion);
 
+/** Pomocná funkce pro definici compiler proměnné
+ *  @param expr_var_count Count pro generaci unikátních ID pro dočasné proměnné
+ *  @param comesFromFunction Bool hodnota určující globální / lokální rámec
+ *  @param functionPtr Strom funkce
+ *  @param globalFunctions Globální strom
+*/
 void define_comp_var(int expr_var_count, bool comesFromFunction, p_node functionPtr, p_node globalFunctions);
 
-void define_comp_var_with_helper(int expr_var_count, bool comesFromFunction, p_node functionPtr, p_node globalFunctions);
+/** Funkce pro generaci compiler proměnné a dvou (až tří) pomocných
+ *  @param expr_var_count Count pro generaci unikátních ID pro dočasné proměnné
+ *  @param comesFromFunction  Bool hodnota určující globální / lokální rámec
+ *  @param functionPtr  Strom funkce
+ *  @param globalFunctions  Globální strom
+ *  @param or_equal  Bool označující kombinování operací > || = nebo < || = (true vygeneruje 3. pomocnou proměnnou)
+*/
+void define_comp_var_with_helper(int expr_var_count, bool comesFromFunction, 
+    p_node functionPtr, p_node globalFunctions, bool or_equal);
 
+/** Funkce pro nadefinování proměných pro type_check
+ *  @param expr_var_count Count pro generaci unikátních ID pro dočasné proměnné
+ *  @param comesFromFunction  Bool hodnota určující globální / lokální rámec
+ *  @param functionPtr  Strom funkce
+ *  @param globalFunctions  Globální strom
+*/
 void define_vars_for_typecheck(int expr_var_count, bool comesFromFunction, p_node functionPtr, p_node globalFunctions);
 
 /** Funkce pro výpis instrukcí pro operace >=, <=, apod.
@@ -246,6 +297,8 @@ int type_check(Lexeme *sym1, Lexeme *sym2);
 /** Pomocná funkce pro výpis jednotlivých symbolů u operací
  *  @param lexeme Lexém pro korespondující symbol
  *  @param scope  Buď "LF@" nebo "GF@" v závislosti na kontextu
+ *  @param is_helper True, když je tisknutý symbol pomocná proměnná
+ *  @param helper_var_count Číslo pomocné proměnné
 */
 void print_single_symbol(Lexeme* lexeme, char* scope, bool is_helper, int helper_var_count);
 
@@ -259,8 +312,8 @@ void expr_move(char* target, int source_var_count, bool comesFromFunction);
 /** Pomocná funkce pro generování skoku pro if/while
  *  @param context Kontext generování
  *  @param jump_label Číslo ifu/whilu
- *  @param comesFromFunction Bool hodnota určující globální / lokální rámec
  *  @param expr_var_count Count pro generaci unikátních ID pro dočasné proměnné
+ *  @param comesFromFunction Bool hodnota určující globální / lokální rámec
  *  @param skip_on String nastavený na "true" pro operaci !==, jinak "false"
 */
 void print_expr_jump(gen_context context, int jump_label, int expr_var_count, bool comesFromFunction, char* skip_on);

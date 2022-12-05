@@ -406,7 +406,7 @@ bool comesFromFunction, gen_context context, int jump_label, p_node functionPtr,
         else if (check == 2)
         {
             // Dynamická kontrola typů
-            type_checked_operation(expr_var_count, sym1, sym2, "ADD", comesFromFunction, functionPtr, globalFunctions);
+            type_checked_operation(expr_var_count, sym1, sym2, "ADD", comesFromFunction, functionPtr, globalFunctions, false);
         }
         break;
 
@@ -423,7 +423,7 @@ bool comesFromFunction, gen_context context, int jump_label, p_node functionPtr,
         else if (check == 2)
         {
             // Dynamická kontrola typů
-            type_checked_operation(expr_var_count, sym1, sym2, "SUB", comesFromFunction, functionPtr, globalFunctions);
+            type_checked_operation(expr_var_count, sym1, sym2, "SUB", comesFromFunction, functionPtr, globalFunctions, false);
         }
         break;
 
@@ -440,7 +440,7 @@ bool comesFromFunction, gen_context context, int jump_label, p_node functionPtr,
         else if (check == 2)
         {
             // Dynamická kontrola typů
-            type_checked_operation(expr_var_count, sym1, sym2, "MUL", comesFromFunction, functionPtr, globalFunctions);
+            type_checked_operation(expr_var_count, sym1, sym2, "MUL", comesFromFunction, functionPtr, globalFunctions, false);
         }
         break;
         
@@ -453,27 +453,96 @@ bool comesFromFunction, gen_context context, int jump_label, p_node functionPtr,
         // operation_print_symbols(expr_var_count, sym1, sym2, "CONCAT", comesFromFunction, functionPtr, globalFunctions, false);
         break;
     case RR_LESSER: //  <
-        operation_print_symbols(expr_var_count, sym1, sym2, "LT", comesFromFunction, functionPtr, globalFunctions, false);
+        if (check == 0)
+        {
+            // konverze na float
+            operation_print_symbols(expr_var_count, sym1, sym2, "LT", comesFromFunction, functionPtr, globalFunctions, true);
+        }
+        else if (check == 1)
+        {
+            operation_print_symbols(expr_var_count, sym1, sym2, "LT", comesFromFunction, functionPtr, globalFunctions, false);
+        }
+        else if (check == 2)
+        {
+            // Dynamická kontrola typů
+            type_checked_operation(expr_var_count, sym1, sym2, "LT", comesFromFunction, functionPtr, globalFunctions, false);
+        }
+        // Print jumpu
         print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
         break;
     case RR_LESOREQ: //  <=
-        mixed_jump_print_symbols(expr_var_count, sym1, sym2, "LT", comesFromFunction, functionPtr, globalFunctions);
+        if (check == 1)
+        {
+            mixed_jump_print_symbols(expr_var_count, sym1, sym2, "LT", comesFromFunction, functionPtr, globalFunctions);
+        }
+        else if (check == 2 || check == 0)
+        {
+            // Dynamická kontrola typů
+            type_checked_operation(expr_var_count, sym1, sym2, "LT", comesFromFunction, functionPtr, globalFunctions, true);
+        }
         print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
         break;
     case RR_GREATER: //  >
-        operation_print_symbols(expr_var_count, sym1, sym2, "GT", comesFromFunction, functionPtr, globalFunctions, false);
+        if (check == 0)
+        {
+            // konverze na float
+            operation_print_symbols(expr_var_count, sym1, sym2, "GT", comesFromFunction, functionPtr, globalFunctions, true);
+        }
+        else if (check == 1)
+        {
+            operation_print_symbols(expr_var_count, sym1, sym2, "GT", comesFromFunction, functionPtr, globalFunctions, false);
+        }
+        else if (check == 2)
+        {
+            // Dynamická kontrola typů
+            type_checked_operation(expr_var_count, sym1, sym2, "GT", comesFromFunction, functionPtr, globalFunctions, false);
+        }
         print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
         break;
     case RR_GREOREQ: //  >=
-        mixed_jump_print_symbols(expr_var_count, sym1, sym2, "GT", comesFromFunction, functionPtr, globalFunctions);
+        if (check == 1)
+        {
+            mixed_jump_print_symbols(expr_var_count, sym1, sym2, "GT", comesFromFunction, functionPtr, globalFunctions);
+        }
+        else if (check == 2 || check == 0)
+        {
+            // Dynamická kontrola typů
+            type_checked_operation(expr_var_count, sym1, sym2, "GT", comesFromFunction, functionPtr, globalFunctions, true);
+        }
         print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
         break;
     case RR_EQ: //  ===
-        operation_print_symbols(expr_var_count, sym1, sym2, "EQ", comesFromFunction, functionPtr, globalFunctions, false);
+        if (check == 0)
+        {
+            // konverze na float
+            operation_print_symbols(expr_var_count, sym1, sym2, "EQ", comesFromFunction, functionPtr, globalFunctions, true);
+        }
+        else if (check == 1)
+        {
+            operation_print_symbols(expr_var_count, sym1, sym2, "EQ", comesFromFunction, functionPtr, globalFunctions, false);
+        }
+        else if (check == 2)
+        {
+            // Dynamická kontrola typů
+            type_checked_operation(expr_var_count, sym1, sym2, "EQ", comesFromFunction, functionPtr, globalFunctions, false);
+        }
         print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
         break;
     case RR_NOTEQ: //  !==
-        operation_print_symbols(expr_var_count, sym1, sym2, "EQ", comesFromFunction, functionPtr, globalFunctions, false);
+        if (check == 0)
+        {
+            // konverze na float
+            operation_print_symbols(expr_var_count, sym1, sym2, "EQ", comesFromFunction, functionPtr, globalFunctions, true);
+        }
+        else if (check == 1)
+        {
+            operation_print_symbols(expr_var_count, sym1, sym2, "EQ", comesFromFunction, functionPtr, globalFunctions, false);
+        }
+        else if (check == 2)
+        {
+            // Dynamická kontrola typů
+            type_checked_operation(expr_var_count, sym1, sym2, "EQ", comesFromFunction, functionPtr, globalFunctions, false);
+        }
         print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "true");
         break;
 
@@ -546,7 +615,7 @@ void fill_in_type_vars(Lexeme* sym1, Lexeme* sym2, char* scope, int expr_var_cou
 void generate_concat(int expr_var_count, Lexeme* sym1, Lexeme* sym2, bool comesFromFunction,
     p_node functionPtr, p_node globalFunctions)
 {
-    define_comp_var_with_helper(expr_var_count, comesFromFunction, functionPtr, globalFunctions);
+    define_comp_var_with_helper(expr_var_count, comesFromFunction, functionPtr, globalFunctions, false);
     define_vars_for_typecheck(expr_var_count, comesFromFunction, functionPtr, globalFunctions);
 
     char* scope;
@@ -610,9 +679,9 @@ void generate_concat(int expr_var_count, Lexeme* sym1, Lexeme* sym2, bool comesF
 }
 
 void type_checked_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* operation, bool comesFromFunction,
-    p_node functionPtr, p_node globalFunctions)
+    p_node functionPtr, p_node globalFunctions, bool or_equals)
 {
-    define_comp_var_with_helper(expr_var_count, comesFromFunction, functionPtr, globalFunctions);
+    define_comp_var_with_helper(expr_var_count, comesFromFunction, functionPtr, globalFunctions, or_equals);
     define_vars_for_typecheck(expr_var_count, comesFromFunction, functionPtr, globalFunctions);
 
     char* scope;
@@ -715,6 +784,11 @@ void type_checked_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char
     printf("LABEL *op%dend\n", expr_var_count);
     printf("%s %s$*%d %s$*%d_1 %s$*%d_2\n", operation, scope, expr_var_count, scope, expr_var_count, scope, expr_var_count);
 
+    if(or_equals == true)
+    {
+        printf("EQ %s$*%d_3 %s$*%d_1 %s$*%d_2\n", scope, expr_var_count, scope, expr_var_count, scope, expr_var_count);
+        printf("OR %s$*%d %s$*%d %s$*%d_3\n", scope, expr_var_count, scope, expr_var_count, scope, expr_var_count);
+    }
 }
 
 void operation_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* operation, bool comesFromFunction,
@@ -722,7 +796,7 @@ void operation_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, cha
 {
     if(float_conversion)
     {
-        define_comp_var_with_helper(expr_var_count, comesFromFunction, functionPtr, globalFunctions);
+        define_comp_var_with_helper(expr_var_count, comesFromFunction, functionPtr, globalFunctions, false);
     }
     else 
     {
@@ -800,7 +874,8 @@ void define_comp_var(int expr_var_count, bool comesFromFunction, p_node function
     }
 }
 
-void define_comp_var_with_helper(int expr_var_count, bool comesFromFunction, p_node functionPtr, p_node globalFunctions)
+void define_comp_var_with_helper(int expr_var_count, bool comesFromFunction, 
+    p_node functionPtr, p_node globalFunctions, bool or_equal)
 {
     p_data data = data_init();
     p_data data_fl1 = data_init();
@@ -845,6 +920,16 @@ void define_comp_var_with_helper(int expr_var_count, bool comesFromFunction, p_n
             insert_node(globalFunctions->data->elements, fl_var_1);
             insert_node(globalFunctions->data->elements, fl_var_2);
         }
+    }
+
+    if(or_equal == true)
+    {
+        p_data data_fl3 = data_init();
+        char* fl3_var_name = malloc(sizeof(char)*20);
+        snprintf(fl3_var_name, 20, "*%d_3", expr_var_count);
+        p_node fl_var_3 = node_init(data_fl3, fl3_var_name);
+        if(comesFromFunction) insert_node(functionPtr->data->elements, fl_var_3);
+        else insert_node(globalFunctions->data->elements, fl_var_3);
     }
 }
 
@@ -894,7 +979,7 @@ void mixed_jump_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, ch
     char* scope = "GF@";
     if (expr_var_count != -1)
     {
-        define_comp_var_with_helper(expr_var_count, comesFromFunction, functionPtr, globalFunctions);
+        define_comp_var_with_helper(expr_var_count, comesFromFunction, functionPtr, globalFunctions, false);
         if(comesFromFunction)
         {
             scope = "LF@";
