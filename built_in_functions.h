@@ -53,37 +53,5 @@ void replaceEscapeSequenceByNumber(char *buffer, char c);
  */
 void evaluateEscapeSequencies(Lexeme *l);
 
-/**
- * Funkce kontrolující syntaxi při volání built-in funkce reads
- * @param l Ukazatel na aktuální token
- * @param binaryTree Binární strom obsahující keywords, potřeba pro scanner při volání get_token
- * @param globalFunctions Binární strom obsahující data celého programu (built-in funkce, deklarované funkce, všechny proměnné apod)
- * @param comesFromFunction True pokud byl write volán ve funkci, false pokud v hlavním těle programu
- * @param functionPtr Ukazatel na binární strom funkce
- * @return Vrací 1, pokud kontrola proběhla v pořádku, 0, pokud ne 
- */
-int builtInReads(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr);
-
-/**
- * Funkce kontrolující syntaxi při volání built-in funkce readi
- * @param l Ukazatel na aktuální token
- * @param binaryTree Binární strom obsahující keywords, potřeba pro scanner při volání get_token
- * @param globalFunctions Binární strom obsahující data celého programu (built-in funkce, deklarované funkce, všechny proměnné apod)
- * @param comesFromFunction True pokud byl write volán ve funkci, false pokud v hlavním těle programu
- * @param functionPtr Ukazatel na binární strom funkce
- * @return Vrací 1, pokud kontrola proběhla v pořádku, 0, pokud ne   
- */
-int builtInReadi(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr);
-
-/**
- * Funkce kontrolující syntaxi při volání built-in funkce readf
- * @param l Ukazatel na aktuální token
- * @param binaryTree Binární strom obsahující keywords, potřeba pro scanner při volání get_token
- * @param globalFunctions Binární strom obsahující data celého programu (built-in funkce, deklarované funkce, všechny proměnné apod)
- * @param comesFromFunction True pokud byl write volán ve funkci, false pokud v hlavním těle programu
- * @param functionPtr Ukazatel na binární strom funkce
- * @return Vrací 1, pokud kontrola proběhla v pořádku, 0, pokud ne   
- */
-int builtInReadf(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr);
 
 #endif

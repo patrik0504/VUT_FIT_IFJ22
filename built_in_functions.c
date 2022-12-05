@@ -180,7 +180,7 @@ void evaluateEscapeSequencies(Lexeme *l)
     }
 }
 
-int builtInReads(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr)
+/*int builtInReads(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr)
 {
     int result = 0;
     *l = get_token(binaryTree);
@@ -259,5 +259,5 @@ int builtInReadf(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool come
         result = 0;
     }
     return result;
-}
+}*/
 

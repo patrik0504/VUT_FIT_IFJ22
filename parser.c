@@ -306,18 +306,6 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
         {
             result = writeString(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
             return result;
-        } else if (strcmp(node->key, "reads") == 0)
-        {
-            result = builtInReads(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
-            return result;
-        } else if (strcmp(node->key, "readi") == 0)
-        {
-            result = builtInReadi(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
-            return result;
-        } else if (strcmp(node->key, "readf") == 0)
-        {
-            result = builtInReadf(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
-            return result;
         }
         *l = get_token(binaryTree);
         
@@ -1054,6 +1042,7 @@ int lexeme_type_to_type(Lexeme *l)
 
 void set_params_in_builtin_functions(p_node binaryTree)
 {
+
     /*************FUNCTION STRLEN**********************/
     p_node function = tree_search(binaryTree, "strlen");
     p_data data = data_init_type(KW_STRING);
@@ -1135,11 +1124,19 @@ p_node init_global_function()
     insert_node(root, node10);
     p_node node11 = node_init(data, "write");
     insert_node(root, node11);
-    p_node node12 = node_init(data, "reads");
+    p_data datareads = data_init_KW();
+    datareads->func_type = OPTIONALSTRING;
+    p_node node12 = node_init(datareads, "reads");
     insert_node(root, node12);
-    p_node node13 = node_init(data, "readi");
+    p_data datareadi = data_init_KW();
+    datareadi->func_type = OPTIONALINT;
+    p_node node13 = node_init(datareadi, "readi");
     insert_node(root, node13);
-    p_node node14 = node_init(data, "readf");
+    p_data datareadf = data_init_KW();
+    datareadf->func_type = OPTIONALFLOAT;
+    p_node node14 = node_init(datareadf, "readf");
+
+    //TODO Doplnit datove typy pro funkce
     insert_node(root, node14);
     p_data datastrlen = data_init_KW();
     p_node node15 = node_init(datastrlen, "strlen");
