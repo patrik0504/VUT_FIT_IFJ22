@@ -47,6 +47,7 @@ int writeString(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comes
             evaluateEscapeSequencies(l);
         } else
         {
+            ok = false;
             error(l->row, "Neočekávaný znak ve volání WRITE", SYNTAX_ERROR);
         }
         if (ok)
@@ -107,7 +108,11 @@ int writeString2(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool come
         } else if (l->type == STRING_LITERAL)
         {
             evaluateEscapeSequencies(l);
-        } 
+        } else
+        {
+            ok = false;
+            error(l->row, "Neočekávaný znak ve volání WRITE", SYNTAX_ERROR);
+        }
         if (ok)
         {
             codeGenWrite(*l, comesFromFunction);

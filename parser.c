@@ -635,7 +635,7 @@ int param2(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node function
             generateParam(paramCount, l, comesFromFunction);
             *l = get_token(binaryTree);
             result = param2(l, binaryTree, comesFromFunction, functionPtr, paramCount, callFunction, globalFunctions);
-    }
+        }
     } else if(l->type == RBRACKET)
     {
         if(callFunction->data->defined && callFunction->data->declared)
