@@ -190,7 +190,7 @@ void printBuiltInFunctions()
 
     /*************RETURN IN MAIN HANDLING*********/
     printf("LABEL EXITMAIN\n");
-    printf("EXIT GF@**returnvar\n");
+    printf("EXIT int@0\n");
 
     /*****************TYPE ERROR******************/
     printf("LABEL *typerr\n");
