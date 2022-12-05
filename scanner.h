@@ -106,6 +106,9 @@ typedef struct {
         KW_FLOAT,
         KW_STRING,
         KW_FUNCTION,
+        KW_OPTIONALINT,
+        KW_OPTIONALFLOAT,
+        KW_OPTIONALSTRING,
         
         PROLOG,
         FILE_END_SIGN,

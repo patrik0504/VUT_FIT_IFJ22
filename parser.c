@@ -85,6 +85,9 @@ int check_type(Lexeme *l)
         case KW_INT:
         case KW_FLOAT:
         case KW_STRING:
+        case KW_OPTIONALINT:
+        case KW_OPTIONALFLOAT:
+        case KW_OPTIONALSTRING:
         case KW_VOID:
             result = l->type;
             break;
@@ -303,18 +306,6 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
         {
             result = writeString(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
             return result;
-        } else if (strcmp(node->key, "reads") == 0)
-        {
-            result = builtInReads(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
-            return result;
-        } else if (strcmp(node->key, "readi") == 0)
-        {
-            result = builtInReadi(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
-            return result;
-        } else if (strcmp(node->key, "readf") == 0)
-        {
-            result = builtInReadf(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
-            return result;
         }
         *l = get_token(binaryTree);
         
@@ -464,6 +455,7 @@ int st_list(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFrom
         if(result)
         {
             Dputs("Nasiel som return v st_list\n");
+            functionPtr->data->found_return = true;
             *l = get_token(binaryTree);
             result = st_list(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
         }
@@ -632,7 +624,7 @@ int param2(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node function
             generateParam(paramCount, l, comesFromFunction);
             *l = get_token(binaryTree);
             result = param2(l, binaryTree, comesFromFunction, functionPtr, paramCount, callFunction, globalFunctions);
-    }
+        }
     } else if(l->type == RBRACKET)
     {
         if(callFunction->data->defined && callFunction->data->declared)
@@ -747,6 +739,11 @@ int function_check(Lexeme *l, p_node binaryTree, p_node globalFunctions)
                         {
                             if(l->type == RBRACKET_S_KUDRLINKOU)
                             {
+                                if(node->data->func_type != VOID && node->data->found_return == false)
+                                {
+                                    error(l->row, "Funkce neobsahuje return, i když není void", SEM_INVALID_CALL_ERROR);
+                                    return 0;
+                                }
                                 codeGenFunctionEnd(func_name, globalFunctions);
                                 //codeGenDeclareVars(func_name, globalFunctions, true);
                                 node->data->declared = true;
@@ -798,6 +795,11 @@ int function_check(Lexeme *l, p_node binaryTree, p_node globalFunctions)
                         {
                             if(l->type == RBRACKET_S_KUDRLINKOU)
                             {
+                                if(node->data->func_type != VOID && node->data->found_return == false)
+                                {
+                                    error(l->row, "Funkce neobsahuje return, i když není void", SEM_INVALID_CALL_ERROR);
+                                    return 0;
+                                }
                                 node->data->declared = true;
                                 node->data->defined = true;
                                 Dputs("Funkcia je v poriadku\n");
@@ -932,6 +934,9 @@ int body(Lexeme *l, p_node binaryTree, p_node globalFunctions){
             }
             result = body(l, binaryTree, globalFunctions);
             break;
+        default:
+            error(l->row, "Neočekávaný token", SYNTAX_ERROR);
+            break;
     }
     return result;
 }
@@ -967,6 +972,7 @@ p_data data_init()
     data->defined = false;
     data->param_count = 0;
     data->func_type = -1;
+    data->found_return = false;
     data->params = NULL;
     data->elements = NULL;
     return data;
@@ -983,6 +989,15 @@ p_data data_init_type(int type)
         case KW_STRING:
             type = STRING;
             break;
+        case KW_OPTIONALINT:
+            type = OPTIONALINT;
+            break;
+        case KW_OPTIONALFLOAT:
+            type = OPTIONALFLOAT;
+            break;
+        case KW_OPTIONALSTRING:
+            type = OPTIONALSTRING;
+            break;
         default:
             type = -1;
             break;
@@ -992,6 +1007,7 @@ p_data data_init_type(int type)
     data->defined = false;
     data->param_count = 0;
     data->func_type = type;
+    data->found_return = false;
     data->params = NULL;
     data->elements = NULL;
     return data;
@@ -1003,6 +1019,7 @@ p_data data_init_KW()
     data->defined = true;
     data->param_count = 0;
     data->func_type = -1;
+    data->found_return = true;
     data->params = NULL;
     data->elements = NULL;
     return data;
@@ -1019,6 +1036,15 @@ int lexeme_type_to_type(Lexeme *l)
         case KW_STRING:
             return STRING;
             break;
+        case KW_OPTIONALINT:
+            return OPTIONALINT;
+            break;
+        case KW_OPTIONALFLOAT:
+            return OPTIONALFLOAT;
+            break;
+        case KW_OPTIONALSTRING:
+            return OPTIONALSTRING;
+            break;
         case KW_VOID:
             return VOID;
             break;
@@ -1030,6 +1056,7 @@ int lexeme_type_to_type(Lexeme *l)
 
 void set_params_in_builtin_functions(p_node binaryTree)
 {
+
     /*************FUNCTION STRLEN**********************/
     p_node function = tree_search(binaryTree, "strlen");
     p_data data = data_init_type(KW_STRING);
@@ -1111,11 +1138,19 @@ p_node init_global_function()
     insert_node(root, node10);
     p_node node11 = node_init(data, "write");
     insert_node(root, node11);
-    p_node node12 = node_init(data, "reads");
+    p_data datareads = data_init_KW();
+    datareads->func_type = OPTIONALSTRING;
+    p_node node12 = node_init(datareads, "reads");
     insert_node(root, node12);
-    p_node node13 = node_init(data, "readi");
+    p_data datareadi = data_init_KW();
+    datareadi->func_type = OPTIONALINT;
+    p_node node13 = node_init(datareadi, "readi");
     insert_node(root, node13);
-    p_node node14 = node_init(data, "readf");
+    p_data datareadf = data_init_KW();
+    datareadf->func_type = OPTIONALFLOAT;
+    p_node node14 = node_init(datareadf, "readf");
+
+    //TODO Doplnit datove typy pro funkce
     insert_node(root, node14);
     p_data datastrlen = data_init_KW();
     p_node node15 = node_init(datastrlen, "strlen");

@@ -8,6 +8,9 @@ typedef enum{
     INT,
     FLOAT,
     STRING,
+    OPTIONALINT,
+    OPTIONALFLOAT,
+    OPTIONALSTRING,
     VOID
 }st_type;
 
@@ -29,8 +32,7 @@ typedef struct data
     bool declared; ///< Zda byla proměnná deklarována
     bool defined; ///< Zda byla proměnná definována
     st_type func_type; ///< Datový typ funkce
-    unsigned int local_size;
-    unsigned int local_n;
+    bool found_return; ///< Zda byl nalezen return
     int param_count;
     p_node params;
     p_node elements;

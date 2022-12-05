@@ -45,8 +45,12 @@ int writeString(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comes
         }else if (l->type == STRING_LITERAL)
         {
             evaluateEscapeSequencies(l);
+        } else if(l->type == NUMBER || l->type == DECIMAL_NUMBER || l->type == EXPONENT_NUMBER)
+        {
+            ok = true;
         } else
         {
+            ok = false;
             error(l->row, "Neočekávaný znak ve volání WRITE", SYNTAX_ERROR);
         }
         if (ok)
@@ -107,7 +111,14 @@ int writeString2(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool come
         } else if (l->type == STRING_LITERAL)
         {
             evaluateEscapeSequencies(l);
-        } 
+        } else if(l->type == NUMBER || l->type == DECIMAL_NUMBER || l->type == EXPONENT_NUMBER)
+        {
+            ok = true;
+        } else
+        {
+            ok = false;
+            error(l->row, "Neočekávaný znak ve volání WRITE", SYNTAX_ERROR);
+        }
         if (ok)
         {
             codeGenWrite(*l, comesFromFunction);
@@ -169,7 +180,7 @@ void evaluateEscapeSequencies(Lexeme *l)
     }
 }
 
-int builtInReads(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr)
+/*int builtInReads(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr)
 {
     int result = 0;
     *l = get_token(binaryTree);
@@ -248,5 +259,5 @@ int builtInReadf(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool come
         result = 0;
     }
     return result;
-}
+}*/
 
