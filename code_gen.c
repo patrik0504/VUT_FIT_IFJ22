@@ -190,7 +190,7 @@ void printBuiltInFunctions()
 
     /*************RETURN IN MAIN HANDLING*********/
     printf("LABEL EXITMAIN\n");
-    printf("EXIT int@0\n");
+    printf("EXIT GF@**returnvar\n");
 
     /*****************TYPE ERROR******************/
     printf("LABEL *typerr\n");
@@ -304,6 +304,8 @@ void codeGenDeclareVars(char *func_name, p_node globalFunctions, bool comesFromF
     {
         printf("JUMP MAINEND\n");
         printf("LABEL MAINVARDECLARE\n");
+        printf("DEFVAR GF@**returnvar\n");
+        printf("MOVE GF@**returnvar int@0\n");
         functionPtr = globalFunctions;
     } else
     {
