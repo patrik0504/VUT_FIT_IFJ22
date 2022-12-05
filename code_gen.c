@@ -576,6 +576,7 @@ void generate_concat(int expr_var_count, Lexeme* sym1, Lexeme* sym2, bool comesF
         printf("MOVE %s$*%d_1 string@\n", scope, expr_var_count);
         break;
     case STRING_LITERAL:
+        evaluateEscapeSequencies(sym1);
         printf("MOVE %s$*%d_1 string@%s\n", scope, expr_var_count, sym1->extra_data.string);
         break;
     case EXPR:
@@ -594,6 +595,7 @@ void generate_concat(int expr_var_count, Lexeme* sym1, Lexeme* sym2, bool comesF
         printf("MOVE %s$*%d_2 string@\n", scope, expr_var_count);
         break;
     case STRING_LITERAL:
+        evaluateEscapeSequencies(sym2);
         printf("MOVE %s$*%d_2 string@%s\n", scope, expr_var_count, sym2->extra_data.string);
         break;
     case EXPR:

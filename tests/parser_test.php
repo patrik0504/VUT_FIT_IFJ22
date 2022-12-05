@@ -1,110 +1,134 @@
-<?php 
+<?php
 declare(strict_types=1);
 
-// $a = 1+2;
-// $bbb = $a + 20 - 7;
-// $ccc = $bbb + 6;
-// write($ccc);
-// $a = 2+-(1+2.0);
-// $aa = 1;
-$b = 1;
-$c = "lss";
-$asd = $b . $c . null;
-//$b = $a * null + "ahoj";
-write($asd, "\n");
-// function countdown (float $a) : int 
-// {
-//     while ($a !== 1.0)
-//     {
-//         write($a, "\n");
-//         $a = $a / 2;
-//     }
-//     return 1;
-// }
-// if ( 2 < 0)
-// {
-// $returned = countdown(4.0);
-// }
-// else {
-// $string = "asdad";
-// $concat = $string . "haha" . "brrr";
-// write("returned: ",$concat, "\n");
-// }
+// source: https://rosettacode.org/wiki/Sierpinski_triangle#Python
 
-// $a = 5*(9+1);
-// write($a);
-// if ("ahoj" === "ahoj")
-// {
-//     write("true\n");
-// }
-// else
-// {
-//     write("false\n");
-// }
-// $a = 6*-(2+3)*-(6+2);
-// write($a, "\n");
-// function foo(int $a, int $b) : void {
-//     $bbb = $a/$b;
-//     // $bbb = ($a + 2 * (3 + 7))/2;
-//     // $bbb = $a/($a + 2 * (3 + 7));
-//     // $bbb = ($a + 2 * (3 + 7))/$a;
-//     //$error = 6 + 2;
-//     //$concat = "IFJ "."swag";
-//     write($bbb, "\n");
-//     return;
-// }
-// foo(2, 1);
-
-
-//$a = 2 + 3;
-
-//$bbb = $a+$b+$c;
-
-/*function some(int $a, int $b, int $c) : int {
-    
+function append(string $in, string $s) : string {
+    return $in . $s . ";";
 }
-$a = 5;
-$b = 6;
-$c = 7;
 
-$d = $a - $b * $c;
-if($a === 3){
-    $bbb = 5;
-}
-else{
-    $ccc = 6;
-}
-while($a === 3){
-    $abcd = 5;
-}
-some($bbb, $ccc, $abcd);
-
-function test1() : int {
-    $a = 3;
-    $b = 4;
-    if($a === 3){
-        $a = 33;
-        $a = $a - 1;
-        $c = $a;
-        some($a, $b, $c);
+function get(string $in, int $id) : ?string {
+    $i = 0;
+    $pos = 0;
+    while ($i < $id) {
+        $p1 = $pos + 1;
+        $ch = substring($in, $pos, $p1);
+        while($ch !== ";") {
+            $pos = $pos + 1;
+            $p1 = $pos + 1;
+            $ch = substring($in, $pos, $p1);
+        }
+        $pos = $pos + 1;
+        $i = $i + 1;
     }
-    else{
-        $a = 33;
-        $a = $a - 1;
-        $c = $a;
-        some($a, $b, $c);
+    $pos_end = $pos;
+    $p1 = $pos_end + 1;
+    $ch = substring($in, $pos_end, $p1);
+    while($ch !== ";") {
+        $pos_end = $pos_end + 1;
+        $p1 = $pos_end + 1;
+        $ch = substring($in, $pos_end, $p1);
     }
+    $ret = substring($in, $pos, $pos_end);
+    return $ret;
 }
 
-function test2(int $a, int $b, float $ads, string $tojesuper) : int {
-    $acc = 5;
-    some($a, $b, $acc);
-    while($a === 3){
-        $a = 33;
-        $a = $a - 1;
-        $c = $a;
-        some($a, $b, $c);
+function set(string $in, int $id, string $s) : string {
+    $i = 0;
+    $pos = 0;
+    while ($i < $id) {
+        $p1 = $pos + 1;
+        $ch = substring($in, $pos, $p1);
+        while($ch !== ";") {
+            $pos = $pos + 1;
+            $p1 = $pos + 1;
+            $ch = substring($in, $pos, $p1);
+        }
+        $pos = $pos + 1;
+        $i = $i + 1;
     }
-    return $a+$b;
+    $pos_end = $pos;
+    $p1 = $pos_end + 1;
+    $ch = substring($in, $pos_end, $p1);
+    while($ch !== ";") {
+        $pos_end = $pos_end + 1;
+        $p1 = $pos_end + 1;
+        $ch = substring($in, $pos_end, $p1);
+    }
+    $before = substring($in, 0, $pos);
+    $slen = strlen($in);
+    $after = substring($in, $pos_end, $slen);
+    return $before . $s . $after;
 }
-*/
+
+function length(string $in) : int {
+    $i = 0;
+    $pos = 0;
+    $p1 = $pos + 1;
+    $ch = substring($in, $pos, $p1);
+    while($ch !== null) {
+        $pos = $pos + 1;
+        $p1 = $pos + 1;
+        $ch = substring($in, $pos, $p1);
+        if ($ch === ";") {
+            $i = $i + 1;
+        } else {}
+    }
+    return $i;
+}
+
+function pow(int $x, int $y) : int {
+    $i = 0;
+    $ret = 1;
+    while($i < $y) {
+        $ret = $ret * $x;
+        $i = $i + 1;
+    }
+    return $ret;
+}
+
+function sierpinski(int $n) : string {
+    $d = "";
+    $d = append($d, "*");
+    $i = 0;
+    while($i < $n) {
+        $j = 0;
+        $sp = "";
+        $p = pow(2, $i);
+        while($j < $p) {
+            $sp = $sp . " ";
+            $j = $j + 1;
+        }
+        $j = 0;
+        $len = length($d);
+        $d2 = "";
+        while($j < $len) {
+            $s = get($d, $j);
+            $t2 = $sp . $s . $sp;
+            $d2 = append($d2, $t2);
+            $j = $j + 1;
+        }
+        $j=0;
+        $d3 = "";
+        while($j < $len) {
+            $s = get($d, $j);
+            $t3 = $s . " " . $s;
+            $d3 = append($d3, $t3);
+            $j = $j + 1;
+        }
+        $d = $d2 . $d3;
+        $i = $i + 1;
+    }
+    return $d;
+}
+
+$tri = sierpinski(4);
+$i = 0;
+$len = length($tri);
+while($i < $len) {
+    $res = get($tri, $i);
+    write($res);
+    write("\n");
+    $i = $i + 1;
+    $len = length($tri);
+}
