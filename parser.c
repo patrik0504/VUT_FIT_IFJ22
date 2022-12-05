@@ -396,11 +396,11 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
         if(functionPtr == NULL)
         {
             //DOCASNE RIESNIE ZMENIT KED SA TO BUDE RIESIT
-            codeGenReturn(comesFromFunction, "main");
+            codeGenReturnMain();
         }
         else
         {
-            codeGenReturn(comesFromFunction, functionPtr->key);
+            codeGenReturn();
         }
     }
     return result;

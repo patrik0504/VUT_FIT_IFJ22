@@ -188,6 +188,10 @@ void printBuiltInFunctions()
     printf("POPFRAME\n");
     printf("RETURN\n");
 
+    /*************RETURN IN MAIN HANDLING*********/
+    printf("LABEL EXITMAIN\n");
+    printf("EXIT int@0\n");
+
     /*****************TYPE ERROR******************/
     printf("LABEL *typerr\n");
     printf("DPRINT string@Ve\\032vyrazu\\032jsou\\032nekompatibilni\\032typy!\n");
@@ -274,6 +278,11 @@ void declareParams(int number, char *varName)
 {
     //printf("DEFVAR LF@$%s\n", varName);
     printf("MOVE LF@$%s LF@param%d\n", varName, number);
+}
+
+void codeGenReturnMain()
+{
+    printf("JUMP EXITMAIN\n");
 }
 
 void codeGenReturn()

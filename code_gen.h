@@ -117,6 +117,11 @@ void declareFunction(char *functionName);
 void declareParams(int number, char *varName);
 
 /**
+ * Funkce pro generování kódu pro skok na ukončení programu z hlavního těla programu
+ */
+void codeGenReturnMain();
+
+/**
  * Funkcia pre generovanie kódu return
  */
 void codeGenReturn();
