@@ -78,3 +78,4 @@ int StrHexToDec(char* hex){
     }
     return dec;
 }
+

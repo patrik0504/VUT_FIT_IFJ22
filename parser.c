@@ -132,6 +132,37 @@ int check_minus(Lexeme *l, p_node binaryTree)
     return result;
 }
 
+int returnOperator(Lexeme *l)
+{
+    int result = 1;
+    switch (l->type)
+    {
+        case PLUS:
+            ungetc('+', stdin);
+            break;
+        case MINUS:
+            ungetc('-', stdin);
+            break;
+        case MULTIPLY:
+            ungetc('*', stdin);
+            break;
+        case DIVIDE:
+            ungetc('/', stdin);
+            break;
+        case LBRACKET:
+            ungetc('(', stdin);
+            break;
+        case RBRACKET:
+            ungetc(')', stdin);
+            break;
+        default:
+            result = 0;
+            error(l->row, "Ve výrazu byla nalezena neznámá operace!", SYNTAX_ERROR);
+            break;
+    }
+    return result;
+}
+
 int decl_param(Lexeme *l, p_node binaryTree, p_node globalFunctions)
 {
     char * function_name = l->extra_data.string;
@@ -262,6 +293,7 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
     int result = 0;
     if (l->type == VARIABLE_ID)
     {
+        Lexeme tmp = *l;
         char * variable = l->extra_data.string;
         if(!comesFromFunction)
         {
@@ -283,7 +315,18 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
             }
         }
         *l = get_token(binaryTree);
-        result = expr(ASSIGNMENT, -1, binaryTree, l, variable, globalFunctions, comesFromFunction, functionPtr);
+        if (l->type != EQUAL)
+        {
+            result = returnOperator(l);
+            if (result == 0)
+            {
+                return 0;
+            }
+            result = expr(-1, 0, binaryTree, &tmp, NULL, globalFunctions, false, NULL);
+        } else
+        { 
+            result = expr(ASSIGNMENT, -1, binaryTree, l, variable, globalFunctions, comesFromFunction, functionPtr);
+        }
         if(result != 1)
         {
             return result;
@@ -466,6 +509,18 @@ int st_list(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFrom
         }
     } else
     {
+        if(l->type == RBRACKET_S_KUDRLINKOU)
+        {
+            result = 1;
+            return result;
+        }
+        printf("Nasiel som %d v st_list\n", l->type);
+        result = expr(-1, 0, binaryTree, l, NULL, globalFunctions, false, NULL);
+        if(result == 0)
+        {   
+            error(l->row, "Neočekávaný token", SYNTAX_ERROR);
+            return 0;
+        }
         result = 1;
     }
     return result;
@@ -954,7 +1009,7 @@ int body(Lexeme *l, p_node binaryTree, p_node globalFunctions){
         case KW_IF:
         case KW_WHILE:
             result = control(l, binaryTree, globalFunctions, 0, NULL);
-            if(result == -1)
+            if(result == 0)
             {
                 return 0;
             }
@@ -965,14 +1020,20 @@ int body(Lexeme *l, p_node binaryTree, p_node globalFunctions){
         case FUNCTION_ID:
         case KW_RETURN:
             result = statement(l, binaryTree, globalFunctions, 0, NULL);
-            if(result == -1)
+            if(result == 0)
             {
                 return 0;
             }
             result = body(l, binaryTree, globalFunctions);
             break;
         default:
-            error(l->row, "Neočekávaný token", SYNTAX_ERROR);
+            result = expr(-1, 0, binaryTree, l, NULL, globalFunctions, false, NULL);
+            if(result == 0)
+            {   
+                error(l->row, "Neočekávaný token", SYNTAX_ERROR);
+                return 0;
+            }
+            result = body(l, binaryTree, globalFunctions);
             break;
     }
     return result;
