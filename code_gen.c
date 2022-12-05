@@ -571,14 +571,34 @@ void type_checked_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char
     // Minimálně jedna proměnná je float => obě převedeme na float
     printf("LABEL *floatify%d\n", expr_var_count);
     float_conversion(sym1, scope, expr_var_count, 1, comesFromFunction);
+    if(sym1->type == EXPR && sym1->negative_num == true)
+    {
+        printf("SUB %s$*%d_1 float@0x0p+0 %s$*%d_1\n", scope, expr_var_count, scope, expr_var_count);
+        sym1->negative_num = false;
+    }
+
     float_conversion(sym2, scope, expr_var_count, 2, comesFromFunction);
+    if(sym2->type == EXPR && sym2->negative_num == true)
+    {
+        printf("SUB %s$*%d_2 float@0x0p+0 %s$*%d_2\n", scope, expr_var_count, scope, expr_var_count);
+        sym2->negative_num = false;
+    }
     printf("JUMP *op%dend\n", expr_var_count);
 
     // Proměnné přesuneme do pomocných proměnných pro jednoduchost finální operace
     printf("LABEL *movints%d\n", expr_var_count);
     if(sym1->type == EXPR)
     {
-        printf("MOVE %s$*%d_1 %s$*%d\n", scope, expr_var_count, scope, sym1->extra_data.value);
+        if(sym1->negative_num == true)
+        {
+            // záporná závorka
+            printf("SUB %s$*%d_1 int@0 %s$*%d\n", scope, expr_var_count, scope, sym1->extra_data.value);
+            sym1->negative_num = false;
+        }
+        else
+        {
+            printf("MOVE %s$*%d_1 %s$*%d\n", scope, expr_var_count, scope, sym1->extra_data.value);
+        }
     }
     else if(sym1->type == VARIABLE_ID)
     {
@@ -595,7 +615,16 @@ void type_checked_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char
 
     if(sym2->type == EXPR)
     {
-        printf("MOVE %s$*%d_2 %s$*%d\n", scope, expr_var_count, scope, sym2->extra_data.value);
+        if(sym2->negative_num == true)
+        {
+            // záporná závorka
+            printf("SUB %s$*%d_2 int@0 %s$*%d\n", scope, expr_var_count, scope, sym2->extra_data.value);
+            sym2->negative_num = false;
+        }
+        else
+        {
+            printf("MOVE %s$*%d_2 %s$*%d\n", scope, expr_var_count, scope, sym2->extra_data.value);
+        }
     }
     else if(sym2->type == VARIABLE_ID)
     {
@@ -614,18 +643,6 @@ void type_checked_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char
     printf("LABEL *op%dend\n", expr_var_count);
     printf("%s %s$*%d %s$*%d_1 %s$*%d_2\n", operation, scope, expr_var_count, scope, expr_var_count, scope, expr_var_count);
 
-
-    //Řešení - před závorkou
-    if(sym1->type == EXPR && sym1->negative_num == true)
-    {
-        printf("SUB %s$*%d int@0 %s$*%d\n", scope, sym1->extra_data.value, scope, sym1->extra_data.value);
-        sym1->negative_num = false;
-    }
-    if(sym2->type == EXPR && sym2->negative_num == true)
-    {
-        printf("SUB %s$*%d int@0 %s$*%d\n", scope, sym2->extra_data.value, scope, sym2->extra_data.value);
-        sym2->negative_num = false;
-    }
 }
 
 void operation_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* operation, bool comesFromFunction,
