@@ -530,7 +530,7 @@ int param(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node functionP
 {
     int param_count = 0;
     int result = 0;
-    
+
     if(l->type == VARIABLE_ID)
     { 
         if((count_tree(callFunction->data->params) == 0) && (callFunction->data->declared)){
@@ -795,6 +795,7 @@ int function_check(Lexeme *l, p_node binaryTree, p_node globalFunctions)
         if(get_token(binaryTree).type == LBRACKET)
         {
             int result_args = decl_param(l, binaryTree, globalFunctions);
+            
             if (result_args != 1)
             {
                 Dputs("Chyba pri deklaracii parametrov\n");
@@ -815,6 +816,8 @@ int function_check(Lexeme *l, p_node binaryTree, p_node globalFunctions)
                     if(node != NULL)
                     {
                         node->data->func_type = lexeme_type_to_type(l);
+                        node->data->declared = true;
+                        node->data->defined = true;
                     }
                     *l = get_token(binaryTree);
                     if(l->type == LBRACKET_S_KUDRLINKOU)
@@ -832,8 +835,8 @@ int function_check(Lexeme *l, p_node binaryTree, p_node globalFunctions)
                                 }
                                 codeGenFunctionEnd(func_name, globalFunctions);
                                 //codeGenDeclareVars(func_name, globalFunctions, true);
-                                node->data->declared = true;
-                                node->data->defined = true;
+                                //node->data->declared = true;
+                                //node->data->defined = true;
                                 Dputs("Funkcia je v poriadku\n");
                                 result = 1;
                             }
