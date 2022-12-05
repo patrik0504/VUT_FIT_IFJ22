@@ -455,6 +455,7 @@ int st_list(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFrom
         if(result)
         {
             Dputs("Nasiel som return v st_list\n");
+            functionPtr->data->found_return = true;
             *l = get_token(binaryTree);
             result = st_list(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
         }
@@ -738,6 +739,11 @@ int function_check(Lexeme *l, p_node binaryTree, p_node globalFunctions)
                         {
                             if(l->type == RBRACKET_S_KUDRLINKOU)
                             {
+                                if(node->data->func_type != VOID && node->data->found_return == false)
+                                {
+                                    error(l->row, "Funkce neobsahuje return, i když není void", SEM_INVALID_CALL_ERROR);
+                                    return 0;
+                                }
                                 codeGenFunctionEnd(func_name, globalFunctions);
                                 //codeGenDeclareVars(func_name, globalFunctions, true);
                                 node->data->declared = true;
@@ -789,6 +795,11 @@ int function_check(Lexeme *l, p_node binaryTree, p_node globalFunctions)
                         {
                             if(l->type == RBRACKET_S_KUDRLINKOU)
                             {
+                                if(node->data->func_type != VOID && node->data->found_return == false)
+                                {
+                                    error(l->row, "Funkce neobsahuje return, i když není void", SEM_INVALID_CALL_ERROR);
+                                    return 0;
+                                }
                                 node->data->declared = true;
                                 node->data->defined = true;
                                 Dputs("Funkcia je v poriadku\n");
@@ -961,6 +972,7 @@ p_data data_init()
     data->defined = false;
     data->param_count = 0;
     data->func_type = -1;
+    data->found_return = false;
     data->params = NULL;
     data->elements = NULL;
     return data;
@@ -995,6 +1007,7 @@ p_data data_init_type(int type)
     data->defined = false;
     data->param_count = 0;
     data->func_type = type;
+    data->found_return = false;
     data->params = NULL;
     data->elements = NULL;
     return data;
@@ -1006,6 +1019,7 @@ p_data data_init_KW()
     data->defined = true;
     data->param_count = 0;
     data->func_type = -1;
+    data->found_return = true;
     data->params = NULL;
     data->elements = NULL;
     return data;
