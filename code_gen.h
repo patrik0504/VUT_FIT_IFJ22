@@ -206,6 +206,10 @@ void generate_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, operatio
 void operation_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* operation, 
     bool comesFromFunction, p_node functionPtr, p_node globalFunctions);
 
+void define_comp_var(int expr_var_count, bool comesFromFunction, p_node functionPtr, p_node globalFunctions);
+
+void define_comp_var_with_helper(int expr_var_count, bool comesFromFunction, p_node functionPtr, p_node globalFunctions);
+
 /** Funkce pro výpis instrukcí pro operace >=, <=, apod.
  *  @param expr_var_count Count pro generaci unikátních ID pro dočasné proměnné
  *  @param sym1 První operand operace
@@ -217,6 +221,14 @@ void operation_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, cha
 */
 void mixed_jump_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* operation, 
     bool comesFromFunction, p_node functionPtr, p_node globalFunctions);
+
+/**
+ * Funkce kontrolující kompatibilitu datových typů.
+ * @param sym1 Lexém prvního symbolu
+ * @param sym2 Lexém druhého symbolu
+ * @return 1 (true) pokud jsou symboly kompatibilní, jinak 0
+*/
+int type_check(Lexeme *sym1, Lexeme *sym2);
 
 /** Pomocná funkce pro výpis jednotlivých symbolů u operací
  *  @param lexeme Lexém pro korespondující symbol
