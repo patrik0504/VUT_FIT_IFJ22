@@ -935,6 +935,9 @@ int body(Lexeme *l, p_node binaryTree, p_node globalFunctions){
             }
             result = body(l, binaryTree, globalFunctions);
             break;
+        default:
+            error(l->row, "Neočekávaný token", SYNTAX_ERROR);
+            break;
     }
     return result;
 }
