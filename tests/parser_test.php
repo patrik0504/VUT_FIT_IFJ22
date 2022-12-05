@@ -5,24 +5,31 @@ declare(strict_types=1);
 // $bbb = $a + 20 - 7;
 // $ccc = $bbb + 6;
 // write($ccc);
-function countdown (float $a) : int 
-{
-    while ($a < 1.0)
-    {
-        write($a, "\n");
-        $a = $a + 0.05;
-    }
-    return 1;
-}
-if ( 1-1 )
-{
-$returned = countdown(0.5);
-}
-else {
-$string = "asdad";
-$concat = $string . "haha" . "brrr";
-write("returned: ",$concat, "\n");
-}
+// $a = 2+-(1+2.0);
+// $aa = 1;
+$b = 1;
+$c = "lss";
+$asd = $b . $c . null;
+//$b = $a * null + "ahoj";
+write($asd, "\n");
+// function countdown (float $a) : int 
+// {
+//     while ($a !== 1.0)
+//     {
+//         write($a, "\n");
+//         $a = $a / 2;
+//     }
+//     return 1;
+// }
+// if ( 2 < 0)
+// {
+// $returned = countdown(4.0);
+// }
+// else {
+// $string = "asdad";
+// $concat = $string . "haha" . "brrr";
+// write("returned: ",$concat, "\n");
+// }
 
 // $a = 5*(9+1);
 // write($a);
