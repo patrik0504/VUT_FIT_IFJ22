@@ -151,6 +151,9 @@ int expr(context context, int jump_label, p_node symtable, Lexeme *target, char 
         case EXPONENT_NUMBER:
             printf("MOVE %s%s%s float@%a\n", scope, identifier, variable_name, last->extra_data.decimal);
             break;
+        case KW_NULL:
+            printf("MOVE %s%s%s nil@nil\n", scope, identifier, variable_name);
+            break;
         
         default:
             break;

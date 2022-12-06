@@ -389,11 +389,12 @@ void expr_move(char* target, int source_var_count, bool comesFromFunction)
 void generate_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, operation operation, 
 bool comesFromFunction, gen_context context, int jump_label, p_node functionPtr, p_node globalFunctions)
 {
-    int check = type_check(sym1, sym2);
+    int check;
     //Switch pro generaci jednotlivých operací
     switch (operation)
     {
     case RR_PLUS: //  +
+        check = type_check(sym1, sym2);
         if (check == 0)
         {
             // konverze na float
@@ -411,6 +412,7 @@ bool comesFromFunction, gen_context context, int jump_label, p_node functionPtr,
         break;
 
     case RR_MINUS: //  -
+        check = type_check(sym1, sym2);
         if (check == 0)
         {
             // konverze na float
@@ -428,6 +430,7 @@ bool comesFromFunction, gen_context context, int jump_label, p_node functionPtr,
         break;
 
     case RR_MUL: //  *
+        check = type_check(sym1, sym2);
         if (check == 0)
         {
             // konverze na float
@@ -450,7 +453,6 @@ bool comesFromFunction, gen_context context, int jump_label, p_node functionPtr,
         
     case RR_CONCAT: //  .
         generate_concat(expr_var_count, sym1, sym2, comesFromFunction, functionPtr, globalFunctions);
-        // operation_print_symbols(expr_var_count, sym1, sym2, "CONCAT", comesFromFunction, functionPtr, globalFunctions, false);
         break;
     case RR_LESSER: //  <
         operation_print_symbols(expr_var_count, sym1, sym2, "LT", comesFromFunction, functionPtr, globalFunctions, false);
@@ -469,11 +471,13 @@ bool comesFromFunction, gen_context context, int jump_label, p_node functionPtr,
         print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
         break;
     case RR_EQ: //  ===
-        operation_print_symbols(expr_var_count, sym1, sym2, "EQ", comesFromFunction, functionPtr, globalFunctions, false);
+        //operation_print_symbols(expr_var_count, sym1, sym2, "EQ", comesFromFunction, functionPtr, globalFunctions, false);
+        relation_operation(expr_var_count, sym1, sym2, "EQ", comesFromFunction, functionPtr, globalFunctions);
         print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
         break;
     case RR_NOTEQ: //  !==
-        operation_print_symbols(expr_var_count, sym1, sym2, "EQ", comesFromFunction, functionPtr, globalFunctions, false);
+        // operation_print_symbols(expr_var_count, sym1, sym2, "EQ", comesFromFunction, functionPtr, globalFunctions, false);
+        relation_operation(expr_var_count, sym1, sym2, "NEQ", comesFromFunction, functionPtr, globalFunctions);
         print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "true");
         break;
 
@@ -766,6 +770,48 @@ void operation_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, cha
     printf("\n");
 }
 
+void relation_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* operation, bool comesFromFunction,
+    p_node functionPtr, p_node globalFunctions)
+{
+    define_comp_var_with_helper(expr_var_count, comesFromFunction, functionPtr, globalFunctions);
+    define_vars_for_typecheck(expr_var_count, comesFromFunction, functionPtr, globalFunctions);
+
+    char* scope;
+    if (expr_var_count != -1)
+    {
+        if (comesFromFunction)
+        {
+            // Nastavení kontextu
+            scope = "LF@";
+        }
+        else
+        {
+            scope = "GF@";
+        }
+    }
+    fill_in_type_vars(sym1, sym2, scope, expr_var_count);
+
+    char* jump_on = "false";
+    if (strcmp(operation, "NEQ") == 0)
+    {
+        jump_on = "true";
+        operation = "EQ";
+    }
+
+
+    if (strcmp(operation, "EQ") == 0)
+    {
+        // Pokud jsou operandy jiného typu => false
+        printf("EQ %s$*%d %s$*%d_type1 %s$*%d_type2\n", scope, expr_var_count, scope, expr_var_count, scope, expr_var_count);
+        printf("JUMPIFEQ *relJUMP%d %s$*%d bool@%s\n", expr_var_count, scope, expr_var_count, jump_on);
+        printf("EQ %s$*%d ", scope, expr_var_count);
+        print_single_symbol(sym1, scope, false, 0);
+        print_single_symbol(sym2, scope, false, 0);
+        printf("\n");
+        printf("JUMPIFEQ *relJUMP%d %s$*%d bool@%s\n", expr_var_count, scope, expr_var_count, jump_on);
+    }
+}
+
 void define_comp_var(int expr_var_count, bool comesFromFunction, p_node functionPtr, p_node globalFunctions)
 {
     p_data data = data_init();
@@ -1017,6 +1063,7 @@ void print_single_symbol(Lexeme* lexeme, char* scope, bool is_helper, int helper
 
 void print_expr_jump(gen_context context, int jump_label, int expr_var_count, bool comesFromFunction, char* skip_on)
 {
+    printf("LABEL *relJUMP%d\n", expr_var_count);
     char* scope = "GF@";
     if(comesFromFunction)
     {
