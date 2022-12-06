@@ -119,7 +119,7 @@ typedef struct {
         char* string;
         int value;
         float exponent;
-        float decimal;
+        double decimal;
         int row_number;
         //int symtab_index;
     } extra_data;
