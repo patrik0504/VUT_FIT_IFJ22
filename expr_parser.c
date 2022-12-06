@@ -51,7 +51,15 @@ int expr(context context, int jump_label, p_node symtable, Lexeme *target, char 
 
     push(stack, SYM_STACK_TAG);
     
-    l = get_token(symtable);
+    if (context == -1)
+    {
+        l = *target;
+        context = ASSIGNMENT;
+        variable_name = "***";
+    } else
+    {
+        l = get_token(symtable);
+    }
 
     if(l.type == FUNCTION_ID)
     {
@@ -132,6 +140,10 @@ int expr(context context, int jump_label, p_node symtable, Lexeme *target, char 
         if (strcmp(variable_name, "**returnvar") != 0)
         {
             identifier = "$";
+        }
+        if(strcmp(variable_name, "***") == 0)
+        {
+            return 1;
         }
         switch (last->type)
         {
@@ -284,10 +296,9 @@ bool comesFromFunction, p_node functionPtr, p_node globalFunctions)
             error(l->row, "Výraz nebyl správně ukončen, nebo se ve výrazu nachází neznámý symbol!", SYNTAX_ERROR);
             return 0;
         }
-
         error(l->row, "Chyba v posloupnosti symbolů v rámci výrazu!", SYNTAX_ERROR);
         // debug 
-        // printf("Stack: %s Input: %s\n",symbol_type_err[non_terminal_check(stack)], symbol_type_err[input_symbol]);
+        //printf("Stack: %s Input: %s\n",symbol_type_err[non_terminal_check(stack)], symbol_type_err[input_symbol]);
         return 0;
     }
 }

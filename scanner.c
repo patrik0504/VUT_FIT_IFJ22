@@ -221,6 +221,13 @@ int transferEscapeSequences(char* buffer, int stringlength)
                 shiftLeft(&buffer[i+1], ESCAPE, stringlength - i -1);
                 stringlength -= ESCAPE;
                 continue;
+            }  else if((i+1 < stringlength) && buffer[i+1] == '$')
+            {
+                //Na miesto escape sekvencie vlozime znak tabulátora
+                buffer[i] = '$';
+                shiftLeft(&buffer[i+1], ESCAPE, stringlength - i -1);
+                stringlength -= ESCAPE;
+                continue;
             } else if((i+1 < stringlength) && buffer[i+1] == 92)
             {
                 //Na miesto escape sekvencie vlozime znak lomitka
@@ -449,10 +456,17 @@ Lexeme scan_lexeme(int *row, bool epilog, bool prolog)
         if(c == '"')
         {
             // \" -> "
-            if(buffer[stringlength-1] == 92)
+            if(buffer[stringlength-1] == '\\' && buffer[stringlength-2] != '\\')
             {
                 buffer[stringlength-1] = c;
                 continue;
+            }
+        } else if (c == '$' && current_state == String)
+        {
+            if (buffer[stringlength-1] != '\\')
+            {
+                free(buffer);
+                return (Lexeme){.type = SCANERROR, .row = *row};
             }
         }
         //Pridanie znaku do bufferu
@@ -519,6 +533,7 @@ Lexeme scan_lexeme(int *row, bool epilog, bool prolog)
             //Prechod do ďalšieho stavu
             //printf("current_state: %d\n", current_state);
             //printf("Current char: %c\n", c);
+            
             next_state = transition(current_state, (char)c);
         }
         if (next_state == Error)
@@ -677,7 +692,7 @@ Lexeme get_token(p_node binaryTree)
         check_forKW(binaryTree, &l);
     } else if(l.type == SCANERROR)
     {
-        error(l.row, "Lexikalna chyba", LEX_ERROR);
+        error(l.row, "Lexikální chyba", LEX_ERROR);
     } else if (l.type == FILE_END_SIGN)
     {
         epilog = true;
@@ -685,5 +700,6 @@ Lexeme get_token(p_node binaryTree)
     {
         prolog = true;
     }
+
     return l;
 }   

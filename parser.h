@@ -58,6 +58,14 @@ int type(Lexeme *l);
 int check_minus(Lexeme *l, p_node binaryTree);
 
 /**
+ * Funkce pro vrácení operátoru v rámci výrazu na stdin v případě, že výraz nemá proměnnou pro uložení (např. $b+4;)
+ * 
+ * @param l Lexém, který pokud je operátor, vrátí se na stdin
+ * @return Vrací 1 pokud výraz byl operátor, pokud ne tak 0 a funkce hlásí chybu
+ */
+int returnOperator(Lexeme *l);
+
+/**
  * Kontrola správnosti zápisu prvního parametru v deklaraci funkce
  * @param l Ukazatel na aktuální token
  * @param binaryTree Binární strom obsahující keywords, potřeba pro scanner při volání get_token

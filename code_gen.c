@@ -188,6 +188,10 @@ void printBuiltInFunctions()
     printf("POPFRAME\n");
     printf("RETURN\n");
 
+    /*************RETURN IN MAIN HANDLING*********/
+    printf("LABEL EXITMAIN\n");
+    printf("EXIT int@0\n");
+
     /*****************TYPE ERROR******************/
     printf("LABEL *typerr\n");
     printf("DPRINT string@Ve\\032vyrazu\\032jsou\\032nekompatibilni\\032typy!\n");
@@ -276,6 +280,11 @@ void declareParams(int number, char *varName)
     printf("MOVE LF@$%s LF@param%d\n", varName, number);
 }
 
+void codeGenReturnMain()
+{
+    printf("JUMP EXITMAIN\n");
+}
+
 void codeGenReturn()
 {
     printf("POPFRAME\n");
@@ -295,6 +304,8 @@ void codeGenDeclareVars(char *func_name, p_node globalFunctions, bool comesFromF
     {
         printf("JUMP MAINEND\n");
         printf("LABEL MAINVARDECLARE\n");
+        printf("DEFVAR GF@**returnvar\n");
+        printf("MOVE GF@**returnvar int@0\n");
         functionPtr = globalFunctions;
     } else
     {

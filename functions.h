@@ -56,4 +56,5 @@ int StrOctToDec(char* oct);
  */
 int StrHexToDec(char* hex);
 
+
 #endif
