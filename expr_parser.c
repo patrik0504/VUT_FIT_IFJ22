@@ -50,6 +50,7 @@ int expr(context context, int jump_label, p_node symtable, Lexeme *target, char 
     Lexeme l = {.type = NULLLEX};
     int callFunctionType = -1;
     bool isReturn = false;
+    p_node callFunctionNode = NULL;
     if (functionPtr != NULL)
     {
         callFunctionType = functionPtr->data->func_type;
@@ -93,6 +94,7 @@ int expr(context context, int jump_label, p_node symtable, Lexeme *target, char 
         context = ASSIGNMENT;
         isReturn = true;
         variable_name = "**returnvar";
+        callFunctionNode = functionPtr;
     }
 
     //printf("Pravý rozbor: ");
@@ -178,9 +180,9 @@ int expr(context context, int jump_label, p_node symtable, Lexeme *target, char 
         default:
             break;
         }
-        if (callFunction != NULL && isReturn)
+        if (callFunctionNode != NULL && isReturn)
         {
-            checkReturnType(callFunctionType, comesFromFunction);
+            checkReturnType(callFunctionType, comesFromFunction, callFunctionNode->key, callFunctionNode->data->return_count);
         }
     }
 

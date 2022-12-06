@@ -390,6 +390,10 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
         }
     } else if(l->type == KW_RETURN)
     {
+        if (comesFromFunction)
+        {
+            functionPtr->data->return_count++;
+        }
         result = ret_expr(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
         if(result)
         {
@@ -1075,6 +1079,7 @@ p_data data_init()
     data->declared = false;
     data->defined = false;
     data->param_count = 0;
+    data->return_count = 0;
     data->func_type = -1;
     data->found_return = false;
     data->params = NULL;
@@ -1110,6 +1115,7 @@ p_data data_init_type(int type)
     data->declared = false;
     data->defined = false;
     data->param_count = 0;
+    data->return_count = 0;
     data->func_type = type;
     data->found_return = false;
     data->params = NULL;

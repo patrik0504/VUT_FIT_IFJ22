@@ -100,7 +100,7 @@ void callFunction(char *functionName);
  * @param type Typ návratové hodnoty funkce
  * @param comesFromFunction True pokud byl write volán ve funkci, false pokud v hlavním těle programu
  */
-void checkReturnType(int type, bool comesFromFunction);
+void checkReturnType(int type, bool comesFromFunction, char* functionName, int number);
 
 /**
  * Funkce generující kód pro přesun návratové hodnoty z dočasného rámce do lokálního/globálního

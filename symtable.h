@@ -34,6 +34,7 @@ typedef struct data
     st_type func_type; ///< Datový typ funkce
     bool found_return; ///< Zda byl nalezen return
     int param_count;
+    int return_count;
     p_node params;
     p_node elements;
 } *p_data;

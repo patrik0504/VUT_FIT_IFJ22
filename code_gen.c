@@ -258,7 +258,7 @@ void callFunction(char *functionName)
     printf("CALL %s\n", functionName);
 }
 
-void checkReturnType(int type, bool comesFromFunction)
+void checkReturnType(int type, bool comesFromFunction, char *functionName, int number)
 {
     if (comesFromFunction)
     {
@@ -276,21 +276,21 @@ void checkReturnType(int type, bool comesFromFunction)
             printf("JUMPIFNEQ paramtypeerror %s@paramtype string@float\n", scope);
             break;
         case OPTIONALFLOAT:
-            printf("JUMPIFEQ returntypeOK %s@paramtype string@float\n", scope);
+            printf("JUMPIFEQ %sreturntypeOK%d %s@paramtype string@float\n", functionName, number, scope);
             printf("JUMPIFNEQ paramtypeerror %s@paramtype string@nil\n", scope);
             break;
         case OPTIONALINT:
-            printf("JUMPIFEQ returntypeOK %s@paramtype string@int\n", scope);
+            printf("JUMPIFEQ %sreturntypeOK%d %s@paramtype string@int\n", functionName, number, scope);
             printf("JUMPIFNEQ paramtypeerror %s@paramtype string@nil\n", scope);
             break;
         case OPTIONALSTRING:
-            printf("JUMPIFEQ returntypeOK %s@paramtype string@string\n", scope);
+            printf("JUMPIFEQ %sreturntypeOK%d %s@paramtype string@string\n", functionName, number, scope);
             printf("JUMPIFNEQ paramtypeerror %s@paramtype string@nil\n", scope);
             break;
         default:
             break;
     }
-    printf("LABEL returntypeOK\n");
+    printf("LABEL %sreturntypeOK%d\n", functionName, number);
     }
 
 }
