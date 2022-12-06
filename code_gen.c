@@ -741,8 +741,11 @@ void type_checked_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char
     // Testování na floaty
     printf("JUMPIFEQ *floatify%d %s$*%d_type1 string@float\n", expr_var_count, scope, expr_var_count);
     printf("JUMPIFEQ *floatify%d %s$*%d_type2 string@float\n", expr_var_count, scope, expr_var_count);
-    // Oboje je int, hodnoty jen přesuneme do pomocných proměnných
-    printf("JUMP *movints%d\n", expr_var_count);
+    // Oboje je int, hodnoty jen přesuneme do pomocných proměnných; v případě dělení konvertujeme na float
+    if(strcmp(operation, "DIV") != 0)
+    {
+        printf("JUMP *movints%d\n", expr_var_count);
+    }
 
     // Minimálně jedna proměnná je float => obě převedeme na float
     printf("LABEL *floatify%d\n", expr_var_count);
