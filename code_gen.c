@@ -576,7 +576,7 @@ bool comesFromFunction, gen_context context, int jump_label, p_node functionPtr,
     case RR_NOTEQ: //  !==
         // operation_print_symbols(expr_var_count, sym1, sym2, "EQ", comesFromFunction, functionPtr, globalFunctions, false);
         relation_operation(expr_var_count, sym1, sym2, "NEQ", comesFromFunction, functionPtr, globalFunctions);
-        print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "true");
+        print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
         break;
 
     default:
@@ -899,14 +899,7 @@ void relation_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* op
     }
     fill_in_type_vars(sym1, sym2, scope, expr_var_count);
 
-    char* jump_on = "false";
     bool or_equal = false;
-    if (strcmp(operation, "NEQ") == 0)
-    {
-        jump_on = "true";
-        operation = "EQ";
-    }
-
     if (strcmp(operation, "GTE") == 0)
     {
         or_equal = true;
@@ -920,9 +913,9 @@ void relation_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* op
 
     if (strcmp(operation, "EQ") == 0)
     {
-        // Pokud jsou operandy jiného typu => === false; !== true
+        // Pokud jsou operandy jiného typu => false
         printf("EQ %s$*%d %s$*%d_type1 %s$*%d_type2\n", scope, expr_var_count, scope, expr_var_count, scope, expr_var_count);
-        printf("JUMPIFEQ *relJUMP%d %s$*%d bool@%s\n", expr_var_count, scope, expr_var_count, jump_on);
+        printf("JUMPIFEQ *relJUMP%d %s$*%d bool@false\n", expr_var_count, scope, expr_var_count);
 
         // Do compiler proměnné ukládáme EQ sym1 sym2
         printf("EQ %s$*%d ", scope, expr_var_count);
@@ -930,6 +923,23 @@ void relation_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* op
         print_single_symbol(sym2, scope, false, 0);
         printf("\n");
         //printf("JUMPIFEQ *relJUMP%d %s$*%d bool@%s\n", expr_var_count, scope, expr_var_count, jump_on);
+    }
+    else if(strcmp(operation, "NEQ") == 0)
+    {
+        // Pokud jsou operandy jiného typu => true
+        printf("EQ %s$*%d %s$*%d_type1 %s$*%d_type2\n", scope, expr_var_count, scope, expr_var_count, scope, expr_var_count);
+        printf("JUMPIFEQ *valuecheck%d %s$*%d bool@true\n", expr_var_count, scope, expr_var_count);
+        printf("NOT %s$*%d %s$*%d\n", scope, expr_var_count, scope, expr_var_count);
+        printf("JUMP *relJUMP%d\n", expr_var_count);
+
+        printf("LABEL *valuecheck%d\n", expr_var_count);
+        // Do compiler proměnné ukládáme EQ sym1 sym2
+        printf("EQ %s$*%d ", scope, expr_var_count);
+        print_single_symbol(sym1, scope, false, 0);
+        print_single_symbol(sym2, scope, false, 0);
+        printf("\n");
+        printf("NOT %s$*%d %s$*%d\n", scope, expr_var_count, scope, expr_var_count);
+        
     }
     else
     {
