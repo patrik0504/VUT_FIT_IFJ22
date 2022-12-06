@@ -449,7 +449,7 @@ Lexeme scan_lexeme(int *row, bool epilog, bool prolog)
         if(c == '"')
         {
             // \" -> "
-            if(buffer[stringlength-1] == 92)
+            if(buffer[stringlength-1] == 92 && buffer[stringlength-2] != 92)
             {
                 buffer[stringlength-1] = c;
                 continue;
@@ -519,6 +519,7 @@ Lexeme scan_lexeme(int *row, bool epilog, bool prolog)
             //Prechod do ďalšieho stavu
             //printf("current_state: %d\n", current_state);
             //printf("Current char: %c\n", c);
+            
             next_state = transition(current_state, (char)c);
         }
         if (next_state == Error)
@@ -677,7 +678,7 @@ Lexeme get_token(p_node binaryTree)
         check_forKW(binaryTree, &l);
     } else if(l.type == SCANERROR)
     {
-        error(l.row, "Lexikalna chyba", LEX_ERROR);
+        error(l.row, "Lexikální chyba", LEX_ERROR);
     } else if (l.type == FILE_END_SIGN)
     {
         epilog = true;
@@ -685,5 +686,6 @@ Lexeme get_token(p_node binaryTree)
     {
         prolog = true;
     }
+
     return l;
 }   
