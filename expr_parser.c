@@ -167,6 +167,7 @@ int expr(context context, int jump_label, p_node symtable, Lexeme *target, char 
             printf("MOVE %s%s%s int@%d\n", scope, identifier, variable_name, last->extra_data.value);
             break;
         case STRING_LITERAL:
+            evaluateEscapeSequencies(last);
             printf("MOVE %s%s%s string@%s\n", scope, identifier, variable_name, last->extra_data.string);
             break;
         case DECIMAL_NUMBER:
