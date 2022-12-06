@@ -314,7 +314,7 @@ Lexeme generateLexeme(AutomatState state, char* buffer, int stringlength, int ro
                 error(row, "Desatinné číslo nemôže končiť s .", LEX_ERROR);
                 final_lexeme.type = SCANERROR;
             }
-            final_lexeme.extra_data.decimal = atof(buffer);
+            final_lexeme.extra_data.decimal = strtod(buffer, NULL);
             break;
         case Exponent:
             final_lexeme.type = EXPONENT_NUMBER;
