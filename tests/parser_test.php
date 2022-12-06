@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-$a = null;
-$b = 0;
-if ($a === $b)
+$a = 0.0;
+$b = 0.0;
+if ($a !== $b)
 {
     write("true\n");
 }

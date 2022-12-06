@@ -466,19 +466,23 @@ bool comesFromFunction, gen_context context, int jump_label, p_node functionPtr,
         generate_concat(expr_var_count, sym1, sym2, comesFromFunction, functionPtr, globalFunctions);
         break;
     case RR_LESSER: //  <
-        operation_print_symbols(expr_var_count, sym1, sym2, "LT", comesFromFunction, functionPtr, globalFunctions, false);
+        //operation_print_symbols(expr_var_count, sym1, sym2, "LT", comesFromFunction, functionPtr, globalFunctions, false);
+        relation_operation(expr_var_count, sym1, sym2, "LT", comesFromFunction, functionPtr, globalFunctions);
         print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
         break;
     case RR_LESOREQ: //  <=
-        mixed_jump_print_symbols(expr_var_count, sym1, sym2, "LT", comesFromFunction, functionPtr, globalFunctions);
+        relation_operation(expr_var_count, sym1, sym2, "LTE", comesFromFunction, functionPtr, globalFunctions);
+        // mixed_jump_print_symbols(expr_var_count, sym1, sym2, "LT", comesFromFunction, functionPtr, globalFunctions);
         print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
         break;
     case RR_GREATER: //  >
-        operation_print_symbols(expr_var_count, sym1, sym2, "GT", comesFromFunction, functionPtr, globalFunctions, false);
+        //operation_print_symbols(expr_var_count, sym1, sym2, "GT", comesFromFunction, functionPtr, globalFunctions, false);
+        relation_operation(expr_var_count, sym1, sym2, "GT", comesFromFunction, functionPtr, globalFunctions);
         print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
         break;
     case RR_GREOREQ: //  >=
-        mixed_jump_print_symbols(expr_var_count, sym1, sym2, "GT", comesFromFunction, functionPtr, globalFunctions);
+        relation_operation(expr_var_count, sym1, sym2, "GTE", comesFromFunction, functionPtr, globalFunctions);
+        //mixed_jump_print_symbols(expr_var_count, sym1, sym2, "GT", comesFromFunction, functionPtr, globalFunctions);
         print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
         break;
     case RR_EQ: //  ===
@@ -813,23 +817,92 @@ void relation_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* op
     fill_in_type_vars(sym1, sym2, scope, expr_var_count);
 
     char* jump_on = "false";
+    char* null_return = "false";
+    bool or_equal = false;
     if (strcmp(operation, "NEQ") == 0)
     {
         jump_on = "true";
         operation = "EQ";
     }
 
+    if (strcmp(operation, "GTE") == 0)
+    {
+        or_equal = true;
+        null_return = "true";
+        operation = "GT";
+    }
+    else if (strcmp(operation, "LTE") == 0)
+    {
+        or_equal = true;
+        null_return = "true";
+        operation = "LT";
+    }
 
     if (strcmp(operation, "EQ") == 0)
     {
-        // Pokud jsou operandy jiného typu => false
+        // Pokud jsou operandy jiného typu => === false; !== true
         printf("EQ %s$*%d %s$*%d_type1 %s$*%d_type2\n", scope, expr_var_count, scope, expr_var_count, scope, expr_var_count);
         printf("JUMPIFEQ *relJUMP%d %s$*%d bool@%s\n", expr_var_count, scope, expr_var_count, jump_on);
+
+        // Do compiler proměnné ukládáme EQ sym1 sym2
         printf("EQ %s$*%d ", scope, expr_var_count);
         print_single_symbol(sym1, scope, false, 0);
         print_single_symbol(sym2, scope, false, 0);
         printf("\n");
-        printf("JUMPIFEQ *relJUMP%d %s$*%d bool@%s\n", expr_var_count, scope, expr_var_count, jump_on);
+        //printf("JUMPIFEQ *relJUMP%d %s$*%d bool@%s\n", expr_var_count, scope, expr_var_count, jump_on);
+    }
+    else
+    {
+        // Situaci, kdy se porovnávají stringy, řešíme zvlášť (string může být porovnán jen s dalším stringem/null)
+        printf("JUMPIFEQ *strcomp%d %s$*%d_type1 string@string\n", expr_var_count, scope, expr_var_count);
+        printf("JUMPIFEQ *strcomp%d %s$*%d_type2 string@string\n", expr_var_count, scope, expr_var_count);
+
+        // Stejně tak null
+        printf("JUMPIFEQ *nilcomp%d %s$*%d_type1 string@nil\n", expr_var_count, scope, expr_var_count);
+        printf("JUMPIFEQ *nilcomp%d %s$*%d_type2 string@nil\n", expr_var_count, scope, expr_var_count);
+
+        // Pro kombinace int int a float float rovnou porovnáme
+        printf("EQ %s$*%d %s$*%d_type1 %s$*%d_type2\n", scope, expr_var_count, scope, expr_var_count, scope, expr_var_count);
+        printf("JUMPIFEQ *movsame%d %s$*%d bool@true\n", expr_var_count, scope, expr_var_count);
+
+        // Dostaneme-li se až sem, jde o kombinaci int float => konvertujeme na float
+        float_conversion(sym1, scope, expr_var_count, 1, comesFromFunction);
+        float_conversion(sym2, scope, expr_var_count, 2, comesFromFunction);
+        printf("JUMP *samecomp%d\n", expr_var_count);
+
+        // Jeden symbol je string; Musíme zkontrolovat, zda jsou oba symboly string, jinak vyhodit chybu
+        printf("LABEL *strcomp%d\n", expr_var_count);
+        printf("EQ %s$*%d %s$*%d_type1 %s$*%d_type2\n", scope, expr_var_count, scope, expr_var_count, scope, expr_var_count);
+        printf("JUMPIFEQ *typerr %s$*%d bool@false\n", scope, expr_var_count);
+        printf("JUMP *movsame%d\n", expr_var_count);
+
+        // Alespoň jeden symbol je null; ostrá nerovnost vrací false; jinak true
+        printf("LABEL *nilcomp%d\n", expr_var_count);
+        printf("MOVE %s$*%d bool@%s\n", scope, expr_var_count, null_return);
+        printf("JUMP *relJUMP%d\n", expr_var_count);
+
+        // Přesuneme stejné typy do pomocných proměnných
+        printf("LABEL *movsame%d\n", expr_var_count);
+        printf("MOVE %s$*%d_1 ", scope, expr_var_count);
+        print_single_symbol(sym1, scope, false, 0);
+        printf("\n");
+        printf("MOVE %s$*%d_2 ", scope, expr_var_count);
+        print_single_symbol(sym2, scope, false, 0);
+        printf("\n");
+
+        // Máme kompatibilní symboly
+        printf("LABEL *samecomp%d\n", expr_var_count);
+
+        // Do compiler proměnné ukládáme GT/LT pomocných proměnných
+        printf("%s %s$*%d %s$*%d_1 %s$*%d_2\n", operation, scope, expr_var_count, scope, expr_var_count, scope, expr_var_count);
+
+        // Pokud pracujeme s neostrou nerovností, povolíme i EQ
+        if (or_equal == true)
+        {
+            // Použijeme jednu z proměnných pro type, abychom "zbytečně" negenerovali další
+            printf("EQ %s$*%d_type1 %s$*%d_1 %s$*%d_2\n", scope, expr_var_count, scope, expr_var_count, scope, expr_var_count);
+            printf("OR %s$*%d %s$*%d_type1 %s$*%d\n", scope, expr_var_count, scope, expr_var_count, scope, expr_var_count);
+        }
     }
 }
 
