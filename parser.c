@@ -183,7 +183,7 @@ int decl_param(Lexeme *l, p_node binaryTree, p_node globalFunctions)
             {
                 node->data->param_count++;
             }
-            declareParams(node->data->param_count, l->extra_data.string);   //generování kódu pro deklaraci parametrů
+            declareParams(node->data->param_count, l->extra_data.string, type);   //generování kódu pro deklaraci parametrů
             result = decl_param2(l, binaryTree, globalFunctions, node);
         } else
         {
@@ -238,7 +238,7 @@ int decl_param2(Lexeme *l, p_node binaryTree, p_node globalFunctions, p_node fun
                 {
                     function_node->data->param_count++;
                 }
-                declareParams(function_node->data->param_count, l->extra_data.string);
+                declareParams(function_node->data->param_count, l->extra_data.string, type);
                 result = decl_param2(l, binaryTree, globalFunctions, function_node);
 
             }
@@ -575,7 +575,7 @@ int param(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node functionP
             }
         }
     
-    } else if (l->type == NUMBER || l->type == STRING_LITERAL || l->type == DECIMAL_NUMBER || l->type == EXPONENT_NUMBER || l->type == MINUS)
+    } else if (l->type == NUMBER || l->type == STRING_LITERAL || l->type == DECIMAL_NUMBER || l->type == EXPONENT_NUMBER || l->type == MINUS || l->type == KW_NULL)
     {
         if(l->type == MINUS)
         {
@@ -678,7 +678,7 @@ int param2(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node function
                 }
             }
             
-        } else if (l->type == NUMBER || l->type == STRING_LITERAL || l->type == DECIMAL_NUMBER || l->type == EXPONENT_NUMBER || l->type == MINUS)
+        } else if (l->type == NUMBER || l->type == STRING_LITERAL || l->type == DECIMAL_NUMBER || l->type == EXPONENT_NUMBER || l->type == MINUS || l->type == KW_NULL)
         {
             if(l->type == MINUS)
             {

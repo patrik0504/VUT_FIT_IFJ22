@@ -196,6 +196,8 @@ void printBuiltInFunctions()
     printf("LABEL *typerr\n");
     printf("DPRINT string@Ve\\032vyrazu\\032jsou\\032nekompatibilni\\032typy!\n");
     printf("EXIT int@7\n");
+    printf("LABEL paramtypeerror\n");
+    printf("EXIT int@4\n");
 
     printf("\n#HLAVNI TELO\n");
     printf("LABEL MAIN\n");
@@ -245,6 +247,9 @@ void generateParam(int number, Lexeme *l, bool comesFromFunction)
                 printf("MOVE TF@param%d GF@$*%d\n", number, l->extra_data.value);
             }
             break;
+        case KW_NULL:
+            printf("MOVE TF@param%d nil@nil\n", number);
+            break;
     }
 }
 
@@ -253,8 +258,46 @@ void callFunction(char *functionName)
     printf("CALL %s\n", functionName);
 }
 
+void checkReturnType(int type, bool comesFromFunction)
+{
+    if (comesFromFunction)
+    {
+        char *scope = "LF";
+    printf("TYPE %s@paramtype LF@**returnvar\n", scope);
+    switch (type)
+    {
+        case INT:
+            printf("JUMPIFNEQ paramtypeerror %s@paramtype string@int\n", scope);
+            break;
+        case STRING:
+            printf("JUMPIFNEQ paramtypeerror %s@paramtype string@string\n", scope);
+            break;
+        case FLOAT:
+            printf("JUMPIFNEQ paramtypeerror %s@paramtype string@float\n", scope);
+            break;
+        case OPTIONALFLOAT:
+            printf("JUMPIFEQ returntypeOK %s@paramtype string@float\n", scope);
+            printf("JUMPIFNEQ paramtypeerror %s@paramtype string@nil\n", scope);
+            break;
+        case OPTIONALINT:
+            printf("JUMPIFEQ returntypeOK %s@paramtype string@int\n", scope);
+            printf("JUMPIFNEQ paramtypeerror %s@paramtype string@nil\n", scope);
+            break;
+        case OPTIONALSTRING:
+            printf("JUMPIFEQ returntypeOK %s@paramtype string@string\n", scope);
+            printf("JUMPIFNEQ paramtypeerror %s@paramtype string@nil\n", scope);
+            break;
+        default:
+            break;
+    }
+    printf("LABEL returntypeOK\n");
+    }
+
+}
+
 void returnVariable(char *destination, bool comesFromFunction)
 {
+
     if(comesFromFunction)
     {
         printf("MOVE LF@$%s TF@**returnvar\n",destination);
@@ -274,9 +317,37 @@ void declareFunction(char *functionName)
     printf("LABEL %sAFTERVARDECLARE\n", functionName);
 }
 
-void declareParams(int number, char *varName)
+void declareParams(int number, char *varName, int type)
 {
     //printf("DEFVAR LF@$%s\n", varName);
+    /*printf("TYPE LF@paramtype LF@param%d\n", number);
+    switch (type)
+    {
+        case KW_INT:
+            printf("JUMPIFNEQ paramtypeerror LF@paramtype string@int\n");
+            break;
+        case KW_STRING:
+            printf("JUMPIFNEQ paramtypeerror LF@paramtype string@string\n");
+            break;
+        case KW_FLOAT:
+            printf("JUMPIFNEQ paramtypeerror LF@paramtype string@float\n");
+            break;
+        case KW_OPTIONALFLOAT:
+            printf("JUMPIFEQ paramtype%dOK LF@paramtype string@float\n", number);
+            printf("JUMPIFNEQ paramtypeerror LF@paramtype string@nil\n");
+            break;
+        case KW_OPTIONALINT:
+            printf("JUMPIFEQ paramtype%dOK LF@paramtype string@int\n", number);
+            printf("JUMPIFNEQ paramtypeerror LF@paramtype string@nil\n");
+            break;
+        case KW_OPTIONALSTRING:
+            printf("JUMPIFEQ paramtype%dOK LF@paramtype string@stringt\n", number);
+            printf("JUMPIFNEQ paramtypeerror LF@paramtype string@nil\n");
+            break;
+        default:
+            break;
+    }
+    printf("LABEL paramtype%dOK\n", number); */
     printf("MOVE LF@$%s LF@param%d\n", varName, number);
 }
 
@@ -310,6 +381,7 @@ void codeGenDeclareVars(char *func_name, p_node globalFunctions, bool comesFromF
     } else
     {
         printf("LABEL %sVARDECLARE\n", func_name);
+        printf("DEFVAR LF@paramtype\n");
         functionPtr = tree_search(globalFunctions, func_name);
     }
     declare_variables(functionPtr->data->elements, comesFromFunction);

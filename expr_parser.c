@@ -48,6 +48,12 @@ int expr(context context, int jump_label, p_node symtable, Lexeme *target, char 
     p_stack stack = stack_init(PSA_STACK_SIZE);
     p_lex_stack lex_stack = lex_stack_init(LEX_STACK_SIZE);
     Lexeme l = {.type = NULLLEX};
+    int callFunctionType = -1;
+    if (functionPtr != NULL)
+    {
+        callFunctionType = functionPtr->data->func_type;
+    }
+
 
     push(stack, SYM_STACK_TAG);
     
@@ -63,7 +69,7 @@ int expr(context context, int jump_label, p_node symtable, Lexeme *target, char 
 
     if(l.type == FUNCTION_ID)
     {
-        
+
         int res_func = statement(&l, symtable, globalFunctions, comesFromFunction, functionPtr);
         if(!res_func)
         {
@@ -71,6 +77,7 @@ int expr(context context, int jump_label, p_node symtable, Lexeme *target, char 
         }
         else
         {
+
             returnVariable(variable_name, comesFromFunction);
             return 1;
         }
@@ -169,6 +176,10 @@ int expr(context context, int jump_label, p_node symtable, Lexeme *target, char 
         
         default:
             break;
+        }
+        if (callFunction != NULL)
+        {
+            checkReturnType(callFunctionType, comesFromFunction);
         }
     }
 

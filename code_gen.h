@@ -96,6 +96,13 @@ void generateParam(int number, Lexeme *l, bool comesFromFunction);
 void callFunction(char *functionName);
 
 /**
+ * Funkce generující kód pro kontrolu správného typu návratové hodnoty
+ * @param type Typ návratové hodnoty funkce
+ * @param comesFromFunction True pokud byl write volán ve funkci, false pokud v hlavním těle programu
+ */
+void checkReturnType(int type, bool comesFromFunction);
+
+/**
  * Funkce generující kód pro přesun návratové hodnoty z dočasného rámce do lokálního/globálního
  * @param destination Název proměnné v lokálním/globálním rámci
  * @param comesFromFunction True pokud byl write volán ve funkci, false pokud v hlavním těle programu
@@ -114,7 +121,7 @@ void declareFunction(char *functionName);
  * @param number číslo parametru
  * @param varName názov parametru
  */
-void declareParams(int number, char *varName);
+void declareParams(int number, char *varName, int type);
 
 /**
  * Funkce pro generování kódu pro skok na ukončení programu z hlavního těla programu
