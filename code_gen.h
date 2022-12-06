@@ -121,7 +121,7 @@ void declareFunction(char *functionName);
  * @param number číslo parametru
  * @param varName názov parametru
  */
-void declareParams(int number, char *varName, int type);
+void declareParams(int number, char *varName, int type, char*functionName);
 
 /**
  * Funkce pro generování kódu pro skok na ukončení programu z hlavního těla programu

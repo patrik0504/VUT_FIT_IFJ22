@@ -317,10 +317,10 @@ void declareFunction(char *functionName)
     printf("LABEL %sAFTERVARDECLARE\n", functionName);
 }
 
-void declareParams(int number, char *varName, int type)
+void declareParams(int number, char *varName, int type, char *functionName)
 {
     //printf("DEFVAR LF@$%s\n", varName);
-    /*printf("TYPE LF@paramtype LF@param%d\n", number);
+    printf("TYPE LF@paramtype LF@param%d\n", number);
     switch (type)
     {
         case KW_INT:
@@ -333,21 +333,21 @@ void declareParams(int number, char *varName, int type)
             printf("JUMPIFNEQ paramtypeerror LF@paramtype string@float\n");
             break;
         case KW_OPTIONALFLOAT:
-            printf("JUMPIFEQ paramtype%dOK LF@paramtype string@float\n", number);
+            printf("JUMPIFEQ %sparamtype%dOK LF@paramtype string@float\n", functionName, number);
             printf("JUMPIFNEQ paramtypeerror LF@paramtype string@nil\n");
             break;
         case KW_OPTIONALINT:
-            printf("JUMPIFEQ paramtype%dOK LF@paramtype string@int\n", number);
+            printf("JUMPIFEQ %sparamtype%dOK LF@paramtype string@int\n", functionName, number);
             printf("JUMPIFNEQ paramtypeerror LF@paramtype string@nil\n");
             break;
         case KW_OPTIONALSTRING:
-            printf("JUMPIFEQ paramtype%dOK LF@paramtype string@stringt\n", number);
+            printf("JUMPIFEQ %sparamtype%dOK LF@paramtype string@stringt\n", functionName, number);
             printf("JUMPIFNEQ paramtypeerror LF@paramtype string@nil\n");
             break;
         default:
             break;
     }
-    printf("LABEL paramtype%dOK\n", number); */
+    printf("LABEL %sparamtype%dOK\n", functionName, number); 
     printf("MOVE LF@$%s LF@param%d\n", varName, number);
 }
 
