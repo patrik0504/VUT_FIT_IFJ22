@@ -1217,6 +1217,8 @@ void print_single_symbol(Lexeme* lexeme, char* scope, bool is_helper, int helper
         printf("float@%s%a ", minus, lexeme->extra_data.exponent);
         break;
     case STRING_LITERAL:
+        //TODO: Když se eval volá opakovaně, duplikuje escape sekvence
+        evaluateEscapeSequencies(lexeme);
         printf("string@%s ", lexeme->extra_data.string);
         break;
     case KW_NULL:

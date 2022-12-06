@@ -125,10 +125,10 @@ if (0 >= 0.0) {} else { write("fail 0 >= 0.0\n"); }
 if (0 >= 0) {} else { write("fail 0 >= 0\n"); }
 if (0 >= null) {} else { write("fail 0 >= null\n"); }
 if ("" >= "") {} else { write("fail \"\" >= \"\"\n"); }
-if (" " >= null) {} else { write("fail \"\" >= null\n"); }
+if ("" >= null) {} else { write("fail \"\" >= null\n"); }
 if (null >= 0.0) {} else { write("fail null >= 0.0\n"); }
 if (null >= 0) {} else { write("fail null >= 0\n"); }
-if (null >= " ") {} else { write("fail null >= \"\"\n"); }
+if (null >= "") {} else { write("fail null >= \"\"\n"); }
 if (null >= null) {} else { write("fail null >= null\n"); }
 write("done");
 
