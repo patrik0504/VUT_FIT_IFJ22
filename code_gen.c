@@ -532,14 +532,10 @@ bool comesFromFunction, gen_context context, int jump_label, p_node functionPtr,
         
     case RR_DIV: //  /
         check = type_check(sym1, sym2);
-        if (check == 0)
+        if (check == 0 || check == 1)
         {
-            // konverze na float
+            // Div vždy konvertujeme na float, i když jsou na vstupu 2 inty
             operation_print_symbols(expr_var_count, sym1, sym2, "DIV", comesFromFunction, functionPtr, globalFunctions, true);
-        }
-        else if (check == 1)
-        {
-            operation_print_symbols(expr_var_count, sym1, sym2, "DIV", comesFromFunction, functionPtr, globalFunctions, false);
         }
         else if (check == 2)
         {
