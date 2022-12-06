@@ -49,6 +49,7 @@ int expr(context context, int jump_label, p_node symtable, Lexeme *target, char 
     p_lex_stack lex_stack = lex_stack_init(LEX_STACK_SIZE);
     Lexeme l = {.type = NULLLEX};
     int callFunctionType = -1;
+    bool isReturn = false;
     if (functionPtr != NULL)
     {
         callFunctionType = functionPtr->data->func_type;
@@ -77,7 +78,6 @@ int expr(context context, int jump_label, p_node symtable, Lexeme *target, char 
         }
         else
         {
-
             returnVariable(variable_name, comesFromFunction);
             return 1;
         }
@@ -91,6 +91,7 @@ int expr(context context, int jump_label, p_node symtable, Lexeme *target, char 
     if (context == RETURN)
     {
         context = ASSIGNMENT;
+        isReturn = true;
         variable_name = "**returnvar";
     }
 
@@ -177,7 +178,7 @@ int expr(context context, int jump_label, p_node symtable, Lexeme *target, char 
         default:
             break;
         }
-        if (callFunction != NULL)
+        if (callFunction != NULL && isReturn)
         {
             checkReturnType(callFunctionType, comesFromFunction);
         }
