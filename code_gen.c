@@ -889,7 +889,6 @@ void relation_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* op
     fill_in_type_vars(sym1, sym2, scope, expr_var_count);
 
     char* jump_on = "false";
-    char* null_return = "false";
     bool or_equal = false;
     if (strcmp(operation, "NEQ") == 0)
     {
@@ -900,13 +899,11 @@ void relation_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* op
     if (strcmp(operation, "GTE") == 0)
     {
         or_equal = true;
-        null_return = "true";
         operation = "GT";
     }
     else if (strcmp(operation, "LTE") == 0)
     {
         or_equal = true;
-        null_return = "true";
         operation = "LT";
     }
 
@@ -925,13 +922,13 @@ void relation_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* op
     }
     else
     {
+        // Null řešíme zvlášť
+        printf("JUMPIFEQ *nilcomp%d %s$*%d_type1 string@nil\n", expr_var_count, scope, expr_var_count);
+        printf("JUMPIFEQ *nilcomp%d %s$*%d_type2 string@nil\n", expr_var_count, scope, expr_var_count);
+
         // Situaci, kdy se porovnávají stringy, řešíme zvlášť (string může být porovnán jen s dalším stringem/null)
         printf("JUMPIFEQ *strcomp%d %s$*%d_type1 string@string\n", expr_var_count, scope, expr_var_count);
         printf("JUMPIFEQ *strcomp%d %s$*%d_type2 string@string\n", expr_var_count, scope, expr_var_count);
-
-        // Stejně tak null
-        printf("JUMPIFEQ *nilcomp%d %s$*%d_type1 string@nil\n", expr_var_count, scope, expr_var_count);
-        printf("JUMPIFEQ *nilcomp%d %s$*%d_type2 string@nil\n", expr_var_count, scope, expr_var_count);
 
         // Pro kombinace int int a float float rovnou porovnáme
         printf("EQ %s$*%d %s$*%d_type1 %s$*%d_type2\n", scope, expr_var_count, scope, expr_var_count, scope, expr_var_count);
@@ -948,9 +945,86 @@ void relation_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char* op
         printf("JUMPIFEQ *typerr %s$*%d bool@false\n", scope, expr_var_count);
         printf("JUMP *movsame%d\n", expr_var_count);
 
-        // Alespoň jeden symbol je null; ostrá nerovnost vrací false; jinak true
+        // Alespoň jeden symbol je null; ostrá nerovnost vrací false; <= a >= true při porovnání s " ", 0 a null
         printf("LABEL *nilcomp%d\n", expr_var_count);
-        printf("MOVE %s$*%d bool@%s\n", scope, expr_var_count, null_return);
+        if(or_equal == true)
+        {
+            // Oba symboly jsou null => true
+            printf("EQ %s$*%d %s$*%d_type1 %s$*%d_type2\n", scope, expr_var_count, scope, expr_var_count, scope, expr_var_count);
+            printf("JUMPIFEQ *niltrue%d %s$*%d bool@true\n", expr_var_count, scope, expr_var_count);
+
+            // První symbol je null
+            printf("JUMPIFEQ *check2%d %s$*%d_type1 string@nil\n", expr_var_count, scope, expr_var_count);
+
+            // Druhý symbol je null => kontrolujeme typ prvního
+            printf("JUMPIFEQ *sym1int%d %s$*%d_type1 string@int\n", expr_var_count, scope, expr_var_count);
+            printf("JUMPIFEQ *sym1string%d %s$*%d_type1 string@string\n", expr_var_count, scope, expr_var_count);
+            printf("JUMPIFEQ *sym1float%d %s$*%d_type1 string@float\n", expr_var_count, scope, expr_var_count);
+
+            // Kombinace null a 0
+            printf("LABEL *sym1int%d\n", expr_var_count);
+            printf("JUMPIFEQ *niltrue%d ", expr_var_count);
+            print_single_symbol(sym1, scope, false, 0);
+            printf("int@0\n");
+            printf("JUMP *nilfalse%d\n", expr_var_count);
+
+            // Kombinace null a "" / " "
+            printf("LABEL *sym1string%d\n", expr_var_count);
+            printf("JUMPIFEQ *niltrue%d ", expr_var_count);
+            print_single_symbol(sym1, scope, false, 0);
+            printf("string@\n");
+
+            printf("JUMPIFEQ *niltrue%d ", expr_var_count);
+            print_single_symbol(sym1, scope, false, 0);
+            printf("string@\\032\n");
+            printf("JUMP *nilfalse%d\n", expr_var_count);
+
+            // Kombinace null a 0.0
+            printf("LABEL *sym1float%d\n", expr_var_count);
+            printf("JUMPIFEQ *niltrue%d ", expr_var_count);
+            print_single_symbol(sym1, scope, false, 0);
+            printf("float@%a\n", 0.0);
+            printf("JUMP *nilfalse%d\n", expr_var_count);
+
+
+            // První symbol je null => kontrolujeme typ druhého
+            printf("LABEL *check2%d\n", expr_var_count);
+
+            printf("JUMPIFEQ *sym2int%d %s$*%d_type2 string@int\n", expr_var_count, scope, expr_var_count);
+            printf("JUMPIFEQ *sym2string%d %s$*%d_type2 string@string\n", expr_var_count, scope, expr_var_count);
+            printf("JUMPIFEQ *sym2float%d %s$*%d_type2 string@float\n", expr_var_count, scope, expr_var_count);
+
+            // Kombinace null a 0
+            printf("LABEL *sym2int%d\n", expr_var_count);
+            printf("JUMPIFEQ *niltrue%d ", expr_var_count);
+            print_single_symbol(sym2, scope, false, 0);
+            printf("int@0\n");
+            printf("JUMP *nilfalse%d\n", expr_var_count);
+
+            // Kombinace null a " "
+            printf("LABEL *sym2string%d\n", expr_var_count);
+            printf("JUMPIFEQ *niltrue%d ", expr_var_count);
+            print_single_symbol(sym2, scope, false, 0);
+            printf("string@\n");
+            printf("JUMPIFEQ *niltrue%d ", expr_var_count);
+            print_single_symbol(sym2, scope, false, 0);
+            printf("string@\\032\n");
+            printf("JUMP *nilfalse%d\n", expr_var_count);
+
+            // Kombinace null a 0.0
+            printf("LABEL *sym2float%d\n", expr_var_count);
+            printf("JUMPIFEQ *niltrue%d ", expr_var_count);
+            print_single_symbol(sym2, scope, false, 0);
+            printf("float@%a\n", 0.0);
+            printf("JUMP *nilfalse%d\n", expr_var_count);
+
+            printf("LABEL *niltrue%d\n", expr_var_count);
+            printf("MOVE %s$*%d bool@true\n", scope, expr_var_count);
+            printf("JUMP *relJUMP%d\n", expr_var_count);
+        }
+
+        printf("LABEL *nilfalse%d\n", expr_var_count);
+        printf("MOVE %s$*%d bool@false\n", scope, expr_var_count);
         printf("JUMP *relJUMP%d\n", expr_var_count);
 
         // Přesuneme stejné typy do pomocných proměnných
@@ -1207,7 +1281,6 @@ void print_single_symbol(Lexeme* lexeme, char* scope, bool is_helper, int helper
             break;
         }
         printf("int@%s%d ", minus, lexeme->extra_data.value);
-        // printf("negative flag: %d\n", lexeme->negative_num);
         break;
     case DECIMAL_NUMBER:
         printf("float@%s%a ", minus, lexeme->extra_data.decimal);
@@ -1216,6 +1289,7 @@ void print_single_symbol(Lexeme* lexeme, char* scope, bool is_helper, int helper
         printf("float@%s%a ", minus, lexeme->extra_data.exponent);
         break;
     case STRING_LITERAL:
+        //TODO: Když se eval volá opakovaně, duplikuje escape sekvence
         evaluateEscapeSequencies(lexeme);
         printf("string@%s ", lexeme->extra_data.string);
         break;
