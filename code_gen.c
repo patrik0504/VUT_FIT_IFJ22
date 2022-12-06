@@ -531,7 +531,22 @@ bool comesFromFunction, gen_context context, int jump_label, p_node functionPtr,
         break;
         
     case RR_DIV: //  /
-        operation_print_symbols(expr_var_count, sym1, sym2, "DIV", comesFromFunction, functionPtr, globalFunctions, true);
+        check = type_check(sym1, sym2);
+        if (check == 0)
+        {
+            // konverze na float
+            operation_print_symbols(expr_var_count, sym1, sym2, "DIV", comesFromFunction, functionPtr, globalFunctions, true);
+        }
+        else if (check == 1)
+        {
+            operation_print_symbols(expr_var_count, sym1, sym2, "DIV", comesFromFunction, functionPtr, globalFunctions, false);
+        }
+        else if (check == 2)
+        {
+            // Dynamická kontrola typů
+            type_checked_operation(expr_var_count, sym1, sym2, "DIV", comesFromFunction, functionPtr, globalFunctions);
+        }
+        //operation_print_symbols(expr_var_count, sym1, sym2, "DIV", comesFromFunction, functionPtr, globalFunctions, true);
         break;
         
     case RR_CONCAT: //  .
