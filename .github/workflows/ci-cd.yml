@@ -26,6 +26,8 @@ jobs:
          make
          sudo chmod +777 ic22int
          cd testsJirka
+         rmdir tests/Boolthen
+         rmdir tests/Funexp
          ./test.py ../ifj_comp ../ic22int
 
       - name: valgrind
