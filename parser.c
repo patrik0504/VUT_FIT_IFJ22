@@ -155,6 +155,9 @@ int returnOperator(Lexeme *l)
         case RBRACKET:
             ungetc(')', stdin);
             break;
+        case SEMICOLON:
+            ungetc(';', stdin);
+            break;
         default:
             result = 0;
             error(l->row, "Ve výrazu byla nalezena neznámá operace!", SYNTAX_ERROR);
@@ -322,7 +325,7 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
             {
                 return 0;
             }
-            result = expr(-1, 0, binaryTree, &tmp, NULL, globalFunctions, false, NULL);
+            result = expr(-1, 0, binaryTree, &tmp, NULL, globalFunctions, comesFromFunction, functionPtr);
         } else
         { 
             result = expr(ASSIGNMENT, -1, binaryTree, l, variable, globalFunctions, comesFromFunction, functionPtr);
@@ -515,7 +518,7 @@ int st_list(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFrom
             return result;
         }
         printf("Nasiel som %d v st_list\n", l->type);
-        result = expr(-1, 0, binaryTree, l, NULL, globalFunctions, false, NULL);
+        result = expr(-1, 0, binaryTree, l, NULL, globalFunctions, comesFromFunction, functionPtr);
         if(result == 0)
         {   
             error(l->row, "Neočekávaný token", SYNTAX_ERROR);
@@ -719,7 +722,7 @@ int param2(Lexeme *l, p_node binaryTree, bool comesFromFunction, p_node function
                 result = 1;
             } else
             {
-                Dprintf("Zlý počet parametrov, očakávalo se %d, ale bylo zadáno %d\n", count_tree(callFunction->data->params), param_count);
+                Dprintf("Zlý počet parametrov, očakávalo se %d, ale bylo zadáno %d\n", count_tree(callFunction->data->params), paramCount);
                 error(l->row, "Zlý počet parametrov", SEM_INVALID_CALL_ERROR);
                 result = 0;
             }
