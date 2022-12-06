@@ -186,7 +186,7 @@ int decl_param(Lexeme *l, p_node binaryTree, p_node globalFunctions)
             {
                 node->data->param_count++;
             }
-            declareParams(node->data->param_count, l->extra_data.string, type);   //generování kódu pro deklaraci parametrů
+            declareParams(node->data->param_count, l->extra_data.string, type, function_name);   //generování kódu pro deklaraci parametrů
             result = decl_param2(l, binaryTree, globalFunctions, node);
         } else
         {
@@ -241,7 +241,7 @@ int decl_param2(Lexeme *l, p_node binaryTree, p_node globalFunctions, p_node fun
                 {
                     function_node->data->param_count++;
                 }
-                declareParams(function_node->data->param_count, l->extra_data.string, type);
+                declareParams(function_node->data->param_count, l->extra_data.string, type, function_node->key);
                 result = decl_param2(l, binaryTree, globalFunctions, function_node);
 
             }
