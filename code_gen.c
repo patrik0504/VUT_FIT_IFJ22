@@ -760,6 +760,16 @@ void operation_print_symbols(int expr_var_count, Lexeme* sym1, Lexeme* sym2, cha
         }
     }
 
+    // Ošetření string/string
+    if (strcmp(operation, "DIV") == 0)
+    {
+        define_vars_for_typecheck(expr_var_count, comesFromFunction, functionPtr, globalFunctions);
+        fill_in_type_vars(sym1, sym2, scope, expr_var_count);
+
+        printf("JUMPIFEQ *typerr %s$*%d_type1 string@string\n", scope, expr_var_count);
+        printf("JUMPIFEQ *typerr %s$*%d_type2 string@string\n", scope, expr_var_count);
+    }
+
     // Print operace a výstupní proměnné
     printf("%s %s$*%d ", operation, scope, expr_var_count);
 
