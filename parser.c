@@ -168,6 +168,7 @@ int returnOperator(Lexeme *l)
 
 int decl_param(Lexeme *l, p_node binaryTree, p_node globalFunctions)
 {
+    int loadedParamCount = 0;
     char * function_name = l->extra_data.string;
     *l = get_token(binaryTree);
     int result = 0;
@@ -186,8 +187,9 @@ int decl_param(Lexeme *l, p_node binaryTree, p_node globalFunctions)
             {
                 node->data->param_count++;
             }
-            declareParams(node->data->param_count, l->extra_data.string, type, function_name);   //generování kódu pro deklaraci parametrů
-            result = decl_param2(l, binaryTree, globalFunctions, node);
+            loadedParamCount++;
+            declareParams(loadedParamCount, l->extra_data.string, type, function_name);   //generování kódu pro deklaraci parametrů
+            result = decl_param2(l, binaryTree, globalFunctions, node, loadedParamCount);
         } else
         {
             error(l->row, "Spatna deklarace parametru funkce", SYNTAX_ERROR);
@@ -214,7 +216,7 @@ int decl_param(Lexeme *l, p_node binaryTree, p_node globalFunctions)
     return result;
 }
 
-int decl_param2(Lexeme *l, p_node binaryTree, p_node globalFunctions, p_node function_node)
+int decl_param2(Lexeme *l, p_node binaryTree, p_node globalFunctions, p_node function_node, int loadedParamCount)
 {
     *l = get_token(binaryTree);
     int result = 0;
@@ -241,8 +243,9 @@ int decl_param2(Lexeme *l, p_node binaryTree, p_node globalFunctions, p_node fun
                 {
                     function_node->data->param_count++;
                 }
-                declareParams(function_node->data->param_count, l->extra_data.string, type, function_node->key);
-                result = decl_param2(l, binaryTree, globalFunctions, function_node);
+                loadedParamCount++;
+                declareParams(loadedParamCount, l->extra_data.string, type, function_node->key);
+                result = decl_param2(l, binaryTree, globalFunctions, function_node, loadedParamCount);
 
             }
         }

@@ -82,7 +82,7 @@ int decl_param(Lexeme *l, p_node binaryTree, p_node globalFunctions);
  * @param function_node Ukazatel na binární strom funkce
  * @return Vrací 1 pokud kontrola proběhla v pořádku, 0 pokud ne
  */
-int decl_param2(Lexeme *l, p_node binaryTree, p_node globalFunctions, p_node function_node);
+int decl_param2(Lexeme *l, p_node binaryTree, p_node globalFunctions, p_node function_node, int loadedParamCount);
 
 /**
  * Funckia kontrolu že či je premmená definovaná
