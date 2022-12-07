@@ -681,44 +681,66 @@ void generate_concat(int expr_var_count, Lexeme* sym1, Lexeme* sym2, bool comesF
     printf("JUMPIFEQ *typerr %s$*%d_type2 string@int\n", scope, expr_var_count);
     printf("JUMPIFEQ *typerr %s$*%d_type1 string@float\n", scope, expr_var_count);
     printf("JUMPIFEQ *typerr %s$*%d_type2 string@float\n", scope, expr_var_count);
+    printf("JUMPIFEQ *denull_1%d %s$*%d_type1 string@nil\n", expr_var_count, scope, expr_var_count);
+    printf("JUMPIFEQ *denull_2%d %s$*%d_type2 string@nil\n", expr_var_count, scope, expr_var_count);
+    printf("JUMPIFEQ *strmove_1%d %s$*%d_type1 string@string\n", expr_var_count, scope, expr_var_count);
+    printf("JUMPIFEQ *strmove_2%d %s$*%d_type2 string@string\n", expr_var_count, scope, expr_var_count);
 
-    switch (sym1->type)
-    {
-    case KW_NULL:
-        printf("MOVE %s$*%d_1 string@\n", scope, expr_var_count);
-        break;
-    case STRING_LITERAL:
-        evaluateEscapeSequencies(sym1);
-        printf("MOVE %s$*%d_1 string@%s\n", scope, expr_var_count, sym1->extra_data.string);
-        break;
-    case EXPR:
-        printf("MOVE %s$*%d_1 %s$*%d\n", scope, expr_var_count, scope, sym1->extra_data.value);
-        break;
-    case VARIABLE_ID:
-        printf("MOVE %s$*%d_1 %s$%s\n", scope, expr_var_count, scope, sym1->extra_data.string);
-        break;
-    default:
-        break;
-    }
+    printf("LABEL *denull_1%d\n", expr_var_count);
+    printf("MOVE %s$*%d_1 string@\n", scope, expr_var_count);
+    printf("JUMPIFNEQ *strmove_2%d %s$*%d_type2 string@nil\n", expr_var_count, scope, expr_var_count);
+    printf("LABEL *denull_2%d\n", expr_var_count);
+    printf("MOVE %s$*%d_2 string@\n", scope, expr_var_count);
+    printf("JUMPIFNEQ *concat_cont%d %s$*%d_type1 string@string\n", expr_var_count, scope, expr_var_count);
+
+    printf("LABEL *strmove_1%d\n", expr_var_count);
+    printf("MOVE %s$*%d_1 ", scope, expr_var_count);
+    print_single_symbol(sym1, scope, false, 0);
+    printf("\n");
+    printf("JUMPIFNEQ *concat_cont%d %s$*%d_type2 string@string\n", expr_var_count, scope, expr_var_count);
+    printf("LABEL *strmove_2%d\n", expr_var_count);
+    printf("MOVE %s$*%d_2 ", scope, expr_var_count);
+    print_single_symbol(sym2, scope, false, 0);
+    printf("\n");
+
+    printf("LABEL *concat_cont%d\n", expr_var_count);
+    // switch (sym1->type)
+    // {
+    // case KW_NULL:
+    //     printf("MOVE %s$*%d_1 string@\n", scope, expr_var_count);
+    //     break;
+    // case STRING_LITERAL:
+    //     evaluateEscapeSequencies(sym1);
+    //     printf("MOVE %s$*%d_1 string@%s\n", scope, expr_var_count, sym1->extra_data.string);
+    //     break;
+    // case EXPR:
+    //     printf("MOVE %s$*%d_1 %s$*%d\n", scope, expr_var_count, scope, sym1->extra_data.value);
+    //     break;
+    // case VARIABLE_ID:
+    //     printf("MOVE %s$*%d_1 %s$%s\n", scope, expr_var_count, scope, sym1->extra_data.string);
+    //     break;
+    // default:
+    //     break;
+    // }
     
-    switch (sym2->type)
-    {
-    case KW_NULL:
-        printf("MOVE %s$*%d_2 string@\n", scope, expr_var_count);
-        break;
-    case STRING_LITERAL:
-        evaluateEscapeSequencies(sym2);
-        printf("MOVE %s$*%d_2 string@%s\n", scope, expr_var_count, sym2->extra_data.string);
-        break;
-    case EXPR:
-        printf("MOVE %s$*%d_2 %s$*%d\n", scope, expr_var_count, scope, sym2->extra_data.value);
-        break;
-    case VARIABLE_ID:
-        printf("MOVE %s$*%d_2 %s$%s\n", scope, expr_var_count, scope, sym2->extra_data.string);
-        break;
-    default:
-        break;
-    }
+    // switch (sym2->type)
+    // {
+    // case KW_NULL:
+    //     printf("MOVE %s$*%d_2 string@\n", scope, expr_var_count);
+    //     break;
+    // case STRING_LITERAL:
+    //     evaluateEscapeSequencies(sym2);
+    //     printf("MOVE %s$*%d_2 string@%s\n", scope, expr_var_count, sym2->extra_data.string);
+    //     break;
+    // case EXPR:
+    //     printf("MOVE %s$*%d_2 %s$*%d\n", scope, expr_var_count, scope, sym2->extra_data.value);
+    //     break;
+    // case VARIABLE_ID:
+    //     printf("MOVE %s$*%d_2 %s$%s\n", scope, expr_var_count, scope, sym2->extra_data.string);
+    //     break;
+    // default:
+    //     break;
+    // }
 
     printf("CONCAT %s$*%d %s$*%d_1 %s$*%d_2\n", scope, expr_var_count, scope, expr_var_count, scope, expr_var_count);
 }

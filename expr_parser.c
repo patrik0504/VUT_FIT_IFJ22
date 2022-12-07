@@ -382,7 +382,7 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
         case SYM_CONCAT:
             //TODO: Zkontrolovat kompatibilitu datových typů u proměnných
             if ((sym1->type == STRING_LITERAL && sym2->type == STRING_LITERAL) || ((sym1->type == VARIABLE_ID) || (sym2->type == VARIABLE_ID)) ||
-             ((sym1->type == EXPR) || (sym2->type == EXPR)))
+             ((sym1->type == EXPR) || (sym2->type == EXPR)) || ((sym1->type == KW_NULL) || (sym2->type == KW_NULL)))
             {
                 generate_operation(expr_var_counter, sym1, sym2, RR_CONCAT, comesFromFunction, context, jump_label, functionPtr, globalFunctions);
             }
