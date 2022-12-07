@@ -311,15 +311,26 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
     {
         Lexeme tmp = *l;
         char * variable = l->extra_data.string;
+        *l = get_token(binaryTree);
+         if (l->type != EQUAL)
+        {
+            result = returnOperator(l);
+            if (result == 0)
+            {
+                return 0;
+            }
+            result = expr(-1, 0, binaryTree, &tmp, NULL, globalFunctions, comesFromFunction, functionPtr);  //-1 kvůli assignmentu bez cílové proměnné
+            return result;
+        }
         if(!comesFromFunction)
         {
             //Kontrola, zda je už proměnná deklarovaná
-            if (((globalFunctions->data->elements != NULL) && (tree_search(globalFunctions->data->elements, l->extra_data.string) == NULL)) || (globalFunctions->data->elements == NULL))
+            if (((globalFunctions->data->elements != NULL) && (tree_search(globalFunctions->data->elements, variable) == NULL)) || (globalFunctions->data->elements == NULL))
             {
                 //Promměná není deklarovaná
                 //Vytvoření nové proměnné
                 p_data data = data_init();
-                p_node local_var = node_init(data, l->extra_data.string);
+                p_node local_var = node_init(data, variable);
                 //Kontrola, zda je strom proměnných inicializovaný
                 if (globalFunctions->data->elements == NULL)
                 {
@@ -330,19 +341,8 @@ int statement(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFr
                 }
             }
         }
-        *l = get_token(binaryTree);
-        if (l->type != EQUAL)
-        {
-            result = returnOperator(l);
-            if (result == 0)
-            {
-                return 0;
-            }
-            result = expr(-1, 0, binaryTree, &tmp, NULL, globalFunctions, comesFromFunction, functionPtr);  //-1 kvůli assignmentu bez cílové proměnné
-        } else
-        { 
-            result = expr(ASSIGNMENT, -1, binaryTree, l, variable, globalFunctions, comesFromFunction, functionPtr);
-        }
+        
+        result = expr(ASSIGNMENT, -1, binaryTree, l, variable, globalFunctions, comesFromFunction, functionPtr);
         if(result != 1)
         {
             return result;
