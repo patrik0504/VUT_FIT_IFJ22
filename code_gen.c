@@ -35,6 +35,9 @@ void codeGenWrite(Lexeme l, bool comesFromFunction)
         case EXPONENT_NUMBER:
             printf("WRITE float@%a\n", l.extra_data.exponent);
             break;
+        case KW_NULL:
+            printf("WRITE nil@nil\n");
+            break;
         case VARIABLE_ID:
         if(comesFromFunction)
         {
@@ -208,7 +211,7 @@ void printBuiltInFunctions()
     printf("DPRINT string@Ve\\032vyrazu\\032jsou\\032nekompatibilni\\032typy!\n");
     printf("EXIT int@7\n");
     printf("LABEL paramtypeerror\n");
-    printf("DPRINT string@V\\032parametru\\032nebo\\032returnu\\032jsou\\032nekompatibilni\\032typy!\n");
+    printf("DPRINT string@V\\032parametru\\032nebo\\032returnu\\032jsou\\032nekompatibilni\\032typy\\032nebo\\032chybi\\032return\\032v\\032nonvoid\\032funkci!\n");
     printf("EXIT int@4\n");
 
     printf("\n#HLAVNI TELO\n");
@@ -424,6 +427,26 @@ void declare_variables(p_node root, bool comesFromFunctions)
 
 void codeGenFunctionEnd(char *functionName, p_node globalFunctions)
 {
+    p_node functionPtr = tree_search(globalFunctions, functionName);
+    printf("DEFVAR LF@%sreturn\n", functionPtr->key);
+    switch (functionPtr->data->func_type)
+    {
+        case INT:
+        case FLOAT:
+        case STRING:
+        case OPTIONALFLOAT:
+        case OPTIONALINT:
+        case OPTIONALSTRING:
+            printf("MOVE LF@%sreturn string@nonvoid\n", functionPtr->key);
+            break;
+        case VOID:
+            printf("MOVE LF@%sreturn string@void\n", functionPtr->key);
+            break;
+        default:
+            break;
+            
+    }
+    printf("JUMPIFNEQ paramtypeerror LF@%sreturn string@void\n", functionPtr->key);
     printf("RETURN\n");
     codeGenDeclareVars(functionName, globalFunctions, true);
     printf("LABEL %sEND\n\n", functionName);
