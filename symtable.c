@@ -94,6 +94,11 @@ void tree_destroy (p_node root)
     {
         tree_destroy(root->left);  // Rekurzivní volání pro levého potomka
         tree_destroy(root->right); // Rekurzivní volání pro pravého potomka
+        if (root->data != NULL)
+        {
+            tree_destroy(root->data->elements);
+            tree_destroy(root->data->params);
+        }
         free(root->data);
         free(root);
     }

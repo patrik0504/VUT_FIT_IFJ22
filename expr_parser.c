@@ -13,7 +13,6 @@
 #include "expr_parser.h"
 
 int negative_par = 0;
-static int expr_var_counter = 0;
 
 int precedence_lookup(symbol_type stack_symbol, symbol_type input)
 {
@@ -328,6 +327,7 @@ bool comesFromFunction, p_node functionPtr, p_node globalFunctions)
 reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_stack stack, p_lex_stack lex_stack, 
     bool comesFromFunction, context context, int jump_label, p_node functionPtr, p_node globalFunctions)
 {
+    static int expr_var_counter = 0;
     // Pravidla s jedním operandem
     if (op1 == -1 && op2 == -1)
     {
