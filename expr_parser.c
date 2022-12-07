@@ -147,13 +147,14 @@ int expr(context context, int jump_label, p_node symtable, Lexeme *target, char 
         }
     }
 
+    char* scope = "GF@";
+    if(comesFromFunction)
+    {
+        scope = "LF@";
+    }
+    
     if (context == ASSIGNMENT || context == RETURN)
     {
-        char* scope = "GF@";
-        if(comesFromFunction)
-        {
-            scope = "LF@";
-        }
         // stack_print(stack);
         //Řešení typu u assigmentu
         Lexeme * last = lexStack_pop(lex_stack);
@@ -197,6 +198,11 @@ int expr(context context, int jump_label, p_node symtable, Lexeme *target, char 
         {
             checkReturnType(callFunctionType, comesFromFunction, callFunctionNode->key, callFunctionNode->data->return_count);
         }
+    }
+    else
+    {
+        // V případě, že jde o if/while, uchováváme výsledek do speciální proměnné, která pak řídí jump
+        check_rule(-1, -1, -1, stack, lex_stack, comesFromFunction, context, jump_label, functionPtr, globalFunctions);
     }
 
     stack_destroy(stack);
@@ -328,6 +334,15 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
     bool comesFromFunction, context context, int jump_label, p_node functionPtr, p_node globalFunctions)
 {
     static int expr_var_counter = 0;
+    // Umělé volání pro aritmetickou podmínku
+    if(op1 == -1 && op2 == -1 && op3 == -1)
+    {
+        Lexeme * last = lexStack_pop(lex_stack);
+        generate_operation(expr_var_counter, last, NULL, RR_None, comesFromFunction, context, jump_label, functionPtr, globalFunctions);
+        expr_var_counter++;
+        return RR_None;
+    }
+
     // Pravidla s jedním operandem
     if (op1 == -1 && op2 == -1)
     {

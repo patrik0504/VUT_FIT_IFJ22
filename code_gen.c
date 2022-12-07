@@ -505,6 +505,22 @@ void expr_move(char* target, int source_var_count, bool comesFromFunction)
 void generate_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, operation operation, 
 bool comesFromFunction, gen_context context, int jump_label, p_node functionPtr, p_node globalFunctions)
 {
+    // Umělé volání pro aritmetickou podmínku
+    if(sym1 != NULL && sym2 == NULL)
+    {
+        char* scope = "GF@";
+        if(comesFromFunction) scope = "LF@";
+
+        define_comp_var(expr_var_count, comesFromFunction, functionPtr, globalFunctions);
+        define_vars_for_typecheck(expr_var_count, comesFromFunction, functionPtr, globalFunctions);
+        fill_in_type_vars(sym1, NULL, scope, expr_var_count);
+        arithmetic_if_while(sym1, comesFromFunction, expr_var_count);
+        //printf("LABEL *relJUMP%d\n", expr_var_count-1);
+        print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, true);
+        if (context == CG_IF) printf("LABEL IFTRUE%d\n", jump_label);
+        if (context == CG_WHILE) printf("LABEL WHILETRUE%d\n", jump_label);
+        return;
+    }
     int check;
     //Switch pro generaci jednotlivých operací
     switch (operation)
@@ -584,34 +600,66 @@ bool comesFromFunction, gen_context context, int jump_label, p_node functionPtr,
     case RR_LESSER: //  <
         //operation_print_symbols(expr_var_count, sym1, sym2, "LT", comesFromFunction, functionPtr, globalFunctions, false);
         relation_operation(expr_var_count, sym1, sym2, "LT", comesFromFunction, functionPtr, globalFunctions);
-        print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
+        print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, false);
         break;
     case RR_LESOREQ: //  <=
         relation_operation(expr_var_count, sym1, sym2, "LTE", comesFromFunction, functionPtr, globalFunctions);
         // mixed_jump_print_symbols(expr_var_count, sym1, sym2, "LT", comesFromFunction, functionPtr, globalFunctions);
-        print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
+        print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, false);
         break;
     case RR_GREATER: //  >
         //operation_print_symbols(expr_var_count, sym1, sym2, "GT", comesFromFunction, functionPtr, globalFunctions, false);
         relation_operation(expr_var_count, sym1, sym2, "GT", comesFromFunction, functionPtr, globalFunctions);
-        print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
+        print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, false);
         break;
     case RR_GREOREQ: //  >=
         relation_operation(expr_var_count, sym1, sym2, "GTE", comesFromFunction, functionPtr, globalFunctions);
         //mixed_jump_print_symbols(expr_var_count, sym1, sym2, "GT", comesFromFunction, functionPtr, globalFunctions);
-        print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
+        print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, false);
         break;
     case RR_EQ: //  ===
         //operation_print_symbols(expr_var_count, sym1, sym2, "EQ", comesFromFunction, functionPtr, globalFunctions, false);
         relation_operation(expr_var_count, sym1, sym2, "EQ", comesFromFunction, functionPtr, globalFunctions);
-        print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
+        print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, false);
         break;
     case RR_NOTEQ: //  !==
         // operation_print_symbols(expr_var_count, sym1, sym2, "EQ", comesFromFunction, functionPtr, globalFunctions, false);
         relation_operation(expr_var_count, sym1, sym2, "NEQ", comesFromFunction, functionPtr, globalFunctions);
-        print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, "false");
+        print_expr_jump(context, jump_label, expr_var_count, comesFromFunction, false);
         break;
 
+    default:
+        break;
+    }
+}
+
+void arithmetic_if_while(Lexeme* last, bool comesFromFunction, int expr_var_count)
+{
+    char* scope ="GF@";
+    if (comesFromFunction) scope = "LF@";
+    switch (last->type)
+    {
+    case VARIABLE_ID:
+        printf("MOVE %s$*%d %s$%s\n", scope, expr_var_count, scope, last->extra_data.string);
+        break;
+    case EXPR:
+        printf("MOVE %s$*%d %s$*%d\n", scope, expr_var_count, scope, last->extra_data.value);
+        break;
+    case NUMBER:
+        printf("MOVE %s$*%d int@%d\n", scope, expr_var_count, last->extra_data.value);
+        break;
+    case STRING_LITERAL:
+        evaluateEscapeSequencies(last);
+        printf("MOVE %s$*%d string@%s\n", scope, expr_var_count, last->extra_data.string);
+        break;
+    case DECIMAL_NUMBER:
+    case EXPONENT_NUMBER:
+        printf("MOVE %s$*%d float@%a\n", scope, expr_var_count, last->extra_data.decimal);
+        break;
+    case KW_NULL:
+        printf("MOVE %s$*%d nil@nil\n", scope, expr_var_count);
+        break;
+    
     default:
         break;
     }
@@ -651,6 +699,8 @@ void fill_in_type_vars(Lexeme* sym1, Lexeme* sym2, char* scope, int expr_var_cou
     default:
         break;
     }
+    
+    if(sym2 == NULL) return;
 
     switch (sym2->type)
     {
@@ -1380,20 +1430,50 @@ void print_single_symbol(Lexeme* lexeme, char* scope, bool is_helper, int helper
     }
 }
 
-void print_expr_jump(gen_context context, int jump_label, int expr_var_count, bool comesFromFunction, char* skip_on)
+void print_expr_jump(gen_context context, int jump_label, int expr_var_count, bool comesFromFunction, bool arithemtic)
 {
-    printf("LABEL *relJUMP%d\n", expr_var_count);
     char* scope = "GF@";
+    char* true_jump = "IFTRUE";
+    char* false_jump = "IFELSE";
+    if(context == CG_WHILE)
+    {
+        true_jump = "WHILETRUE";
+        false_jump = "WHILEEND";
+    }
     if(comesFromFunction)
     {
         scope = "LF@";
     }
-    if (context == CG_IF)
+    if(arithemtic == false)
     {
-        printf("JUMPIFEQ IFELSE%d %s$*%d bool@%s\n", jump_label, scope, expr_var_count, skip_on);
+        printf("LABEL *relJUMP%d\n", expr_var_count);
+        printf("JUMPIFEQ %s%d %s$*%d bool@false\n", false_jump, jump_label, scope, expr_var_count);
+        printf("JUMP %s%d\n", true_jump, jump_label);
     }
-    else if (context == CG_WHILE)
+    else
     {
-        printf("JUMPIFEQ WHILEEND%d %s$*%d bool@%s\n", jump_label, scope, expr_var_count, skip_on);
+        // Null se vyhodnocuje jako false
+        printf("JUMPIFEQ %s%d %s$*%d_type1 string@nil\n", false_jump, jump_label, scope, expr_var_count);
+
+        // "" a "0" jsou false (chytání stringu)
+        printf("JUMPIFEQ *string_if%d %s$*%d_type1 string@string\n", expr_var_count, scope, expr_var_count);
+
+        // 0 je false (chytání intu)
+        printf("JUMPIFEQ *int_if%d %s$*%d_type1 string@int\n", expr_var_count, scope, expr_var_count);
+
+        // zde float; 0.0 => false jinak true
+        printf("JUMPIFEQ %s%d %s$*%d float@%a\n", false_jump, jump_label, scope, expr_var_count, 0.0);
+        printf("JUMP %s%d\n", true_jump, jump_label);
+
+        // zde string; "" a "0" => false jinak true
+        printf("LABEL *string_if%d\n", expr_var_count);
+        printf("JUMPIFEQ %s%d %s$*%d string@\n", false_jump, jump_label, scope, expr_var_count);
+        printf("JUMPIFEQ %s%d %s$*%d string@0\n", false_jump, jump_label, scope, expr_var_count);
+        printf("JUMP %s%d\n", true_jump, jump_label);
+
+        // zde int; 0 => false jinak true
+        printf("LABEL *int_if%d\n", expr_var_count);
+        printf("JUMPIFEQ %s%d %s$*%d int@0\n", false_jump, jump_label, scope, expr_var_count);
+        printf("JUMP %s%d\n", true_jump, jump_label);
     }
 }

@@ -222,6 +222,13 @@ void codeGenWhileEnd(int c);
 void generate_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, operation operation, 
     bool comesFromFunction, gen_context context, int jump_label, p_node functionPtr, p_node globalFunctions);
 
+/** Funkce vyhodnocující pravdivostní hodnotu podmínky, která neobsahuje relační operátory
+ *  @param last Poslední lexém z PSA, tedy vstup, podle kterého se podmínka vyhodnocuje
+ *  @param comesFromFunction Bool hodnota určující globální / lokální rámec
+ *  @param expr_var_count Count pro generaci unikátních ID pro dočasné proměnné
+*/
+void arithmetic_if_while(Lexeme* last, bool comesFromFunction, int expr_var_count);
+
 /** Funkce pro float konverzi
  *  @param sym Konvertovaný symbol
  *  @param scope  Buď "LF@" nebo "GF@" v závislosti na local/global framu
@@ -350,8 +357,8 @@ void expr_move(char* target, int source_var_count, bool comesFromFunction);
  *  @param jump_label Číslo ifu/whilu
  *  @param comesFromFunction Bool hodnota určující globální / lokální rámec
  *  @param expr_var_count Count pro generaci unikátních ID pro dočasné proměnné
- *  @param skip_on String nastavený na "true" pro operaci !==, jinak "false"
+ *  @param arithmetic Flag značící skok u aritmetické podmínky
 */
-void print_expr_jump(gen_context context, int jump_label, int expr_var_count, bool comesFromFunction, char* skip_on);
+void print_expr_jump(gen_context context, int jump_label, int expr_var_count, bool comesFromFunction, bool arithemtic);
 
 #endif
