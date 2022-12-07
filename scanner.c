@@ -460,6 +460,14 @@ Lexeme scan_lexeme(int *row, bool epilog, bool prolog)
         {
             (*row)++;
         }
+        if (c == '\r')
+        {
+            c = getchar();
+            if (c == '\n')
+            {
+                (*row)++;
+            }
+        }
         //Escapování uvozovek
         if(c == '"')
         {
