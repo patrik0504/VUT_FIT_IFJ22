@@ -25,7 +25,11 @@ jobs:
         run: |
          make
          sudo chmod +777 ic22int
+         sudo chmod +777 extensions
+         cp extensions testsJirka
          cd testsJirka
+         rm -r tests/Boolthen
+         rm -r tests/Funexp
          ./test.py ../ifj_comp ../ic22int
 
       - name: valgrind
