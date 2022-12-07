@@ -1,3 +1,14 @@
+/**
+ * ***********************IFJ PROJEKT 2022********************************
+ * @file symtable.h
+ * @author  Matěj Toul          (xtoulm00@stud.fit.vutbr.cz)
+ *          Lukáš Etzler        (xetzle00@stud.fit.vutbr.cz)
+ * @brief Implementace binárního vyhledávacího stromu
+ * @date 2022-12-06
+ * 
+ * @copyright Copyright (c) 2022
+*/
+
 #ifndef SYMTABLE_FILE
 #define SYMTABLE_FILE
 

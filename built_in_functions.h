@@ -1,3 +1,13 @@
+/**
+ * ***********************IFJ PROJEKT 2022********************************
+ * @file built_in_functions.h
+ * @author Veronika Nevařilová (xnevar00@stud.fit.vutbr.cz)
+ * @brief Pomocné funkce pro kontrolu a generování kódu vestavěných funkcí
+ * @date 2022-12-06
+ * 
+ * @copyright Copyright (c) 2022
+*/
+
 #ifndef BUILT_IN_FUNCTIONS_FILE
 #define BUILT_IN_FUNCTIONS_FILE
 

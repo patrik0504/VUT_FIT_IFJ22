@@ -1,3 +1,14 @@
+/**
+ * ***********************IFJ PROJEKT 2022********************************
+ * @file stack.h
+ * @author  Matěj Toul          (xtoulm00@stud.fit.vutbr.cz)
+ *          Lukáš Etzler        (xetzle00@stud.fit.vutbr.cz)
+ * @brief Implementace zásobníku pro precedenční syntaktickou analýzu
+ * @date 2022-12-06
+ * 
+ * @copyright Copyright (c) 2022
+*/
+
 #ifndef STACK_FILE
 #define STACK_FILE
 

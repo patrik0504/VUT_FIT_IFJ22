@@ -1,3 +1,13 @@
+/**
+ * ***********************IFJ PROJEKT 2022********************************
+ * @file built_in_functions.c
+ * @author Veronika Nevařilová (xnevar00@stud.fit.vutbr.cz)
+ * @brief Pomocné funkce pro kontrolu a generování kódu vestavěných funkcí
+ * @date 2022-12-06
+ * 
+ * @copyright Copyright (c) 2022
+*/
+
 #include "built_in_functions.h"
 
 
@@ -188,85 +198,3 @@ void evaluateEscapeSequencies(Lexeme *l)
         i++;
     }
 }
-
-/*int builtInReads(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr)
-{
-    int result = 0;
-    *l = get_token(binaryTree);
-    if (l->type == LBRACKET)
-    {
-        *l = get_token(binaryTree);
-        if (l->type == RBRACKET)
-        {
-            codeGenReads();
-            result = 1;
-        } else
-        {
-            error(l->row, "Neočekávaný znak ve volání READS", SYNTAX_ERROR);
-        }
-    } else
-    {
-        error(l->row, "Neočekávaný znak ve volání READS", SYNTAX_ERROR);
-    }
-    if (get_token(binaryTree).type != SEMICOLON)
-    {
-        error(l->row, "Chybí středník u volání funkce READS", SYNTAX_ERROR);
-        result = 0;
-    }
-    return result;
-}
-
-int builtInReadi(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr)
-{
-    int result = 0;
-    *l = get_token(binaryTree);
-    if (l->type == LBRACKET)
-    {
-        *l = get_token(binaryTree);
-        if (l->type == RBRACKET)
-        {
-            codeGenReadi();
-            result = 1;
-        } else
-        {
-            error(l->row, "Neočekávaný znak ve volání READI", SYNTAX_ERROR);
-        }
-    } else
-    {
-        error(l->row, "Neočekávaný znak ve volání READI", SYNTAX_ERROR);
-    }
-    if (get_token(binaryTree).type != SEMICOLON)
-    {
-        error(l->row, "Chybí středník u volání funkce READI", SYNTAX_ERROR);
-        result = 0;
-    }
-    return result;
-}
-
-int builtInReadf(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFromFunction, p_node functionPtr)
-{
-    int result = 0;
-    *l = get_token(binaryTree);
-    if (l->type == LBRACKET)
-    {
-        *l = get_token(binaryTree);
-        if (l->type == RBRACKET)
-        {
-            codeGenReadf();
-            result = 1;
-        } else
-        {
-            error(l->row, "Neočekávaný znak ve volání READF", SYNTAX_ERROR);
-        }
-    } else
-    {
-        error(l->row, "Neočekávaný znak ve volání READF", SYNTAX_ERROR);
-    }
-    if (get_token(binaryTree).type != SEMICOLON)
-    {
-        error(l->row, "Chybí středník u volání funkce READF", SYNTAX_ERROR);
-        result = 0;
-    }
-    return result;
-}*/
-

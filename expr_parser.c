@@ -1,3 +1,15 @@
+/**
+ * ***********************IFJ PROJEKT 2022********************************
+ * @file expr_parser.c
+ * @author  Matěj Toul          (xtoulm00@stud.fit.vutbr.cz)
+ *          Lukáš Etzler        (xetzle00@stud.fit.vutbr.cz)
+ * @brief Precedenční syntaktická analýza
+ * @date 2022-12-06
+ * 
+ * @copyright Copyright (c) 2022
+*/
+
+
 #include "expr_parser.h"
 
 int negative_par = 0;
@@ -59,7 +71,7 @@ int expr(context context, int jump_label, p_node symtable, Lexeme *target, char 
 
     push(stack, SYM_STACK_TAG);
     
-    if (context == -1)
+    if (context == -1)  // Případ, kdy je na řádku například $x + 5; -> potřeba vyhodnotit jako assignment s přiřazením do nepoužívané proměnné 
     {
         l = *target;
         context = ASSIGNMENT;
@@ -92,7 +104,8 @@ int expr(context context, int jump_label, p_node symtable, Lexeme *target, char 
     if (context == RETURN)
     {
         context = ASSIGNMENT;
-        isReturn = true;
+        isReturn = true;    //v případě returnu probíhá vyhodnocování jako assignment do **returnvar, potřebujeme uchovat
+                            //informaci, že byl zavolán return a ne assignment
         variable_name = "**returnvar";
         callFunctionNode = functionPtr;
     }
@@ -187,7 +200,6 @@ int expr(context context, int jump_label, p_node symtable, Lexeme *target, char 
         }
     }
 
-    //printf("\n");
     stack_destroy(stack);
     lexStack_stack_destroy(lex_stack);
     return 1;
@@ -212,11 +224,10 @@ bool comesFromFunction, p_node functionPtr, p_node globalFunctions)
             }
             if(!check_defined)
             {
-                error(l->row, "Premmená vo výraze nie je definovaná", SEM_UNDEFINED_VAR_ERROR);
+                error(l->row, "Proměnná ve výrazu není definovaná", SEM_UNDEFINED_VAR_ERROR);
             }
         }
         lexStack_push(lex_stack, l);
-        //printf("%d\n", lexStack_pop(lex_stack)->type);
     }
     
     symbol_type input_symbol = lex_type_to_psa(l);
@@ -276,7 +287,6 @@ bool comesFromFunction, p_node functionPtr, p_node globalFunctions)
         {
             pop(stack); // Pop handle
             push(stack, SYM_NONTERMINAL);
-            //printf("%d ", result);
             return 1;
         }
         else
@@ -290,7 +300,6 @@ bool comesFromFunction, p_node functionPtr, p_node globalFunctions)
     case 1:
         push(stack, input_symbol);
 
-        //printf("%d ", RR_PAR);
         *l = get_token(symtable);
         return 1;
         break;
@@ -312,8 +321,6 @@ bool comesFromFunction, p_node functionPtr, p_node globalFunctions)
             return 0;
         }
         error(l->row, "Chyba v posloupnosti symbolů v rámci výrazu!", SYNTAX_ERROR);
-        // debug 
-        //printf("Stack: %s Input: %s\n",symbol_type_err[non_terminal_check(stack)], symbol_type_err[input_symbol]);
         return 0;
     }
 }
@@ -337,7 +344,6 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
     if (op3 == SYM_RPAR && op2 == SYM_NONTERMINAL && op1 == SYM_LPAR)
     {
         if(negative_par == 1){
-                //printf("NEG_PAR ");
                 lexStack_peek(lex_stack)->negative_num = true;
                 negative_par = 0;
         }
@@ -354,8 +360,6 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
         {
             return 0;
         }
-        //printf("%d\n", lexStack_pop(lex_stack)->type);
-        //printf("%d\n", lexStack_pop(lex_stack)->type);
 
         Lexeme *sym2 = lexStack_pop(lex_stack);
         Lexeme *sym1 = lexStack_pop(lex_stack);

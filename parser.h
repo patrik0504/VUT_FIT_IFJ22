@@ -1,7 +1,17 @@
+/**
+ * ***********************IFJ PROJEKT 2022********************************
+ * @file parser.h
+ * @author  Veronika Nevařilová (xnevar00@stud.fit.vutbr.cz)
+ *          Patrik Michlian     (xmichl12@stud.fit.vutbr.cz)
+ * @brief Syntaktická a Sémantická analýza
+ * @date 2022-12-06
+ * 
+ * @copyright Copyright (c) 2022
+*/
+
+
 #ifndef PARSER_FILE
 #define PARSER_FILE
-
-
 
 #include <stdio.h>
 #include <string.h>
@@ -224,37 +234,37 @@ Lexeme * token_init();
 void token_free(Lexeme * token);
 
 /**
- * Funkcia na vloženie novej funkcie do stromu
+ * Funkce na vložení nové funkce do stromu
  * 
- * @param globalFunctions ukazovateľ na globálny strom
- * @param l ukazovateľ na aktuálny lexém v ktorom je meno funkcie
+ * @param globalFunctions Ukazatel na globální strom
+ * @param l ukazatel na aktuální lexém, ve kterém je jméno funkce
  */
 void insert_function(p_node globalFunctions, Lexeme *l);
 
 /**
- * Inicializuje data pre binárny strom
+ * Inicializuje data pro binární strom
  * 
  * @return p_data 
  */
 p_data data_init();
 
 /**
- * Funkcia inicializuje data pre binárny strom
+ * Funkce inicializuje data pro binární strom
  * 
- * @param type Typ dát 
- * @return p_data ukazatel na inicializované dáta
+ * @param type Typ dat
+ * @return p_data ukazatel na inicializované data
  */
 p_data data_init_type(int type);
 
 /**
- * vytváří data pro keywords
+ * Vytváří data pro keywords
  * 
  * @return vrací ukazatel na data keywords
  */
 p_data data_init_KW();
 
 /**
- * Funkcia mení KW type na type
+ * Funkce mění KW type na type
  * 
  * @param l Ukazatel na aktuální token
  * @return int Type aktuálního tokenu
@@ -262,16 +272,16 @@ p_data data_init_KW();
 int lexeme_type_to_type(Lexeme *l);
 
 /**
- * Funkcia nastavuje parametre pre vstavané funkcie
+ * Funkcia nastavuje parametry pro vestavěné funkce
  * 
  * @param binaryTree Binární strom obsahující keywords, potřeba pro scanner při volání get_token 
  */
 void set_params_in_builtin_functions(p_node binaryTree);
 
 /**
- * Funkcia inicialzuje globálny strom pre globálne telo programu
+ * Funkce inicializuje globální strom pro globální tělo programu
  * 
- * @return p_node Vracia ukazatel na inicializovaný strom
+ * @return p_node Vrací ukazatel na inicializovaný strom
  */
 p_node init_global_function();
 

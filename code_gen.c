@@ -1,3 +1,16 @@
+/**
+ * ***********************IFJ PROJEKT 2022********************************
+ * @file code_gen.c
+ * @author  Veronika Nevařilová (xnevar00@stud.fit.vutbr.cz)
+ *          Patrik Michlian     (xmichl12@stud.fit.vutbr.cz)
+ *          Matěj Toul          (xtoulm00@stud.fit.vutbr.cz)
+ *          Lukáš Etzler        (xetzle00@stud.fit.vutbr.cz)
+ * @brief Generování kódu jazyka IFJcode22
+ * @date 2022-12-06
+ * 
+ * @copyright Copyright (c) 2022
+*/
+
 #include "code_gen.h"
 
 
@@ -70,7 +83,7 @@ void printBuiltInFunctions()
     /*****************FUNCTION SUBSTRING******************/
     printf("LABEL substring\n");
     printf("PUSHFRAME\n");
-    printf("DEFVAR LF@**returnvar\n");                        //string returnvar;
+    printf("DEFVAR LF@**returnvar\n");                      //string returnvar;
     printf("MOVE LF@**returnvar string@\n");
     printf("DEFVAR LF@indexcount\n");                       //int indexcount;
     printf("MOVE LF@indexcount LF@param2\n");
@@ -178,8 +191,6 @@ void printBuiltInFunctions()
     printf("POPFRAME\n");
     printf("RETURN\n");
 
-
-
     /*****************FUNCTION CHR******************/
     printf("LABEL chr\n");
     printf("PUSHFRAME\n");
@@ -197,6 +208,7 @@ void printBuiltInFunctions()
     printf("DPRINT string@Ve\\032vyrazu\\032jsou\\032nekompatibilni\\032typy!\n");
     printf("EXIT int@7\n");
     printf("LABEL paramtypeerror\n");
+    printf("DPRINT string@V\\032parametru\\032nebo\\032returnu\\032jsou\\032nekompatibilni\\032typy!\n");
     printf("EXIT int@4\n");
 
     printf("\n#HLAVNI TELO\n");
@@ -263,41 +275,40 @@ void checkReturnType(int type, bool comesFromFunction, char *functionName, int n
     if (comesFromFunction)
     {
         char *scope = "LF";
-    printf("TYPE %s@paramtype LF@**returnvar\n", scope);
-    switch (type)
-    {
-        case INT:
-            printf("JUMPIFNEQ paramtypeerror %s@paramtype string@int\n", scope);
-            break;
-        case STRING:
-            printf("JUMPIFNEQ paramtypeerror %s@paramtype string@string\n", scope);
-            break;
-        case FLOAT:
-            printf("JUMPIFNEQ paramtypeerror %s@paramtype string@float\n", scope);
-            break;
-        case OPTIONALFLOAT:
-            printf("JUMPIFEQ %sreturntypeOK%d %s@paramtype string@float\n", functionName, number, scope);
-            printf("JUMPIFNEQ paramtypeerror %s@paramtype string@nil\n", scope);
-            break;
-        case OPTIONALINT:
-            printf("JUMPIFEQ %sreturntypeOK%d %s@paramtype string@int\n", functionName, number, scope);
-            printf("JUMPIFNEQ paramtypeerror %s@paramtype string@nil\n", scope);
-            break;
-        case OPTIONALSTRING:
-            printf("JUMPIFEQ %sreturntypeOK%d %s@paramtype string@string\n", functionName, number, scope);
-            printf("JUMPIFNEQ paramtypeerror %s@paramtype string@nil\n", scope);
-            break;
-        default:
-            break;
-    }
-    printf("LABEL %sreturntypeOK%d\n", functionName, number);
+        printf("TYPE %s@paramtype LF@**returnvar\n", scope);
+        switch (type)
+        {
+            case INT:
+                printf("JUMPIFNEQ paramtypeerror %s@paramtype string@int\n", scope);
+                break;
+            case STRING:
+                printf("JUMPIFNEQ paramtypeerror %s@paramtype string@string\n", scope);
+                break;
+            case FLOAT:
+                printf("JUMPIFNEQ paramtypeerror %s@paramtype string@float\n", scope);
+                break;
+            case OPTIONALFLOAT:
+                printf("JUMPIFEQ %sreturntypeOK%d %s@paramtype string@float\n", functionName, number, scope);
+                printf("JUMPIFNEQ paramtypeerror %s@paramtype string@nil\n", scope);
+                break;
+            case OPTIONALINT:
+                printf("JUMPIFEQ %sreturntypeOK%d %s@paramtype string@int\n", functionName, number, scope);
+                printf("JUMPIFNEQ paramtypeerror %s@paramtype string@nil\n", scope);
+                break;
+            case OPTIONALSTRING:
+                printf("JUMPIFEQ %sreturntypeOK%d %s@paramtype string@string\n", functionName, number, scope);
+                printf("JUMPIFNEQ paramtypeerror %s@paramtype string@nil\n", scope);
+                break;
+            default:
+                break;
+        }
+        printf("LABEL %sreturntypeOK%d\n", functionName, number);
     }
 
 }
 
 void returnVariable(char *destination, bool comesFromFunction)
 {
-
     if(comesFromFunction)
     {
         printf("MOVE LF@$%s TF@**returnvar\n",destination);
@@ -310,7 +321,7 @@ void returnVariable(char *destination, bool comesFromFunction)
 void declareFunction(char *functionName)
 {
     printf("\n#FUNCTION %s\n", functionName);
-    printf("JUMP %sEND\n", functionName);       //potreba preskocit deklaraci funkce pri vykonavaci hlavniho tela programu
+    printf("JUMP %sEND\n", functionName);       //potřeba přeskočit deklaraci funkce při vykonáváníi hlavního těla programu
     printf("LABEL %s\n", functionName);
     printf("PUSHFRAME\n");
     printf("JUMP %sVARDECLARE\n", functionName);
@@ -319,7 +330,6 @@ void declareFunction(char *functionName)
 
 void declareParams(int number, char *varName, int type, char *functionName)
 {
-    //printf("DEFVAR LF@$%s\n", varName);
     printf("TYPE LF@paramtype LF@param%d\n", number);
     switch (type)
     {
@@ -507,7 +517,7 @@ bool comesFromFunction, gen_context context, int jump_label, p_node functionPtr,
         }
         else if (check == 2)
         {
-            // Dynamická kontrola typů
+            // dynamická kontrola typů
             type_checked_operation(expr_var_count, sym1, sym2, "SUB", comesFromFunction, functionPtr, globalFunctions);
         }
         break;
@@ -525,7 +535,7 @@ bool comesFromFunction, gen_context context, int jump_label, p_node functionPtr,
         }
         else if (check == 2)
         {
-            // Dynamická kontrola typů
+            // dynamická kontrola typů
             type_checked_operation(expr_var_count, sym1, sym2, "MUL", comesFromFunction, functionPtr, globalFunctions);
         }
         break;
@@ -534,12 +544,12 @@ bool comesFromFunction, gen_context context, int jump_label, p_node functionPtr,
         check = type_check(sym1, sym2);
         if (check == 0 || check == 1)
         {
-            // Div vždy konvertujeme na float, i když jsou na vstupu 2 inty
+            // div vždy konvertujeme na float, i když jsou na vstupu 2 inty
             operation_print_symbols(expr_var_count, sym1, sym2, "DIV", comesFromFunction, functionPtr, globalFunctions, true);
         }
         else if (check == 2)
         {
-            // Dynamická kontrola typů
+            // dynamická kontrola typů
             type_checked_operation(expr_var_count, sym1, sym2, "DIV", comesFromFunction, functionPtr, globalFunctions);
         }
         //operation_print_symbols(expr_var_count, sym1, sym2, "DIV", comesFromFunction, functionPtr, globalFunctions, true);

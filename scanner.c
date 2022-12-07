@@ -1,10 +1,22 @@
+/**
+ * ***********************IFJ PROJEKT 2022********************************
+ * @file scanner.c
+ * @author  Veronika Nevařilová (xnevar00@stud.fit.vutbr.cz)
+ *          Patrik Michlian     (xmichl12@stud.fit.vutbr.cz)
+ * @brief Lexikální analýza
+ * @date 2022-12-06
+ * 
+ * @copyright Copyright (c) 2022
+*/
+
+
 #include "scanner.h"
 
 
 p_node init_binary_treeKW()
 {
-    // Inicializacia binarneho stromu
-    // Postupné vloženie kľúčových slov do binarneho stromu
+    // Inicializace binárního stromu
+    // Postupné vložení klíčových slov do binárního stromu
     p_node root = node_init(NULL, "if");
     p_node node2 = node_init(NULL, "while");
     insert_node(root, node2);
@@ -201,7 +213,7 @@ void shiftLeft(char* buffer, int shift, int stringlength)
 
 int transferEscapeSequences(char* buffer, int stringlength)
 {
-    //Prechadzame string a hladáme escape sekvencie
+    //Procházíme string a hledáme escape sekvence
     for (int i = 0; i < stringlength; i++)
     {
         //92 == '\'
@@ -209,28 +221,28 @@ int transferEscapeSequences(char* buffer, int stringlength)
         {
             if ((i+1 < stringlength) && buffer[i+1] == 'n') 
             {
-                //Na miesto escape sekvencie vlozime znak noveho riadku
+                //Na místo escape sekvence vložíme znak nového řádku
                 buffer[i] = '\n';
                 shiftLeft(&buffer[i+1], ESCAPE, stringlength - i -1);
                 stringlength -= ESCAPE;
                 continue;
             } else if((i+1 < stringlength) && buffer[i+1] == 't')
             {
-                //Na miesto escape sekvencie vlozime znak tabulátora
+                //Na místo escape sekvence vložime znak tabulátoru
                 buffer[i] = '\t';
                 shiftLeft(&buffer[i+1], ESCAPE, stringlength - i -1);
                 stringlength -= ESCAPE;
                 continue;
             }  else if((i+1 < stringlength) && buffer[i+1] == '$')
             {
-                //Na miesto escape sekvencie vlozime znak tabulátora
+                //Na místo escape sekvence vložíme znak dolaru
                 buffer[i] = '$';
                 shiftLeft(&buffer[i+1], ESCAPE, stringlength - i -1);
                 stringlength -= ESCAPE;
                 continue;
             } else if((i+1 < stringlength) && buffer[i+1] == 92)
             {
-                //Na miesto escape sekvencie vlozime znak lomitka
+                //Na místo escape sekvence vložíme znak lomítka
                 buffer[i] = 92;
                 shiftLeft(&buffer[i+1], ESCAPE, stringlength - i -1);
                 stringlength -= ESCAPE;
@@ -241,29 +253,29 @@ int transferEscapeSequences(char* buffer, int stringlength)
                 {
                     continue;
                 }
-                //Konverzia hex čísla na desiatkové číslo
+                //Konverze hex čísla na desítkové číslo
                 int ascii_value = StrHexToDec(&buffer[i+2]);
-                //Kontrola správaneho ASCII kódu
+                //Kontrola správnosti ASCII kódu
                 if(ascii_value == ERRORRETURN)
                 {
                     continue;
                 }
-                //Vloženie ASCII kódu na miesto escape sekvencie
+                //Vložení ASCII kódu na místo escape sekvence
                 buffer[i] = ascii_value;
-                //Posunutie ďalších znakov o 3 pozície doľava
+                //Posunutíe ďalších znaků o 3 pozice doleva
                 shiftLeft(&buffer[i+1], ESCAPEHEXA, stringlength - i-1);
                 stringlength -= ESCAPEHEXA;
             }else if (i+3 < stringlength)
             {
-                //Konverzia z oktálneho čísla na desiatkové číslo
+                //Konverze z oktálového čísla na desítkové číslo
                 int ascii_value = StrOctToDec(&buffer[i+1]);
-                //Kontrola správaneho ASCII kódu               
+                //Kontrola správnosti ASCII kódu               
                 if(ascii_value == ERRORRETURN){
                     continue;
                 }
-                //Vloženie ASCII kódu na miesto escape sekvencie
+                //Vložení ASCII kódu na místo escape sekvence
                 buffer[i] = ascii_value;
-                //Posunutie ďalších znakov o 3 pozície doľava
+                //Posunutí dalších znaků o 3 pozice doleva
                 shiftLeft(&buffer[i+1], ESCAPEOCTA, stringlength - i-1);
                 stringlength -= ESCAPEOCTA;
             }
@@ -276,9 +288,8 @@ int transferEscapeSequences(char* buffer, int stringlength)
 
 Lexeme generateLexeme(AutomatState state, char* buffer, int stringlength, int row)
 {
-    //Vytvorenie lexému
+    //Vytvoření lexému
     Lexeme final_lexeme;
-    //Dprintf("Row: %d Buffer: %s \n", row, buffer);
     final_lexeme.row = row;
     final_lexeme.negative_num = 0;
     switch(state)
@@ -295,20 +306,20 @@ Lexeme generateLexeme(AutomatState state, char* buffer, int stringlength, int ro
         case StringEnd:
             final_lexeme.type = STRING_LITERAL;
             stringlength = transferEscapeSequences(buffer, stringlength);
-            stringlength-=2;    //kvuli uvozovkam na zacatku a na konci retezce
-            //Alokace pameti pro retezec
+            stringlength-=2;    //Kvůli uvozovkám na začátku a na konci řetězce
+            //Alokace paměti pro řetězec
             final_lexeme.extra_data.string =  malloc((stringlength)*sizeof(char));
             strncpy(final_lexeme.extra_data.string, buffer+1, (stringlength-1)*sizeof(char));
             final_lexeme.extra_data.string[stringlength-1] = '\0';
             break;
         case Number:
             final_lexeme.type = NUMBER;
-            //Prevedenie stringu na číslo a uloženie do lexému
+            //Převedení řetězce na číslo a uložení do lexému
             final_lexeme.extra_data.value = atoi(buffer);
             break;
         case Decimal:
             final_lexeme.type = DECIMAL_NUMBER;
-            //Prevedenie stringu na číslo a uloženie do lexému
+            //Převedení stringu na číslo a uložení do lexému
             if(buffer[stringlength-2] == '.')
             {
                 error(row, "Desatinné číslo nemôže končiť s .", LEX_ERROR);
@@ -318,18 +329,18 @@ Lexeme generateLexeme(AutomatState state, char* buffer, int stringlength, int ro
             break;
         case Exponent:
             final_lexeme.type = EXPONENT_NUMBER;
-            //Prevedenie stringu na číslo a uloženie do lexému
+            //Převedení řetězce na číslo a uložení do lexému
             final_lexeme.extra_data.exponent = atof(buffer);
             break;
         case Identifier:
             final_lexeme.type = FUNCTION_ID;
-            //Alokace pameti pro retezec
+            //Alokace paměti pro řetězec
             final_lexeme.extra_data.string = malloc(stringlength*sizeof(char));
             strcpy(final_lexeme.extra_data.string, buffer);
             break;
         case LoadVar:
             final_lexeme.type = VARIABLE_ID;
-            //Alokace pameti pro retezec
+            //Alokace paměti pro řetězec
             final_lexeme.extra_data.string = malloc((stringlength-1)*sizeof(char));
             strcpy(final_lexeme.extra_data.string, buffer + sizeof(char));
             break;
@@ -407,7 +418,6 @@ Lexeme generateLexeme(AutomatState state, char* buffer, int stringlength, int ro
         case Not2:
         case Error:
         case ScanError:
-            //exit(1);
             final_lexeme.type = SCANERROR;
     }
     return final_lexeme;
@@ -415,7 +425,7 @@ Lexeme generateLexeme(AutomatState state, char* buffer, int stringlength, int ro
 
 Lexeme scan_lexeme(int *row, bool epilog, bool prolog)
 {
-    //Inicializácia premenných
+    //Inicializace proměnných
     AutomatState current_state = Start;
     AutomatState next_state;
     int current_array_size = ARRAYSIZE;
@@ -444,15 +454,13 @@ Lexeme scan_lexeme(int *row, bool epilog, bool prolog)
     }
     while(true)
     {
-        //Načítanie znaku zo vstupu
         c = getchar();
-        //printf("Aktualny znak: %c\n", c);
-        //Ak je znak nový riadok, zvýšenie počítadla riadkov
+        //Pokud je znak nový řádek, inkrementace počítadla řádků
         if(c == '\n')
         {
             (*row)++;
         }
-        //Escapovanie uvozoviek
+        //Escapování uvozovek
         if(c == '"')
         {
             // \" -> "
@@ -461,7 +469,7 @@ Lexeme scan_lexeme(int *row, bool epilog, bool prolog)
                 buffer[stringlength-1] = c;
                 continue;
             }
-        } else if (c == '$' && current_state == String)
+        } else if (c == '$' && current_state == String) //chyba, dolar nebyl zadán přes escape sekvenci
         {
             if (buffer[stringlength-1] != '\\')
             {
@@ -469,17 +477,17 @@ Lexeme scan_lexeme(int *row, bool epilog, bool prolog)
                 return (Lexeme){.type = SCANERROR, .row = *row};
             }
         }
-        //Pridanie znaku do bufferu
+        //Přidání znaku do bufferu
         if ((c != ' ' || current_state == String || current_state == LineComment || current_state == BlockComment) && c != EOF)
             stringlength++;
-        //Realokovanie pamate ak je buffer plny
+        //Realokace paměti, pokud je buffer plný
         if (stringlength == current_array_size)
         {
             current_array_size += ARRAYSIZE;
             buffer = realloc(buffer, current_array_size);
             current_index = buffer + current_array_size - ARRAYSIZE - 1;
         }
-        //Koniec súboru
+        //Konec souboru
         if ( c == EOF)
         {
             if (current_state == Start)
@@ -496,7 +504,7 @@ Lexeme scan_lexeme(int *row, bool epilog, bool prolog)
             return generateLexeme(current_state, buffer, stringlength, *row);
             stringlength = 0;
         }
-        //Načítanie prologu
+        //Načtení prologu
         if (current_state == String && (!(strcmp(buffer, "<?php\n")) || !(strcmp(buffer, "<?php\t")) || !(strcmp(buffer, "<?php ")) || !(strcmp(buffer, "<?php/"))))
         {
             next_state = Prolog;
@@ -530,10 +538,7 @@ Lexeme scan_lexeme(int *row, bool epilog, bool prolog)
         }
         else
         {
-            //Prechod do ďalšieho stavu
-            //printf("current_state: %d\n", current_state);
-            //printf("Current char: %c\n", c);
-            
+            //Přechod do dalšího stavu
             next_state = transition(current_state, (char)c);
         }
         if (next_state == Error)
@@ -620,14 +625,10 @@ char * str_lexeme(Lexeme in)
 
 void check_forKW(p_node root, Lexeme *l) 
 {
-    /*if(strcmp(l->extra_data.string, "?float") == 0 || strcmp(l->extra_data.string, "?int") == 0 || strcmp(l->extra_data.string, "?string") == 0)
-    {
-        shiftLeft(l->extra_data.string , 1, strlen(l->extra_data.string));
-    }
-    */
+
     p_node found = tree_search(root, l->extra_data.string);
 
-    //Prehodenie typu lexému
+    //Přehození typu lexému
     if (found != NULL)
     {
         if (strcmp(found->key, "while") == 0)
@@ -681,14 +682,14 @@ Lexeme get_token(p_node binaryTree)
     static bool epilog = false;
     static bool prolog = false;
 
-    //Preskočenie komentárov
+    //Preskočení komentářů
     while(l.type == NULLLEX){
         l = scan_lexeme(&row, epilog, prolog);
     }
 
     if (l.type == FUNCTION_ID)
     {
-        //Ak je lexém kľúčové slovo, zmení sa jeho typ
+        //Pokud je lexém klíčové slovo, změní se jeho typ
         check_forKW(binaryTree, &l);
     } else if(l.type == SCANERROR)
     {

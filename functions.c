@@ -1,3 +1,14 @@
+/**
+ * ***********************IFJ PROJEKT 2022********************************
+ * @file functions.c
+ * @author  Veronika Nevařilová (xnevar00@stud.fit.vutbr.cz)
+ *          Patrik Michlian     (xmichl12@stud.fit.vutbr.cz)
+ * @brief Pomocné funkce pro lexikální analýzu
+ * @date 2022-12-06
+ * 
+ * @copyright Copyright (c) 2022
+*/
+
 #include "functions.h"
 
 int get_string_length(char* buffer)

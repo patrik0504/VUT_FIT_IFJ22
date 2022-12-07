@@ -1,3 +1,16 @@
+/**
+ * ***********************IFJ PROJEKT 2022********************************
+ * @file code_gen.h
+ * @author  Veronika Nevařilová (xnevar00@stud.fit.vutbr.cz)
+ *          Patrik Michlian     (xmichl12@stud.fit.vutbr.cz)
+ *          Matěj Toul          (xtoulm00@stud.fit.vutbr.cz)
+ *          Lukáš Etzler        (xetzle00@stud.fit.vutbr.cz)
+ * @brief Generování kódu jazyka IFJcode22
+ * @date 2022-12-06
+ * 
+ * @copyright Copyright (c) 2022
+*/
+
 #ifndef CODE_GEN_FILE
 #define CODE_GEN_FILE
 
@@ -99,6 +112,8 @@ void callFunction(char *functionName);
  * Funkce generující kód pro kontrolu správného typu návratové hodnoty
  * @param type Typ návratové hodnoty funkce
  * @param comesFromFunction True pokud byl write volán ve funkci, false pokud v hlavním těle programu
+ * @param functionName Název funkce, ve které byl nalezen return
+ * @param number Pořadí returnu ve funkci, potřeba odlišovat kvůli opakové definici návěští
  */
 void checkReturnType(int type, bool comesFromFunction, char* functionName, int number);
 
@@ -117,9 +132,11 @@ void returnVariable(char *destination, bool comesFromFunction);
 void declareFunction(char *functionName);
 
 /**
- * Funkcia generújuca kód pre parameter v deklarácii funkcie
- * @param number číslo parametru
- * @param varName názov parametru
+ * Funkce generující kód pro parametr v deklaraci funkce
+ * @param number Číslo parametru
+ * @param varName Název parametru
+ * @param type Datový typ parametru
+ * @param functionName Název funkce, ve které probíhá deklarace parametrů
  */
 void declareParams(int number, char *varName, int type, char*functionName);
 
@@ -129,7 +146,7 @@ void declareParams(int number, char *varName, int type, char*functionName);
 void codeGenReturnMain();
 
 /**
- * Funkcia pre generovanie kódu return
+ * Funkce pro generování kódu return
  */
 void codeGenReturn();
 
@@ -149,45 +166,45 @@ void codeGenDeclareVars(char *func_name, p_node globalFunctions, bool comesFromF
 void declare_variables(p_node root, bool comesFromFunctions);
 
 /**
- * Funckia pre generovanie začiatku ifu
+ * Funkce pro generování začátku ifu
  * 
- * @param c číslo ifu
+ * @param c Pořadí ifu
  */
 void codeGenIfStart(int c);
 
 /**
- * Funckia pre generovanie konca ifu
+ * Funkce pro generování konce ifu
  * 
- * @param c číslo ifu
+ * @param c Pořadí ifu
  */
 void codeGenIfEnd(int c);
 
 /**
- * Funckia pre generovanie else
+ * Funkce pro generování začátku else
  * 
- * @param c číslo ifu
+ * @param c Pořadí ifu
  */
 void codeGenIfElse(int c);
 
 /**
- * Funkcia pre generovanie koncu funkcie
+ * Funkce pro generování konce funkce
  * 
- * @param functionName názov funkcie
- * @param globalFunction binárny strom obsahujúci dáta celého programu (built-in funkcie, deklarované funkcie, všetky premenne atď)
+ * @param functionName Název funkce
+ * @param globalFunction Binární strom obsahující data celého programu (built-in funkce, deklarované funkce, všechny proměnné atd)
  */
 void codeGenFunctionEnd(char *functionName, p_node globalFunctions);
 
 /**
- * Funkcia pre generovania kódu pre začiatok while cyklu
+ * Funkce pro generování kódu pro začátek while cyklu
  * 
- * @param c číslo whilu
+ * @param c Pořadí whilu
  */
 void codeGenWhileStart(int c);
 
 /**
- * Funkce generující kód pro while
+ * Funkce generující kód pro konec while cyklu
  * 
- * @param c číslo whilu
+ * @param c Pořadí whilu
  */
 void codeGenWhileEnd(int c);
 
