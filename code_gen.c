@@ -249,13 +249,13 @@ void generateParam(int number, Lexeme *l, bool comesFromFunction)
         case VARIABLE_ID:
             if (comesFromFunction)
             {
-                printf("TYPE LF@checkinitialization LF@$%s\n", l->extra_data.string);
-                printf("JUMPIFEQ **uninitialized LF@checkinitialization string@\n");
+                printf("TYPE LF@**checkinitialization LF@$%s\n", l->extra_data.string);
+                printf("JUMPIFEQ **uninitialized LF@**checkinitialization string@\n");
                 printf("MOVE TF@param%d LF@$%s\n", number, l->extra_data.string);
             } else
             {
-                printf("TYPE GF@checkinitialization GF@$%s\n", l->extra_data.string);
-                printf("JUMPIFEQ **uninitialized GF@checkinitialization string@\n");
+                printf("TYPE GF@**checkinitialization GF@$%s\n", l->extra_data.string);
+                printf("JUMPIFEQ **uninitialized GF@**checkinitialization string@\n");
                 printf("MOVE TF@param%d GF@$%s\n", number, l->extra_data.string);
             }
             break;
