@@ -63,7 +63,7 @@ int writeString(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comes
             *l = get_token(binaryTree);
             if(l->type == SEMICOLON)
             {
-                return 0;
+                return 1;
             }
             ok = false;
             error(l->row, "Neočekávaný znak ve volání WRITE", SYNTAX_ERROR);
