@@ -171,6 +171,8 @@ int expr(context context, int jump_label, p_node symtable, Lexeme *target, char 
         switch (last->type)
         {
         case VARIABLE_ID:
+            printf("TYPE %s**checkinitialization %s$%s\n", scope, scope, last->extra_data.string);
+            printf("JUMPIFEQ **uninitialized %s**checkinitialization string@\n", scope);
             printf("MOVE %s%s%s %s$%s\n", scope, identifier, variable_name, scope, last->extra_data.string);
             break;
         case EXPR:

@@ -213,6 +213,8 @@ void printBuiltInFunctions()
     printf("LABEL paramtypeerror\n");
     printf("DPRINT string@V\\032parametru\\032nebo\\032returnu\\032jsou\\032nekompatibilni\\032typy\\032nebo\\032chybi\\032return\\032v\\032nonvoid\\032funkci!\n");
     printf("EXIT int@4\n");
+    printf("LABEL **uninitialized\n");
+    printf("EXIT int@5\n");
 
     printf("\n#HLAVNI TELO\n");
     printf("LABEL MAIN\n");
@@ -247,9 +249,13 @@ void generateParam(int number, Lexeme *l, bool comesFromFunction)
         case VARIABLE_ID:
             if (comesFromFunction)
             {
+                printf("TYPE LF@checkinitialization LF@$%s\n", l->extra_data.string);
+                printf("JUMPIFEQ **uninitialized LF@checkinitialization string@\n");
                 printf("MOVE TF@param%d LF@$%s\n", number, l->extra_data.string);
             } else
             {
+                printf("TYPE GF@checkinitialization GF@$%s\n", l->extra_data.string);
+                printf("JUMPIFEQ **uninitialized GF@checkinitialization string@\n");
                 printf("MOVE TF@param%d GF@$%s\n", number, l->extra_data.string);
             }
             break;
@@ -388,12 +394,14 @@ void codeGenDeclareVars(char *func_name, p_node globalFunctions, bool comesFromF
     {
         printf("JUMP MAINEND\n");
         printf("LABEL MAINVARDECLARE\n");
+        printf("DEFVAR GF@**checkinitialization\n");
         printf("DEFVAR GF@**returnvar\n");
         printf("MOVE GF@**returnvar int@0\n");
         functionPtr = globalFunctions;
     } else
     {
         printf("LABEL %sVARDECLARE\n", func_name);
+        printf("DEFVAR LF@**checkinitialization\n");
         printf("DEFVAR LF@paramtype\n");
         functionPtr = tree_search(globalFunctions, func_name);
     }
@@ -640,6 +648,8 @@ void arithmetic_if_while(Lexeme* last, bool comesFromFunction, int expr_var_coun
     switch (last->type)
     {
     case VARIABLE_ID:
+        printf("TYPE %s**checkinitialization %s$%s\n", scope, scope, last->extra_data.string);
+        printf("JUMPIFEQ **uninitialized %s**checkinitialization string@\n", scope);
         printf("MOVE %s$*%d %s$%s\n", scope, expr_var_count, scope, last->extra_data.string);
         break;
     case EXPR:
@@ -777,43 +787,6 @@ void generate_concat(int expr_var_count, Lexeme* sym1, Lexeme* sym2, bool comesF
     printf("\n");
 
     printf("LABEL *concat_cont%d\n", expr_var_count);
-    // switch (sym1->type)
-    // {
-    // case KW_NULL:
-    //     printf("MOVE %s$*%d_1 string@\n", scope, expr_var_count);
-    //     break;
-    // case STRING_LITERAL:
-    //     evaluateEscapeSequencies(sym1);
-    //     printf("MOVE %s$*%d_1 string@%s\n", scope, expr_var_count, sym1->extra_data.string);
-    //     break;
-    // case EXPR:
-    //     printf("MOVE %s$*%d_1 %s$*%d\n", scope, expr_var_count, scope, sym1->extra_data.value);
-    //     break;
-    // case VARIABLE_ID:
-    //     printf("MOVE %s$*%d_1 %s$%s\n", scope, expr_var_count, scope, sym1->extra_data.string);
-    //     break;
-    // default:
-    //     break;
-    // }
-    
-    // switch (sym2->type)
-    // {
-    // case KW_NULL:
-    //     printf("MOVE %s$*%d_2 string@\n", scope, expr_var_count);
-    //     break;
-    // case STRING_LITERAL:
-    //     evaluateEscapeSequencies(sym2);
-    //     printf("MOVE %s$*%d_2 string@%s\n", scope, expr_var_count, sym2->extra_data.string);
-    //     break;
-    // case EXPR:
-    //     printf("MOVE %s$*%d_2 %s$*%d\n", scope, expr_var_count, scope, sym2->extra_data.value);
-    //     break;
-    // case VARIABLE_ID:
-    //     printf("MOVE %s$*%d_2 %s$%s\n", scope, expr_var_count, scope, sym2->extra_data.string);
-    //     break;
-    // default:
-    //     break;
-    // }
 
     printf("CONCAT %s$*%d %s$*%d_1 %s$*%d_2\n", scope, expr_var_count, scope, expr_var_count, scope, expr_var_count);
 }
@@ -886,6 +859,8 @@ void type_checked_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char
     }
     else if(sym1->type == VARIABLE_ID)
     {
+        printf("TYPE %s**checkinitialization %s$%s\n", scope, scope, sym1->extra_data.string);
+        printf("JUMPIFEQ **uninitialized %s**checkinitialization string@\n", scope);
         printf("MOVE %s$*%d_1 %s$%s\n", scope, expr_var_count, scope, sym1->extra_data.string);
     }
     else if(sym1->type == NUMBER)
@@ -912,6 +887,8 @@ void type_checked_operation(int expr_var_count, Lexeme* sym1, Lexeme* sym2, char
     }
     else if(sym2->type == VARIABLE_ID)
     {
+        printf("TYPE %s**checkinitialization %s$%s\n", scope, scope, sym2->extra_data.string);
+        printf("JUMPIFEQ **uninitialized %s**checkinitialization string@\n", scope);
         printf("MOVE %s$*%d_2 %s$%s\n", scope, expr_var_count, scope, sym2->extra_data.string);
     }
     else if(sym2->type == NUMBER)
