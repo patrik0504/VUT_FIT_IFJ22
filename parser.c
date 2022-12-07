@@ -533,14 +533,14 @@ int st_list(Lexeme *l, p_node binaryTree, p_node globalFunctions, bool comesFrom
             result = 1;
             return result;
         }
-        printf("Našel jsem %d v st_list\n", l->type);
         result = expr(-1, 0, binaryTree, l, NULL, globalFunctions, comesFromFunction, functionPtr);
         if(result == 0)
         {   
             error(l->row, "Neočekávaný token", SYNTAX_ERROR);
             return 0;
         }
-        result = 1;
+        *l = get_token(binaryTree);
+        result = st_list(l, binaryTree, globalFunctions, comesFromFunction, functionPtr);
     }
     return result;
 }
