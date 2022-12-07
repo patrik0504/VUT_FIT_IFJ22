@@ -1,3 +1,14 @@
+/**
+ * ***********************IFJ PROJEKT 2022********************************
+ * @file symtable.c
+ * @author  Matěj Toul          (xtoulm00@stud.fit.vutbr.cz)
+ *          Lukáš Etzler        (xetzle00@stud.fit.vutbr.cz)
+ * @brief Implementace binárního vyhledávacího stromu
+ * @date 2022-12-06
+ * 
+ * @copyright Copyright (c) 2022
+*/
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -94,8 +105,6 @@ void debug_tree(p_node root)
     {
         debug_tree(root->left);
         printf("%s ", root->key);
-        //vymazat
-        //printf("%d ", root->data->func_type);
         debug_tree(root->right);
     }
 }

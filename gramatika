@@ -39,24 +39,27 @@ Neterminály:
 19: <type>  ->  KW_FLOAT
 20: <type>  ->  KW_STRING
 21: <type>  ->  KW_VOID
+22: <type>  ->  KW_OPTIONALINT
+23: <type>  ->  KW_OPTIONALFLOAT
+24: <type>  ->  KW_OPTIONALSTRING
 
 -- DEKLARACE FUNKCÍ --
 
-22: <decl-param>    ->  eps
-23: <decl-param>    ->  <type> VARIABLE_ID <decl-param2>
-24: <decl-param2>   ->  eps
-25: <decl-param2>   ->  , <type> VARIABLE_ID <decl-param2>
+25: <decl-param>    ->  eps
+26: <decl-param>    ->  <type> VARIABLE_ID <decl-param2>
+27: <decl-param2>   ->  eps
+28: <decl-param2>   ->  , <type> VARIABLE_ID <decl-param2>
 
 -- VOLÁNÍ FUNKCÍ --
 
-26: <param>  ->  eps
-27: <param>  ->  VARIABLE_ID <param2>
-28: <param2> ->  eps
-29: <param2> ->  , VARIABLE_ID <param2>
-30: <param>  ->  <expr>
+29: <param>  ->  eps
+30: <param>  ->  VARIABLE_ID <param2>
+31: <param2> ->  eps
+32: <param2> ->  , VARIABLE_ID <param2>
+33: <param>  ->  <expr>
 
 -- NÁVRATOVÉ HODNOTY --
 
-31: <ret-expr>  ->  eps
+34: <ret-expr>  ->  eps
 32: <ret-expr>  ->  <expr>
 

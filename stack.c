@@ -1,4 +1,18 @@
+/**
+ * ***********************IFJ PROJEKT 2022********************************
+ * @file stack.c
+ * @author  Matěj Toul          (xtoulm00@stud.fit.vutbr.cz)
+ *          Lukáš Etzler        (xetzle00@stud.fit.vutbr.cz)
+ * @brief Implementace zásobníku pro precedenční syntaktickou analýzu
+ * @date 2022-12-06
+ * 
+ * @copyright Copyright (c) 2022
+*/
+
 #include "stack.h"
+
+/** ------------------------------------------ Funkce pro PSA stack ------------------------------------------------- */
+
 
 p_stack stack_init(unsigned size)
 {
@@ -141,3 +155,110 @@ void stack_print(p_stack stack){
     }
     printf("\n");
 }
+/** ---------------------------------------------------------------------------------------------------------------- */
+
+/** ------------------------------------------ Funkce pro lexStack ------------------------------------------------- */
+p_lex_stack lex_stack_init(unsigned size)
+{
+    p_lex_stack var_stack = (p_lex_stack)malloc(sizeof(struct lex_stack));
+    if (var_stack == NULL)
+    {
+        return NULL;
+    }
+
+    var_stack->size = size;
+    var_stack->top = -1;
+    var_stack->array = (Lexeme*)malloc(var_stack->size * sizeof(Lexeme));
+    return var_stack;
+}
+
+int lexStack_checkOverflow(p_lex_stack stack)
+{
+    if (stack->top == stack->size - 1)
+    {
+        error(0, "Chyba při vkládání do stacku: Bylo zabráněno přetečení", SEM_INTERNAL_ERROR);
+        return 0;
+    }
+    return 1;
+}
+
+int lexStack_checkUnderflow(p_lex_stack stack)
+{
+    if (stack->top == -1)
+    {
+        error(0, "Chyba při mazání ze stacku: Bylo zabráněno podtečení", SEM_INTERNAL_ERROR);
+        return 0;
+    }
+    return 1;
+}
+
+int lexStack_is_full(p_lex_stack stack)
+{
+    if (stack->top == stack->size - 1)
+    {
+        return 1;
+    }
+    return 0;
+}
+
+int lexStack_is_empty(p_lex_stack stack)
+{
+    if (stack->top == -1)
+    {
+        return 1;
+    }
+    return 0;
+}
+
+void lexStack_push(p_lex_stack stack, Lexeme* lexeme)
+{
+    if (lexStack_checkOverflow(stack))
+    {
+        stack->top = stack->top + 1;
+        stack->array[stack->top] = *lexeme;
+    }
+    else
+    {
+        return;
+    }
+}
+
+Lexeme* lexStack_pop(p_lex_stack stack)
+{
+    if (lexStack_checkUnderflow(stack))
+    {
+        Lexeme* l = &stack->array[stack->top];
+        stack->top = stack->top - 1;
+        return l;
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+Lexeme* lexStack_peek(p_lex_stack stack)
+{
+    if (lexStack_checkUnderflow(stack))
+    {
+        return &stack->array[stack->top];
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+void lexStack_stack_destroy(p_lex_stack stack)
+{
+    if (stack != NULL)
+    {
+        if (stack->array != NULL)
+        {
+            free(stack->array);
+        }
+        free(stack);
+    }
+}
+
+/** ---------------------------------------------------------------------------------------------------------------- */

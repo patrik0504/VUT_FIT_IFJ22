@@ -1,3 +1,14 @@
+/**
+ * ***********************IFJ PROJEKT 2022********************************
+ * @file error.c
+ * @author  Matěj Toul          (xtoulm00@stud.fit.vutbr.cz)
+ *          Lukáš Etzler        (xetzle00@stud.fit.vutbr.cz)
+ * @brief Funkce pro správu a výpis chyb
+ * @date 2022-12-06
+ * 
+ * @copyright Copyright (c) 2022
+*/
+
 #include "error.h"
 
 /** 
@@ -59,6 +70,7 @@ void error(int line, char* message, error_code error_code)
         return;
     }
     new_node->data = data;
+    new_node->next = NULL;
     
     if(errors->next == NULL)
     {
@@ -96,7 +108,7 @@ int error_eval()
     fprintf(stderr, "Překladač se ukončil s chybovou návratovou hodnotou %d\n\n", return_code);
 
     error_out(errors->data);
-
+    
     while (errors->next != NULL)
     {
         p_error_list deleted = errors;
@@ -105,7 +117,6 @@ int error_eval()
         free(deleted);
         error_out(errors->data);
     }
-
     free(errors->data);
     free(errors);
     

@@ -1,3 +1,15 @@
+/**
+ * ***********************IFJ PROJEKT 2022********************************
+ * @file scanner.h
+ * @author  Veronika Nevařilová (xnevar00@stud.fit.vutbr.cz)
+ *          Patrik Michlian     (xmichl12@stud.fit.vutbr.cz)
+ * @brief Lexikální analýza
+ * @date 2022-12-06
+ * 
+ * @copyright Copyright (c) 2022
+*/
+
+
 #ifndef SCANNER_FILE
 #define SCANNER_FILE
 
@@ -12,15 +24,15 @@
 #include "error.h"
 
 #define ARRAYSIZE 5
-// Dlžka escape sekvencie pre Hexa formát
+// Délka escape sekvence pro Hexa formát
 #define ESCAPEHEXA 3
-// Dlžka escape sekvencie pre Octa formát
+// Délka escape sekvence pro Octa formát
 #define ESCAPEOCTA 3
-// Dlžka escape sekvencie pre klasický formát
+// Délka escape sekvence pro klasický formát
 #define ESCAPE 1
 #define ERRORRETURN -1
 
-/** Enum pre stavy konečného automatu*/
+/** Výčtový typ pro stavy konečného automatu*/
 typedef enum{
     Start,
     LexEOF,
@@ -65,7 +77,7 @@ typedef enum{
     ScanError
 }AutomatState;
 
-/** Štruktúra pre Lexem obsahujúca typ lexému vo forme enum a jeho data*/
+//struktura pro lexém obsahující typ lexému ve formě výčtového typu a jeho data
 typedef struct {
     enum {
         NULLLEX,
@@ -106,84 +118,88 @@ typedef struct {
         KW_FLOAT,
         KW_STRING,
         KW_FUNCTION,
+        KW_OPTIONALINT,
+        KW_OPTIONALFLOAT,
+        KW_OPTIONALSTRING,
         
         PROLOG,
         FILE_END_SIGN,
-        SCANERROR
+        SCANERROR,
+        EXPR,
     } type;
     union {
         char* string;
         int value;
         float exponent;
-        float decimal;
+        double decimal;
         int row_number;
-        //int symtab_index;
     } extra_data;
     int row;
+    bool negative_num;
 }Lexeme;
 
 /**
- * @brief Funkcia na získanie ďalšieho lexému zo vstupu
- * Získava lexémy zo vstupu a vracia ich v tvare štruktúry Lexeme
- * @return Štuktúra Lexeme obsahujúca typ lexému a jeho data 
+ * @brief Funkce pro získání dalšího lexému ze vstupu
+ * Získává lexémy ze vstupu a vrací je v tvaru struktury Lexeme
+ * @return Struktura Lexeme obsahující typ lexému a jeho data 
  */
 Lexeme get_token(p_node binaryTree);
 /**
- * @brief Funkcia na inicializáciu binárneho stromu pre naše kľúčové slová
- * @return Vracia ukazateľ na koreň binárneho stromu
+ * @brief Funkce na inicializaci binárního stromu pro klíčové slova
+ * @return Vrací ukazatel na kořen binárního stromu
  */
 p_node init_binary_treeKW();
 /**
- * @brief Pomocná funkcia na posun stringu o shift
- * Táto funkcia slúži na posun stringu doľava o dľžku shift
- * @param buffer Vstupný string
- * @param shift O koľko sa má posunúť string
- * @param stringlenght Dlžká stringu
+ * @brief Pomocná funkce na posun stringu o shift
+ * Tato funkce slouží na posun stringu doleva o délku shift
+ * @param buffer Vstupní string
+ * @param shift O kolik sa má posunout string
+ * @param stringlenght Délka stringu
  */
 void shiftLeft(char* buffer, int shift, int stringlenght);
 /**
- * @brief Pomocná funkcia prevodu typu lexemu na string
- * Funckia slúži na prevod typu lexému na string
- * @param in Štruktúra Lexeme
- * @return char* String obsahujúci názov lexému
+ * @brief Pomocná funkce převodu typu lexemu na string
+ * Funkce slouží na převod typu lexému na string
+ * @param in Struktura Lexeme
+ * @return char* String obsahující název lexému
  */
 char * str_lexeme(Lexeme in);
 /**
- * @brief Funkcia na skenovanie vsupu
- * Funkcia skenuje lexémy zo vstupu a vracia ich v tvare štruktúry Lexeme
- * @return Lexeme Vracia načítaný lexém
+ * @brief Funkce na skenování vstupu
+ * Funkce skenuje lexémy ze vstupu a vrací je ve tvaru struktury Lexeme
+ * @return Lexeme Vrací načtený lexém
  */
-Lexeme scan_lexeme();
+Lexeme scan_lexeme(int *row, bool epilog, bool prolog);
 /**
- * @brief Funkcia na generovania lexemu
- * Funkcia generuje lexém pomocou konečného automatu
- * @param state Momentálny stav konečného automatu
- * @param pole Vstupný string
- * @param stringlength Dľžka vstupného stringu
- * @return Lexeme Štruktúra Lexeme obsahujúca typ lexému a jeho data
+ * @brief Funkce na generování lexému
+ * Funkce generuje lexém pomocí konečného automatu
+ * @param state Momentální stav konečného automatu
+ * @param pole Vstupní string
+ * @param stringlength Délka vstupního stringu
+ * @return Lexeme Struktura Lexeme obsahující typ lexému a jeho data
  */
 Lexeme generateLexeme(AutomatState state, char* pole, int stringlength, int row);
 /**
- * @brief Funckia na zmenu stavu konečného automatu
- * Funkcia dostáva na vstup aktuálny stav konečného automatu a znak zo vstupu a pomocou neho rozhodne o násl. stave
- * @param currentState Aktuálny stav konečného automatu
- * @param c Vsutupný znak
- * @return AutomatState Ďalší stav konečného automatu
+ * @brief Funkce na změnu stavu konečného automatu
+ * Funkce dostává na vstup aktuální stav konečného automatu a znak ze vstupu a pomocí něho rozhodne o násl. stavu
+ * @param currentState Aktuální stav konečného automatu
+ * @param c Vstupní znak
+ * @return AutomatState další stav konečného automatu
  */
 AutomatState transition(AutomatState currentState, char c);
 /**
- * @brief Pomocná funkcia na detekovania kľúčového slova
- * Ak je na vstupne lexému kľúčové slovo, tak sa zmení jeho typ na kľúčové slovo
- * @param root Ukazateľ na koreň binárneho stromu kľúčových slov
- * @param l Ukazateľ na vstupný lexem
+ * @brief Pomocná funkce na detekci klíčového slova
+ * Pokud je na vstupu lexému kľíčové slovo, tak se změní jeho typ na klíčové slovo
+ * @param root Ukazatel na kořen binárního stromu klíčových slov
+ * @param l Ukazatel na vstupní lexem
  */
 void check_forKW(p_node root, Lexeme* l);
 /**
- * @brief Pomocná funkcia na detekovanie escape sekvencie
- * Funckia hľadá v stringu escape sekvenciu a ak ju nájde, tak ju nahradí
- * @param buffer Vsutupný string
- * @param stringlength Dľžka vstupného stringu
- * @return int Dlžka stringu po odstránení escape sekvencie
+ * @brief Pomocná funkce na detekci escape sekvence
+ * Funkce hledá v stringu escape sekvenci a pokud ji najde, tak ji nahradí
+ * @param buffer Vstupní string
+ * @param stringlength Délka vstupního stringu
+ * @return int Délka stringu po odstranění escape sekvence
  */
 int transferEscapeSequences(char* buffer, int stringlength);
 

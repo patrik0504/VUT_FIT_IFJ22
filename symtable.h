@@ -1,3 +1,14 @@
+/**
+ * ***********************IFJ PROJEKT 2022********************************
+ * @file symtable.h
+ * @author  Matěj Toul          (xtoulm00@stud.fit.vutbr.cz)
+ *          Lukáš Etzler        (xetzle00@stud.fit.vutbr.cz)
+ * @brief Implementace binárního vyhledávacího stromu
+ * @date 2022-12-06
+ * 
+ * @copyright Copyright (c) 2022
+*/
+
 #ifndef SYMTABLE_FILE
 #define SYMTABLE_FILE
 
@@ -8,6 +19,9 @@ typedef enum{
     INT,
     FLOAT,
     STRING,
+    OPTIONALINT,
+    OPTIONALFLOAT,
+    OPTIONALSTRING,
     VOID
 }st_type;
 
@@ -29,9 +43,9 @@ typedef struct data
     bool declared; ///< Zda byla proměnná deklarována
     bool defined; ///< Zda byla proměnná definována
     st_type func_type; ///< Datový typ funkce
-    unsigned int local_size;
-    unsigned int local_n;
+    bool found_return; ///< Zda byl nalezen return
     int param_count;
+    int return_count;
     p_node params;
     p_node elements;
 } *p_data;

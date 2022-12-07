@@ -1,57 +1,112 @@
+/**
+ * ***********************IFJ PROJEKT 2022********************************
+ * @file expr_parser.c
+ * @author  Matěj Toul          (xtoulm00@stud.fit.vutbr.cz)
+ *          Lukáš Etzler        (xetzle00@stud.fit.vutbr.cz)
+ * @brief Precedenční syntaktická analýza
+ * @date 2022-12-06
+ * 
+ * @copyright Copyright (c) 2022
+*/
+
+
 #include "expr_parser.h"
 
-int negative_num = 0;
 int negative_par = 0;
 
 int precedence_lookup(symbol_type stack_symbol, symbol_type input)
 {
     // Zabraňujeme přístupu do tabulky mimo její rozsah
-    if (stack_symbol >= 15 || input >= 15 || stack_symbol < 0 || input < 0)
+    if (stack_symbol >= 16 || input >= 16 || stack_symbol < 0 || input < 0)
     {
         return -1;
     }
-
+    // printf("Stack: %d Input: %d\n", stack_symbol, input);
     /** Precedenční tabulka jako dvojrozměrný array (viz. dokumentace).
      *  @return  2: '>'
      *  @return  1: '='
      *  @return  0: '<'
      *  @return -1: chybový stav
     */
-    static const int precedence[15][15] = {
-        //  *   /   +   -   .   <   >   <=  >=  === !== (   )   i   $
-        {   2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  0,  2,  0,  2 }, //  *
-        {   2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  0,  2,  0,  2 }, //  /
-        {   0,  0,  2,  2,  2,  2,  2,  2,  2,  2,  2,  0,  2,  0,  2 }, //  +
-        {   0,  0,  2,  2,  2,  2,  2,  2,  2,  2,  2,  0,  2,  0,  2 }, //  -
-        {   0,  0,  2,  2,  2,  2,  2,  2,  2,  2,  2,  0,  2,  0,  2 }, //  .
-        {   0,  0,  0,  0,  0,  2,  2,  2,  2,  2,  2,  0,  2,  0,  2 }, //  <
-        {   0,  0,  0,  0,  0,  2,  2,  2,  2,  2,  2,  0,  2,  0,  2 }, //  >
-        {   0,  0,  0,  0,  0,  2,  2,  2,  2,  2,  2,  0,  2,  0,  2 }, //  <=
-        {   0,  0,  0,  0,  0,  2,  2,  2,  2,  2,  2,  0,  2,  0,  2 }, //  >=
-        {   0,  0,  0,  0,  0,  0,  0,  0,  0,  2,  2,  0,  2,  0,  2 }, //  ===
-        {   0,  0,  0,  0,  0,  0,  0,  0,  0,  2,  2,  0,  2,  0,  2 }, //  !==
-        {   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0, -1 }, //  (
-        {   2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2, -1,  2, -1,  2 }, //  )
-        {   2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2, -1,  2, -1,  2 }, //  i
-        {   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, -1,  0, -1 }  //  $
+    static const int precedence[16][16] = {
+        //  *   /   +   -   .   <   >   <=  >=  === !==  (   )   i   $  NULL
+        {   2,  2,  2,  2,  2,  2,  2,  2,  2,   2,  2,  0,  2,  0,  2,  0   }, //  *
+        {   2,  2,  2,  2,  2,  2,  2,  2,  2,   2,  2,  0,  2,  0,  2,  0   }, //  /
+        {   0,  0,  2,  2,  2,  2,  2,  2,  2,   2,  2,  0,  2,  0,  2,  0   }, //  +
+        {   0,  0,  2,  2,  2,  2,  2,  2,  2,   2,  2,  0,  2,  0,  2,  0   }, //  -
+        {   0,  0,  2,  2,  2,  2,  2,  2,  2,   2,  2,  0,  2,  0,  2,  0   }, //  .
+        {   0,  0,  0,  0,  0,  2,  2,  2,  2,   2,  2,  0,  2,  0,  2,  0   }, //  <
+        {   0,  0,  0,  0,  0,  2,  2,  2,  2,   2,  2,  0,  2,  0,  2,  0   }, //  >
+        {   0,  0,  0,  0,  0,  2,  2,  2,  2,   2,  2,  0,  2,  0,  2,  0   }, //  <=
+        {   0,  0,  0,  0,  0,  2,  2,  2,  2,   2,  2,  0,  2,  0,  2,  0   }, //  >=
+        {   0,  0,  0,  0,  0,  0,  0,  0,  0,   2,  2,  0,  2,  0,  2,  0   }, //  ===
+        {   0,  0,  0,  0,  0,  0,  0,  0,  0,   2,  2,  0,  2,  0,  2,  0   }, //  !==
+        {   0,  0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  1,  0, -1,  0   }, //  (
+        {   2,  2,  2,  2,  2,  2,  2,  2,  2,   2,  2, -1,  2, -1,  2, -1   }, //  )
+        {   2,  2,  2,  2,  2,  2,  2,  2,  2,   2,  2, -1,  2, -1,  2, -1   }, //  i
+        {   0,  0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0, -1,  0, -1,  0   }, //  $
+        {   2,  2,  2,  2,  2,  2,  2,  2,  2,   2,  2, -1,  2, -1,  2, -1   }  //  NULL
+
+
     };
 
     return precedence[stack_symbol][input];
 }
 
-int expr(context context, p_node symtable, Lexeme *target)
+int expr(context context, int jump_label, p_node symtable, Lexeme *target, char * variable_name, 
+    p_node globalFunctions, bool comesFromFunction, p_node functionPtr)
 {
     p_stack stack = stack_init(PSA_STACK_SIZE);
+    p_lex_stack lex_stack = lex_stack_init(LEX_STACK_SIZE);
     Lexeme l = {.type = NULLLEX};
+    int callFunctionType = -1;
+    bool isReturn = false;
+    p_node callFunctionNode = NULL;
+    if (functionPtr != NULL)
+    {
+        callFunctionType = functionPtr->data->func_type;
+    }
+
 
     push(stack, SYM_STACK_TAG);
     
-    l = get_token(symtable);
+    if (context == -1)  // Případ, kdy je na řádku například $x + 5; -> potřeba vyhodnotit jako assignment s přiřazením do nepoužívané proměnné 
+    {
+        l = *target;
+        context = ASSIGNMENT;
+        variable_name = "***";
+    } else
+    {
+        l = get_token(symtable);
+    }
+
+    if(l.type == FUNCTION_ID)
+    {
+
+        int res_func = statement(&l, symtable, globalFunctions, comesFromFunction, functionPtr);
+        if(!res_func)
+        {
+            return 0;
+        }
+        else
+        {
+            returnVariable(variable_name, comesFromFunction);
+            return 1;
+        }
+    }
 
     if (l.type == SEMICOLON && context == RETURN)
     {
         stack_destroy(stack);
         return 1;
+    }
+    if (context == RETURN)
+    {
+        context = ASSIGNMENT;
+        isReturn = true;    //v případě returnu probíhá vyhodnocování jako assignment do **returnvar, potřebujeme uchovat
+                            //informaci, že byl zavolán return a ne assignment
+        variable_name = "**returnvar";
+        callFunctionNode = functionPtr;
     }
 
     //printf("Pravý rozbor: ");
@@ -69,7 +124,7 @@ int expr(context context, p_node symtable, Lexeme *target)
         {
             stack->lpar_count -= 1;
         }
-        if(check_operation(symtable, stack, &l, context) == 0)
+        if(check_operation(symtable, stack, lex_stack, &l, context, jump_label, comesFromFunction, functionPtr, globalFunctions) == 0)
         {
             //printf("\n");
             stack_destroy(stack);
@@ -84,19 +139,104 @@ int expr(context context, p_node symtable, Lexeme *target)
 
     while (stack->top != 1)
     {
-        if(check_operation(symtable, stack, &l, context) == 0)
+        if(check_operation(symtable, stack, lex_stack, &l, context, jump_label, comesFromFunction, functionPtr, globalFunctions) == 0)
         {
             //printf("\n");
             stack_destroy(stack);
             return 0;
         }
     }
-    //printf("\n");
+
+    char* scope = "GF@";
+    if(comesFromFunction)
+    {
+        scope = "LF@";
+    }
+    
+    if (context == ASSIGNMENT || context == RETURN)
+    {
+        // stack_print(stack);
+        //Řešení typu u assigmentu
+        Lexeme * last = lexStack_pop(lex_stack);
+        // printf("last: %d\n", last->type);
+        char* identifier = "";
+        if (strcmp(variable_name, "**returnvar") != 0)
+        {
+            identifier = "$";
+        }
+        if(strcmp(variable_name, "***") == 0)
+        {
+            return 1;
+        }
+        switch (last->type)
+        {
+        case VARIABLE_ID:
+            printf("TYPE %s**checkinitialization %s$%s\n", scope, scope, last->extra_data.string);
+            printf("JUMPIFEQ **uninitialized %s**checkinitialization string@\n", scope);
+            printf("MOVE %s%s%s %s$%s\n", scope, identifier, variable_name, scope, last->extra_data.string);
+            break;
+        case EXPR:
+            expr_move(variable_name, last->extra_data.value, comesFromFunction);
+            break;
+        case NUMBER:
+            printf("MOVE %s%s%s int@%d\n", scope, identifier, variable_name, last->extra_data.value);
+            break;
+        case STRING_LITERAL:
+            evaluateEscapeSequencies(last);
+            printf("MOVE %s%s%s string@%s\n", scope, identifier, variable_name, last->extra_data.string);
+            break;
+        case DECIMAL_NUMBER:
+        case EXPONENT_NUMBER:
+            printf("MOVE %s%s%s float@%a\n", scope, identifier, variable_name, last->extra_data.decimal);
+            break;
+        case KW_NULL:
+            printf("MOVE %s%s%s nil@nil\n", scope, identifier, variable_name);
+            break;
+        
+        default:
+            break;
+        }
+        if (callFunctionNode != NULL && isReturn)
+        {
+            checkReturnType(callFunctionType, comesFromFunction, callFunctionNode->key, callFunctionNode->data->return_count);
+        }
+    }
+    else
+    {
+        // V případě, že jde o if/while, uchováváme výsledek do speciální proměnné, která pak řídí jump
+        check_rule(-1, -1, -1, stack, lex_stack, comesFromFunction, context, jump_label, functionPtr, globalFunctions);
+    }
+
     stack_destroy(stack);
+    lexStack_stack_destroy(lex_stack);
     return 1;
 }
 
-int check_operation (p_node symtable, p_stack stack, Lexeme *l, context context){
+int check_operation (p_node symtable, p_stack stack, p_lex_stack lex_stack, Lexeme *l, context context, int jump_label,
+bool comesFromFunction, p_node functionPtr, p_node globalFunctions)
+{
+    if (l->type == VARIABLE_ID || l->type == STRING_LITERAL || l->type == NUMBER ||
+        l->type == DECIMAL_NUMBER || l->type == EXPONENT_NUMBER || l->type == KW_NULL)
+    {
+        if(l->type == VARIABLE_ID)
+        {
+            int check_defined = 0;
+            if(comesFromFunction)
+            {
+                check_defined = check_if_variable_is_defined(functionPtr, l->extra_data.string);
+            }
+            else
+            {
+                check_defined = check_if_variable_is_defined(globalFunctions, l->extra_data.string);
+            }
+            if(!check_defined)
+            {
+                error(l->row, "Proměnná ve výrazu není definovaná", SEM_UNDEFINED_VAR_ERROR);
+            }
+        }
+        lexStack_push(lex_stack, l);
+    }
+    
     symbol_type input_symbol = lex_type_to_psa(l);
 
     //Řešení záporných hodnot
@@ -114,7 +254,7 @@ int check_operation (p_node symtable, p_stack stack, Lexeme *l, context context)
             //Mínus před hodnotou   2+-3
             else 
             {
-                negative_num = 1;
+                l->negative_num = true;
             }
             
             return 1;
@@ -132,7 +272,7 @@ int check_operation (p_node symtable, p_stack stack, Lexeme *l, context context)
 
     //VALID:     2-(-2),
     //NOT VALID: 2--2, 
-    
+
     switch (precedence)
     {
         // REDUKCE ( > )
@@ -149,12 +289,11 @@ int check_operation (p_node symtable, p_stack stack, Lexeme *l, context context)
             error(l->row, "Ve výrazu chybí některý z operandů!", SYNTAX_ERROR);
             return 0;
         }
-        reduction_rule result = check_rule(op1, op2, op3, stack);
-        if (result != RR_None)
+        reduction_rule result = check_rule(op1, op2, op3, stack, lex_stack, comesFromFunction, context, jump_label, functionPtr, globalFunctions);
+        if (result != 0)
         {
             pop(stack); // Pop handle
             push(stack, SYM_NONTERMINAL);
-            //printf("%d ", result);
             return 1;
         }
         else
@@ -168,7 +307,6 @@ int check_operation (p_node symtable, p_stack stack, Lexeme *l, context context)
     case 1:
         push(stack, input_symbol);
 
-        //printf("%d ", RR_PAR);
         *l = get_token(symtable);
         return 1;
         break;
@@ -184,35 +322,38 @@ int check_operation (p_node symtable, p_stack stack, Lexeme *l, context context)
             
     default:
             // Zabraňujeme přístupu do tabulky mimo její rozsah
-        if (input_symbol >= 17 || input_symbol < 0)
+        if (input_symbol >= 18 || input_symbol < 0)
         {
             error(l->row, "Výraz nebyl správně ukončen, nebo se ve výrazu nachází neznámý symbol!", SYNTAX_ERROR);
             return 0;
         }
-
         error(l->row, "Chyba v posloupnosti symbolů v rámci výrazu!", SYNTAX_ERROR);
-        // debug 
-        // //printf("Stack: %s Input: %s\n",symbol_type_err[non_terminal_check(stack)], symbol_type_err[input_symbol]);
         return 0;
     }
 }
 
-reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_stack stack)
+reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_stack stack, p_lex_stack lex_stack, 
+    bool comesFromFunction, context context, int jump_label, p_node functionPtr, p_node globalFunctions)
 {
+    static int expr_var_counter = 0;
+    // Umělé volání pro aritmetickou podmínku
+    if(op1 == -1 && op2 == -1 && op3 == -1)
+    {
+        Lexeme * last = lexStack_pop(lex_stack);
+        generate_operation(expr_var_counter, last, NULL, RR_None, comesFromFunction, context, jump_label, functionPtr, globalFunctions);
+        expr_var_counter++;
+        return RR_None;
+    }
+
     // Pravidla s jedním operandem
     if (op1 == -1 && op2 == -1)
     {
-
-        // 2*-(3+6)
         // <term>  -> i
-        if (op3 == SYM_ID )
+        if (op3 == SYM_ID || op3 == SYM_NULL)
         {
-            if(negative_num == 1){
-                //printf("NEG_NUM ");
-                negative_num = 0;
-            }
             // TODO: semantická akce
             return RR_ID;
+
         }
     }
 
@@ -220,7 +361,7 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
     if (op3 == SYM_RPAR && op2 == SYM_NONTERMINAL && op1 == SYM_LPAR)
     {
         if(negative_par == 1){
-                //printf("NEG_PAR ");
+                lexStack_peek(lex_stack)->negative_num = true;
                 negative_par = 0;
         }
 
@@ -234,48 +375,113 @@ reduction_rule check_rule(symbol_type op1, symbol_type op2, symbol_type op3, p_s
         //Pokud není op1 a op3 neterminál -> neexistuje takové pravidlo               PŘ: (EE+ nejde)
         if (op1 != SYM_NONTERMINAL || op3 != SYM_NONTERMINAL)
         {
-            return RR_None;
+            return 0;
         }
+
+        Lexeme *sym2 = lexStack_pop(lex_stack);
+        Lexeme *sym1 = lexStack_pop(lex_stack);
 
         //Switch, který rozhodne o pravidlu redukce na základě operandu v op2
         switch (op2)
         {
         case SYM_MUL:
-            return RR_MUL;
+            generate_operation(expr_var_counter, sym1, sym2, RR_MUL, comesFromFunction, context, jump_label, functionPtr, globalFunctions);
+            break;
         case SYM_DIV:
-            return RR_DIV;
+            generate_operation(expr_var_counter, sym1, sym2, RR_DIV, comesFromFunction, context, jump_label, functionPtr, globalFunctions);
+            break;
         case SYM_PLUS:
-            return RR_PLUS;
+            generate_operation(expr_var_counter, sym1, sym2, RR_PLUS, comesFromFunction, context, jump_label, functionPtr, globalFunctions);
+            break;
         case SYM_MINUS:
-            return RR_MINUS;
+            generate_operation(expr_var_counter, sym1, sym2, RR_MINUS, comesFromFunction, context, jump_label, functionPtr, globalFunctions);
+            break;
         case SYM_CONCAT:
-            return RR_CONCAT;
+            //TODO: Zkontrolovat kompatibilitu datových typů u proměnných
+            if ((sym1->type == STRING_LITERAL && sym2->type == STRING_LITERAL) || ((sym1->type == VARIABLE_ID) || (sym2->type == VARIABLE_ID)) ||
+             ((sym1->type == EXPR) || (sym2->type == EXPR)) || ((sym1->type == KW_NULL) || (sym2->type == KW_NULL)))
+            {
+                generate_operation(expr_var_counter, sym1, sym2, RR_CONCAT, comesFromFunction, context, jump_label, functionPtr, globalFunctions);
+            }
+            else
+            {
+                error(sym1->row, "Operace konkatenace je možná pouze pro datové typy string!", SEM_INVALID_TYPE_ERROR);
+            }
+            break;
         case SYM_LESSER:
-            return RR_LESSER;
+            if (context == ASSIGNMENT || context == RETURN)
+            {
+                error(sym1->row, 
+                "Logické operátory nemohou být použity v rámci přiřazení do proměnné!", SEM_INVALID_TYPE_ERROR);
+                break;
+            }
+            generate_operation(expr_var_counter, sym1, sym2, RR_LESSER, comesFromFunction, context, jump_label, functionPtr, globalFunctions);
+            break;
         case SYM_GREATER:
-            return RR_GREATER;
+            if (context == ASSIGNMENT || context == RETURN)
+            {
+                error(sym1->row, 
+                "Logické operátory nemohou být použity v rámci přiřazení do proměnné!", SEM_INVALID_TYPE_ERROR);
+                break;
+            }
+            generate_operation(expr_var_counter, sym1, sym2, RR_GREATER, comesFromFunction, context, jump_label, functionPtr, globalFunctions);
+            break;
         case SYM_LESOREQ:
-            return RR_LESOREQ;
+            if (context == ASSIGNMENT || context == RETURN)
+            {
+                error(sym1->row, 
+                "Logické operátory nemohou být použity v rámci přiřazení do proměnné!", SEM_INVALID_TYPE_ERROR);
+                break;
+            }
+            generate_operation(expr_var_counter, sym1, sym2, RR_LESOREQ, comesFromFunction, context, jump_label, functionPtr, globalFunctions);
+            break;
         case SYM_GREOREQ:
-            return RR_GREOREQ;
+            if (context == ASSIGNMENT || context == RETURN)
+            {
+                error(sym1->row, 
+                "Logické operátory nemohou být použity v rámci přiřazení do proměnné!", SEM_INVALID_TYPE_ERROR);
+                break;
+            }
+            generate_operation(expr_var_counter, sym1, sym2, RR_GREOREQ, comesFromFunction, context, jump_label, functionPtr, globalFunctions);
+            break;
         case SYM_EQ:
-            return RR_EQ;
+            if (context == ASSIGNMENT || context == RETURN)
+            {
+                error(sym1->row, 
+                "Logické operátory nemohou být použity v rámci přiřazení do proměnné!", SEM_INVALID_TYPE_ERROR);
+                break;
+            }
+            generate_operation(expr_var_counter, sym1, sym2, RR_EQ, comesFromFunction, context, jump_label, functionPtr, globalFunctions);
+            break;
         case SYM_NOTEQ:
-            return RR_NOTEQ;
+            if (context == ASSIGNMENT || context == RETURN)
+            {
+                error(sym1->row, 
+                "Logické operátory nemohou být použity v rámci přiřazení do proměnné!", SEM_INVALID_TYPE_ERROR);
+                break;
+            }
+            generate_operation(expr_var_counter, sym1, sym2, RR_NOTEQ, comesFromFunction, context, jump_label, functionPtr, globalFunctions);
+            break;
 
         //Pokud se nenajde vhodné pravidlo, neexistuje.
         default:
-            return RR_None;
-        }        
+            return 0;
+        }
+
+        Lexeme expr_lex = {.type = EXPR};
+
+        expr_lex.extra_data.value = expr_var_counter;
+        expr_var_counter++;
+        lexStack_push(lex_stack, &expr_lex);
+        return 1;
     }
     else
     {
         //Neexistuje odpovídající pravidlo
-        return RR_None;
+        return 0;
     }
 
 }
-
 
 int should_end(context context, Lexeme *lexeme, p_stack stack)
 {
@@ -287,8 +493,8 @@ int should_end(context context, Lexeme *lexeme, p_stack stack)
             return 1;
         }
     }
-    //Pro call control hledáme )
-    else if (context == CALL_CONTROL)
+    //Pro if a while hledáme )
+    else if (context == IF || context == WHILE)
     {   
         if(stack->lpar_count == 0)
         {
@@ -344,6 +550,8 @@ symbol_type lex_type_to_psa(Lexeme *lexeme)
     case DECIMAL_NUMBER:
     case EXPONENT_NUMBER:
         return SYM_ID;
+    case KW_NULL:
+        return SYM_NULL;
     case SEMICOLON:
         return SYM_STACK_TAG;
     default:

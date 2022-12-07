@@ -1,3 +1,14 @@
+/**
+ * ***********************IFJ PROJEKT 2022********************************
+ * @file functions.c
+ * @author  Veronika Nevařilová (xnevar00@stud.fit.vutbr.cz)
+ *          Patrik Michlian     (xmichl12@stud.fit.vutbr.cz)
+ * @brief Pomocné funkce pro lexikální analýzu
+ * @date 2022-12-06
+ * 
+ * @copyright Copyright (c) 2022
+*/
+
 #include "functions.h"
 
 int get_string_length(char* buffer)
@@ -25,8 +36,16 @@ int StrOctToDec(char* buffer)
     {
         return -1;
     }
-    int oct = atoi(buffer);
+    char octNumber[3];
+    octNumber[0] = buffer[0];
+    octNumber[1] = buffer[1];
+    octNumber[2] = buffer[2];
 
+    int oct = atoi(octNumber);
+    if (oct > 255 || oct <= 0)
+    {
+        return -1;
+    }
     int rem, dec=0, mul=1;
     while(oct != 0)
     {
@@ -64,5 +83,10 @@ int StrHexToDec(char* hex){
             return -1;
         }
     }
+    if(dec == 0)
+    {
+        return -1;
+    }
     return dec;
 }
+
